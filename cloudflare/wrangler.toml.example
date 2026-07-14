@@ -1,0 +1,7 @@
+﻿name = "bachelor-party-rsvp"
+main = "rsvp-worker.js"
+compatibility_date = "2026-07-14"
+
+kv_namespaces = [
+  { binding = "RSVPS", id = "f8be122b71754880a70d052ee96ce9ae" }
+]

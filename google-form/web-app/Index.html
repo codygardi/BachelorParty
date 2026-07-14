@@ -1,0 +1,517 @@
+<!doctype html>
+<html>
+  <head>
+    <base target="_top">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f7f6f2;
+        --panel: #ffffff;
+        --text: #1f2528;
+        --muted: #647074;
+        --line: #d9dedc;
+        --accent: #245c4f;
+        --accent-strong: #17463b;
+        --danger: #9f2f2f;
+        --success-bg: #e8f3ee;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: Arial, Helvetica, sans-serif;
+        line-height: 1.45;
+      }
+
+      main {
+        width: min(760px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 36px 0 52px;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        margin-bottom: 8px;
+        font-size: clamp(30px, 7vw, 46px);
+        letter-spacing: 0;
+      }
+
+      h2 {
+        margin-bottom: 14px;
+        font-size: 22px;
+      }
+
+      h3 {
+        margin-bottom: 6px;
+        font-size: 15px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+
+      .subtitle {
+        margin-bottom: 22px;
+        color: var(--muted);
+        font-size: 16px;
+      }
+
+      .panel {
+        margin-top: 18px;
+        padding: 22px;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+      }
+
+      .updates {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .update-item {
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fbfcfb;
+      }
+
+      .update-item p {
+        margin-bottom: 10px;
+        color: var(--muted);
+      }
+
+      .update-link {
+        display: inline-flex;
+        align-items: center;
+        min-height: 38px;
+        padding: 8px 12px;
+        border-radius: 6px;
+        background: var(--accent);
+        color: #fff;
+        font-weight: 700;
+        text-decoration: none;
+      }
+
+      .update-link:hover,
+      .update-link:focus {
+        background: var(--accent-strong);
+      }
+
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 700;
+      }
+
+      select,
+      input,
+      textarea {
+        width: 100%;
+        min-height: 46px;
+        padding: 10px 12px;
+        border: 1px solid #b7c1bd;
+        border-radius: 6px;
+        background: #fff;
+        color: var(--text);
+        font: inherit;
+      }
+
+      textarea {
+        min-height: 104px;
+        resize: vertical;
+      }
+
+      .field {
+        margin-bottom: 16px;
+      }
+
+      .choices {
+        display: grid;
+        gap: 10px;
+      }
+
+      .choice {
+        display: grid;
+        grid-template-columns: 22px 1fr;
+        gap: 10px;
+        align-items: start;
+        padding: 12px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fbfcfb;
+        font-weight: 400;
+      }
+
+      .choice input {
+        width: 18px;
+        min-height: 18px;
+        margin-top: 2px;
+      }
+
+      button {
+        min-height: 46px;
+        padding: 10px 16px;
+        border: 0;
+        border-radius: 6px;
+        background: var(--accent);
+        color: #fff;
+        font: inherit;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      button:hover,
+      button:focus {
+        background: var(--accent-strong);
+      }
+
+      button:disabled {
+        cursor: wait;
+        opacity: 0.7;
+      }
+
+      .locked {
+        padding: 14px;
+        border: 1px solid #b8d3c5;
+        border-radius: 8px;
+        background: var(--success-bg);
+      }
+
+      .error {
+        margin: 12px 0 0;
+        color: var(--danger);
+        font-weight: 700;
+      }
+
+      .muted {
+        color: var(--muted);
+      }
+
+      .identity-summary {
+        margin-bottom: 16px;
+        padding: 12px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fbfcfb;
+      }
+
+      .identity-summary p {
+        margin-bottom: 4px;
+      }
+
+      .identity-summary p:last-child {
+        margin-bottom: 0;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      @media (max-width: 620px) {
+        main {
+          width: min(100% - 24px, 760px);
+          padding-top: 24px;
+        }
+
+        .panel {
+          padding: 16px;
+        }
+
+        .updates {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1><?= appTitle ?></h1>
+      <p class="subtitle">Grass Valley, CA. Pick your availability once, then come back here for updated details.</p>
+
+      <section class="panel">
+        <h2>Trip Details</h2>
+        <div id="updates" class="updates"></div>
+      </section>
+
+      <section id="identityPanel" class="panel hidden">
+        <h2>Find Your Invite</h2>
+        <div class="field">
+          <label for="name">Your name</label>
+          <select id="name"></select>
+        </div>
+        <button id="verifyButton" type="button">Continue</button>
+        <p id="identityError" class="error hidden"></p>
+      </section>
+
+      <section id="rsvpPanel" class="panel hidden"></section>
+    </main>
+
+    <script>
+      const INITIAL_TOKEN = <?!= JSON.stringify(initialToken || '') ?>;
+      const RSVP_OPTIONS = [
+        'Yes, I am in',
+        'Maybe / depends on the date',
+        'Sorry, I cannot make it'
+      ];
+
+      let config = null;
+      let state = null;
+
+      function setLoading(button, isLoading) {
+        if (!button) {
+          return;
+        }
+
+        button.disabled = isLoading;
+        button.textContent = isLoading ? (button.dataset.loadingLabel || 'Saving...') : button.dataset.label;
+      }
+
+      function showError(elementId, message) {
+        const element = document.getElementById(elementId);
+        element.textContent = message;
+        element.classList.remove('hidden');
+      }
+
+      function clearError(elementId) {
+        const element = document.getElementById(elementId);
+        element.textContent = '';
+        element.classList.add('hidden');
+      }
+
+      function renderUpdates(updates) {
+        const container = document.getElementById('updates');
+        container.innerHTML = '';
+
+        updates.forEach(function(update) {
+          const item = document.createElement('article');
+          item.className = 'update-item';
+          item.innerHTML = '<h3></h3><p></p>';
+          item.querySelector('h3').textContent = update.title;
+          item.querySelector('p').textContent = update.detail || 'Will be updated after finalizing a weekend.';
+
+          if (update.linkUrl) {
+            const link = document.createElement('a');
+            link.className = 'update-link';
+            link.href = update.linkUrl;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            link.textContent = update.linkLabel || 'Open link';
+            item.appendChild(link);
+          }
+
+          container.appendChild(item);
+        });
+      }
+
+      function renderIdentityPanel() {
+        if (!config || !config.inviteeNames) {
+          return;
+        }
+
+        const panel = document.getElementById('identityPanel');
+        const select = document.getElementById('name');
+        select.innerHTML = '';
+
+        config.inviteeNames.forEach(function(name) {
+          const option = document.createElement('option');
+          option.value = name;
+          option.textContent = name;
+          select.appendChild(option);
+        });
+
+        panel.classList.remove('hidden');
+      }
+
+      function renderRsvpPanel(nextState) {
+        state = nextState;
+        renderUpdates(state.updates);
+
+        const panel = document.getElementById('rsvpPanel');
+        const response = state.response;
+        document.getElementById('identityPanel').classList.add('hidden');
+        panel.classList.remove('hidden');
+
+        if (response) {
+          panel.innerHTML = [
+            '<h2>RSVP Saved</h2>',
+            '<div class="locked">',
+            '<p><strong>' + escapeHtml(state.invitee.name) + '</strong>, your RSVP has already been recorded. This section is now read-only.</p>',
+            state.invitee.phone ? '<p><strong>Phone:</strong> ' + escapeHtml(state.invitee.phone) + '</p>' : '',
+            '<p><strong>RSVP:</strong> ' + escapeHtml(response.rsvp) + '</p>',
+            '<p><strong>Availability:</strong> ' + escapeHtml(response.availability.join('; ')) + '</p>',
+            response.notes ? '<p><strong>Notes:</strong> ' + escapeHtml(response.notes) + '</p>' : '',
+            '</div>'
+          ].join('');
+          return;
+        }
+
+        panel.innerHTML = [
+          '<h2>RSVP</h2>',
+          '<div class="identity-summary">',
+          '<p><strong>Name:</strong> ' + escapeHtml(state.invitee.name) + '</p>',
+          state.invitee.phone ? '<p><strong>Phone:</strong> ' + escapeHtml(state.invitee.phone) + '</p>' : '<p class="muted">No phone number is saved for this invitee yet.</p>',
+          '</div>',
+          '<div class="field">',
+          '<label>RSVP</label>',
+          '<div id="rsvpOptions" class="choices"></div>',
+          '</div>',
+          '<div class="field">',
+          '<label>Which weekend(s) work for you?</label>',
+          '<div id="availabilityOptions" class="choices"></div>',
+          '</div>',
+          '<div class="field">',
+          '<label for="notes">Anything else the planner should know?</label>',
+          '<textarea id="notes" placeholder="Travel constraints, timing notes, dietary restrictions, or other details."></textarea>',
+          '</div>',
+          '<button id="submitButton" type="button" data-label="Submit RSVP">Submit RSVP</button>',
+          '<p id="submitError" class="error hidden"></p>'
+        ].join('');
+
+        renderChoiceGroup('rsvpOptions', 'rsvp', RSVP_OPTIONS, 'radio');
+        renderChoiceGroup('availabilityOptions', 'availability', state.weekends, 'checkbox');
+
+        document.getElementById('submitButton').addEventListener('click', submitRsvp);
+      }
+
+      function renderChoiceGroup(containerId, name, values, type) {
+        const container = document.getElementById(containerId);
+        values.forEach(function(value) {
+          const id = name + '-' + values.indexOf(value);
+          const label = document.createElement('label');
+          label.className = 'choice';
+          label.setAttribute('for', id);
+          label.innerHTML = '<input id="' + id + '" name="' + name + '" type="' + type + '" value=""><span></span>';
+          label.querySelector('input').value = value;
+          label.querySelector('span').textContent = value;
+          container.appendChild(label);
+        });
+      }
+
+      function verifyIdentity() {
+        clearError('identityError');
+        const button = document.getElementById('verifyButton');
+        button.dataset.label = 'Continue';
+        button.dataset.loadingLabel = 'Loading...';
+        setLoading(button, true);
+
+        google.script.run
+          .withSuccessHandler(function(result) {
+            setLoading(button, false);
+            if (!result.ok) {
+              showError('identityError', result.error);
+              return;
+            }
+            renderRsvpPanel(result);
+          })
+          .withFailureHandler(function(error) {
+            setLoading(button, false);
+            showError('identityError', error.message || String(error));
+          })
+          .getStateForName(document.getElementById('name').value);
+      }
+
+      function submitRsvp() {
+        clearError('submitError');
+        const button = document.getElementById('submitButton');
+        button.dataset.label = 'Submit RSVP';
+        button.dataset.loadingLabel = 'Saving...';
+
+        const rsvpInput = document.querySelector('input[name="rsvp"]:checked');
+        const availability = Array.from(document.querySelectorAll('input[name="availability"]:checked')).map(function(input) {
+          return input.value;
+        });
+
+        if (!rsvpInput) {
+          showError('submitError', 'Please choose an RSVP option.');
+          return;
+        }
+
+        if (availability.length < 1) {
+          showError('submitError', 'Please select at least one availability option.');
+          return;
+        }
+
+        setLoading(button, true);
+
+        google.script.run
+          .withSuccessHandler(function(result) {
+            setLoading(button, false);
+            if (!result.ok) {
+              showError('submitError', result.error);
+              return;
+            }
+            renderRsvpPanel(result);
+          })
+          .withFailureHandler(function(error) {
+            setLoading(button, false);
+            showError('submitError', error.message || String(error));
+          })
+          .submitRsvp({
+            token: state.token,
+            rsvp: rsvpInput.value,
+            availability: availability,
+            notes: document.getElementById('notes').value
+          });
+      }
+
+      function loadByToken(token) {
+        google.script.run
+          .withSuccessHandler(function(result) {
+            if (!result.ok) {
+              renderIdentityPanel();
+              showError('identityError', result.error);
+              return;
+            }
+            renderRsvpPanel(result);
+          })
+          .withFailureHandler(function(error) {
+            renderIdentityPanel();
+            showError('identityError', error.message || String(error));
+          })
+          .getStateForToken(token);
+      }
+
+      function escapeHtml(value) {
+        return String(value || '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+
+      document.getElementById('verifyButton').addEventListener('click', verifyIdentity);
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          config = result;
+          renderUpdates(config.updates);
+
+          if (INITIAL_TOKEN) {
+            loadByToken(INITIAL_TOKEN);
+          } else {
+            renderIdentityPanel();
+          }
+        })
+        .withFailureHandler(function(error) {
+          renderUpdates([
+            { title: 'Error', detail: error.message || String(error) }
+          ]);
+          renderIdentityPanel();
+        })
+        .getPublicConfig();
+    </script>
+  </body>
+</html>
