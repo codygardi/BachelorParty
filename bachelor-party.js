@@ -60,7 +60,7 @@ const weekendOptions = [
 ];
 
 // Trip details live here so updates do not affect saved RSVP records.
-const detailNotice = "Finalizing details:";
+const detailNotice = "Finalizing Details With Robble.";
 const tripDetails = [
   {
     title: "Location",
