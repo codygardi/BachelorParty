@@ -1,4 +1,4 @@
-﻿const STORAGE_KEY = "bachelor-party-rsvp-responses-v1";
+const STORAGE_KEY = "bachelor-party-rsvp-responses-v1";
 const defaultPersistenceConfig = {
   csvUrl: "",
   endpointUrl: "/api/rsvps",
@@ -29,7 +29,7 @@ const yesStatus = "Yes, I am in";
 const noStatus = "No, I cannot make it";
 const legacyNoStatus = "Sorry, I cannot make it";
 const unavailableWeekend = "None of these weekends work for me";
-const resetPassword = "archie";
+const plannerAccessPassword = "archie";
 const expectedRsvpCount = 8;
 
 const weekendOptions = [
@@ -60,6 +60,7 @@ const weekendOptions = [
 ];
 
 // Trip details live here so updates do not affect saved RSVP records.
+const detailNotice = "Finalizing details:";
 const tripDetails = [
   {
     title: "Location",
@@ -75,15 +76,42 @@ const tripDetails = [
   },
   {
     title: "What to bring",
-    body: "will update soon",
+    body: detailNotice,
+    gated: true,
+    gatedBody: detailNotice,
   },
   {
-    title: "Activities",
-    body: "will update soon",
+    title: "Itinerary",
+    body: detailNotice,
+    gated: true,
+    gatedBody: [
+      {
+        day: "Friday",
+        items: ["Meet up", "GV Brew or another local stop", "Games and D&D"],
+      },
+      {
+        day: "Saturday",
+        items: [
+          "Late breakfast",
+          "Head to Sacramento",
+          "Axe throwing, bar, karaoke, pool, or another group pick",
+          "Escape room",
+          "Comedy show",
+          "Head back",
+          "More games, with a possible D&D finale to close the quest from the night before",
+        ],
+      },
+      {
+        day: "Sunday",
+        items: ["Breakfast", "Say your goodbyes"],
+      },
+    ],
   },
   {
     title: "Est. Cost",
-    body: "will update soon",
+    body: detailNotice,
+    gated: true,
+    gatedBody: detailNotice,
   },
 ];
 
@@ -111,6 +139,7 @@ const elements = {
 };
 
 let responses = {};
+let plannerAccessGranted = false;
 let sharedRefreshTimer = 0;
 let isRefreshingSharedResponses = false;
 
@@ -424,27 +453,6 @@ async function persistResponse(response) {
   }
 }
 
-async function clearRemoteResponses(password) {
-  if (!remoteStoreUrl) {
-    return;
-  }
-
-  const clearResponse = await fetch(remoteStoreUrl, {
-    method: "POST",
-    headers: {
-      "Content-Type": "text/plain;charset=utf-8",
-    },
-    body: JSON.stringify({
-      action: "clear",
-      password,
-    }),
-  });
-
-  if (!clearResponse.ok) {
-    throw new Error("Shared RSVPs could not be cleared.");
-  }
-}
-
 async function syncVisibleSharedResponses({ showError = false } = {}) {
   if (!remoteStoreUrl) {
     return;
@@ -535,6 +543,30 @@ function renderChoices() {
   });
 }
 
+function createItineraryList(days) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "trip-itinerary";
+
+  days.forEach((dayPlan) => {
+    const section = document.createElement("section");
+    const heading = document.createElement("h4");
+    const list = document.createElement("ul");
+
+    heading.textContent = dayPlan.day;
+
+    dayPlan.items.forEach((itemText) => {
+      const item = document.createElement("li");
+      item.textContent = itemText;
+      list.appendChild(item);
+    });
+
+    section.append(heading, list);
+    wrapper.appendChild(section);
+  });
+
+  return wrapper;
+}
+
 function renderTripDetails() {
   elements.tripDetails.textContent = "";
 
@@ -545,10 +577,22 @@ function renderTripDetails() {
     const title = document.createElement("h3");
     title.textContent = detail.title;
 
-    const body = document.createElement("p");
-    body.textContent = detail.body;
+    const isLocked = detail.gated && !plannerAccessGranted;
+    const visibleBody = isLocked ? detail.body : detail.gatedBody || detail.body;
 
-    card.append(title, body);
+    if (isLocked) {
+      card.classList.add("is-locked");
+    }
+
+    card.appendChild(title);
+
+    if (Array.isArray(visibleBody)) {
+      card.appendChild(createItineraryList(visibleBody));
+    } else {
+      const body = document.createElement("p");
+      body.textContent = visibleBody;
+      card.appendChild(body);
+    }
 
     if (detail.linkUrl && detail.linkLabel) {
       const link = document.createElement("a");
@@ -866,33 +910,21 @@ function renderDetailsPage() {
   renderOverlapTracker();
 }
 
-async function handleResetForm(event) {
+function handleResetForm(event) {
   event.preventDefault();
 
   const password = elements.resetPassword.value.trim();
 
-  if (password !== resetPassword) {
+  if (password !== plannerAccessPassword) {
     setResetMessage("Wrong password.", "error");
     elements.resetPassword.select();
     return;
   }
 
-  const button = elements.resetForm.querySelector("button");
-  button.disabled = true;
-
-  try {
-    await clearRemoteResponses(password);
-    responses = {};
-    window.localStorage.removeItem(STORAGE_KEY);
-    elements.resetPassword.value = "";
-    elements.submitRsvp.textContent = "Submit RSVP";
-    renderDetailsPage();
-    setResetMessage("RSVPs cleared.", "success");
-  } catch (error) {
-    setResetMessage("Could not clear RSVPs.", "error");
-  } finally {
-    button.disabled = false;
-  }
+  plannerAccessGranted = true;
+  elements.resetPassword.value = "";
+  renderTripDetails();
+  setResetMessage("Access granted.", "success");
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -919,4 +951,3 @@ document.addEventListener("DOMContentLoaded", async () => {
     showRsvpPage({ updateHash: false });
   }
 });
-

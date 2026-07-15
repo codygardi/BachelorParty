@@ -1,4 +1,4 @@
-﻿# Bachelor Party RSVP Cloudflare API
+# Bachelor Party RSVP Cloudflare API
 
 The live RSVP API is deployed at:
 
@@ -13,6 +13,5 @@ The Worker was deployed with:
 - Worker name: `bachelor-party-rsvp`
 - KV binding: `RSVPS`
 - KV namespace: `BachelorPartyRSVPs`
-- Clear RSVPs password fallback: `archie`
 
 Use `wrangler.toml.example` as the config shape if you later deploy from the command line.

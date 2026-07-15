@@ -1,4 +1,4 @@
-﻿const STORE_KEY = "bachelor-party-rsvp-responses";
+const STORE_KEY = "bachelor-party-rsvp-responses";
 
 const defaultHeaders = {
   "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
@@ -86,17 +86,6 @@ async function handleUpsert(request, env, response) {
   return jsonResponse(request, { ok: true, responses });
 }
 
-async function handleClear(request, env, password) {
-  const expectedPassword = env.RESET_PASSWORD || "archie";
-
-  if (password !== expectedPassword) {
-    return jsonResponse(request, { error: "Wrong password." }, 403);
-  }
-
-  await writeResponses(env, []);
-  return jsonResponse(request, { ok: true, responses: [] });
-}
-
 export default {
   async fetch(request, env) {
     if (request.method === "OPTIONS") {
@@ -121,11 +110,6 @@ export default {
       return handleUpsert(request, env, body.response);
     }
 
-    if (body.action === "clear") {
-      return handleClear(request, env, body.password);
-    }
-
     return jsonResponse(request, { error: "Unknown action." }, 400);
   },
 };
-

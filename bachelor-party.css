@@ -314,9 +314,37 @@ h3 {
   border-bottom: 1px solid var(--line);
 }
 
-.trip-card p {
+.trip-card p,
+.trip-itinerary {
   color: var(--muted);
   font-size: 0.96rem;
+}
+
+.trip-card.is-locked p {
+  color: var(--red-strong);
+  font-weight: 700;
+}
+
+.trip-itinerary {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.trip-itinerary h4 {
+  margin-bottom: 0.22rem;
+  color: var(--green);
+  font-family: var(--serif);
+  font-size: 1.02rem;
+}
+
+.trip-itinerary ul {
+  display: grid;
+  gap: 0.18rem;
+  padding-left: 1.1rem;
+}
+
+.trip-itinerary li {
+  padding-left: 0.1rem;
 }
 
 .trip-card a {
