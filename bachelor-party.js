@@ -30,7 +30,7 @@ const noStatus = "No, I cannot make it";
 const legacyNoStatus = "Sorry, I cannot make it";
 const unavailableWeekend = "None of these weekends work for me";
 const plannerAccessPassword = "archie";
-const expectedRsvpCount = 8;
+const expectedRsvpCount = 7;
 
 const weekendOptions = [
   {
@@ -60,58 +60,61 @@ const weekendOptions = [
 ];
 
 // Trip details live here so updates do not affect saved RSVP records.
-const detailNotice = "Finalizing Details With Robble.";
+const detailNotice = "Finalizing details with Robbie.";
 const tripDetails = [
   {
-    title: "Location",
-    body: "Grass Valley, CA",
+    eyebrow: "Base camp",
+    title: "Grass Valley, CA",
+    body: "Weekend headquarters",
+    kind: "travel",
     linkLabel: "Open in Google Maps",
     linkUrl: "https://www.google.com/maps/search/?api=1&query=Grass%20Valley%2C%20CA",
   },
   {
-    title: "Flights",
-    body: "Destination: Sacramento International Airport",
+    eyebrow: "Arrival route",
+    title: "Fly into Sacramento",
+    body: "Sacramento International Airport (SMF)",
+    kind: "travel",
     linkLabel: "Open Google Flights",
     linkUrl: "https://www.google.com/travel/flights?q=Flights%20to%20Sacramento%20International%20Airport%20SMF",
   },
   {
-    title: "What to bring",
-    body: detailNotice,
-    gated: true,
-    gatedBody: detailNotice,
-  },
-  {
+    eyebrow: "Weekend plan",
     title: "Itinerary",
     body: detailNotice,
+    kind: "itinerary",
     gated: true,
-    gatedBody: [
-      {
-        day: "Friday",
-        items: ["Meet up", "GV Brew or another local stop", "Games and D&D"],
-      },
-      {
-        day: "Saturday",
-        items: [
-          "Late breakfast",
-          "Head to Sacramento",
-          "Axe throwing, bar, karaoke, pool, or another group pick",
-          "Escape room",
-          "Comedy show",
-          "Head back",
-          "More games, with a possible D&D finale to close the quest from the night before",
-        ],
-      },
-      {
-        day: "Sunday",
-        items: ["Breakfast", "Say your goodbyes"],
-      },
-    ],
-  },
-  {
-    title: "Est. Cost",
-    body: detailNotice,
-    gated: true,
-    gatedBody: detailNotice,
+    gatedBody: {
+      days: [
+        {
+          day: "Friday",
+          label: "Arrival & kickoff",
+          items: ["Meet up", "GV Brew or another local stop", "Games and D&D"],
+        },
+        {
+          day: "Saturday",
+          label: "Main quest",
+          items: [
+            "Late breakfast",
+            "Head to Sacramento",
+            "Axe throwing, bar, karaoke, pool, or another group pick",
+            "Escape room",
+            "Comedy show",
+            "Head back",
+            "More games, with a possible D&D finale to close the quest from the night before",
+          ],
+        },
+        {
+          day: "Sunday",
+          label: "Wrap-up",
+          items: ["Breakfast", "Say your goodbyes"],
+        },
+      ],
+      prep: [
+        { title: "Estimated cost", body: detailNotice },
+        { title: "What to bring", body: detailNotice },
+      ],
+    },
   },
 ];
 
@@ -543,26 +546,81 @@ function renderChoices() {
   });
 }
 
-function createItineraryList(days) {
+function createItineraryBoard(plan) {
   const wrapper = document.createElement("div");
   wrapper.className = "trip-itinerary";
 
-  days.forEach((dayPlan) => {
+  const days = document.createElement("div");
+  days.className = "itinerary-days";
+
+  plan.days.forEach((dayPlan, dayIndex) => {
     const section = document.createElement("section");
+    section.className = "itinerary-day";
+
+    const headingRow = document.createElement("div");
+    headingRow.className = "itinerary-day-heading";
+
+    const dayNumber = document.createElement("span");
+    dayNumber.className = "itinerary-day-number";
+    dayNumber.textContent = String(dayIndex + 1).padStart(2, "0");
+
+    const headingText = document.createElement("div");
     const heading = document.createElement("h4");
-    const list = document.createElement("ul");
+    const label = document.createElement("p");
+    const list = document.createElement("ol");
 
     heading.textContent = dayPlan.day;
+    label.textContent = dayPlan.label;
+    headingText.append(heading, label);
+    headingRow.append(dayNumber, headingText);
 
     dayPlan.items.forEach((itemText) => {
+      const marker = document.createElement("span");
       const item = document.createElement("li");
-      item.textContent = itemText;
+      const copy = document.createElement("span");
+
+      marker.className = "itinerary-marker";
+      marker.setAttribute("aria-hidden", "true");
+      copy.textContent = itemText;
+      item.append(marker, copy);
       list.appendChild(item);
     });
 
-    section.append(heading, list);
-    wrapper.appendChild(section);
+    section.append(headingRow, list);
+    days.appendChild(section);
   });
+
+  const prep = document.createElement("section");
+  prep.className = "itinerary-prep";
+  prep.setAttribute("aria-label", "Weekend prep");
+
+  const prepHeading = document.createElement("div");
+  prepHeading.className = "itinerary-prep-heading";
+
+  const prepEyebrow = document.createElement("span");
+  prepEyebrow.textContent = "Prep at a glance";
+
+  const prepCopy = document.createElement("p");
+  prepCopy.textContent = "Budget and packing notes live with the plan.";
+  prepHeading.append(prepEyebrow, prepCopy);
+
+  const prepGrid = document.createElement("div");
+  prepGrid.className = "itinerary-prep-grid";
+
+  plan.prep.forEach((prepItem) => {
+    const item = document.createElement("article");
+    const title = document.createElement("h5");
+    const body = document.createElement("p");
+
+    item.className = "itinerary-prep-card";
+    title.textContent = prepItem.title;
+    body.textContent = prepItem.body;
+    item.append(title, body);
+    prepGrid.appendChild(item);
+  });
+
+  prep.append(prepHeading, prepGrid);
+  wrapper.append(days, prep);
 
   return wrapper;
 }
@@ -572,10 +630,21 @@ function renderTripDetails() {
 
   tripDetails.forEach((detail) => {
     const card = document.createElement("article");
-    card.className = "trip-card";
+    card.className = `trip-card trip-card--${detail.kind || "standard"}`;
+
+    const heading = document.createElement("div");
+    heading.className = "trip-card-heading";
+
+    if (detail.eyebrow) {
+      const eyebrow = document.createElement("span");
+      eyebrow.className = "trip-card-eyebrow";
+      eyebrow.textContent = detail.eyebrow;
+      heading.appendChild(eyebrow);
+    }
 
     const title = document.createElement("h3");
     title.textContent = detail.title;
+    heading.appendChild(title);
 
     const isLocked = detail.gated && !plannerAccessGranted;
     const visibleBody = isLocked ? detail.body : detail.gatedBody || detail.body;
@@ -584,12 +653,13 @@ function renderTripDetails() {
       card.classList.add("is-locked");
     }
 
-    card.appendChild(title);
+    card.appendChild(heading);
 
-    if (Array.isArray(visibleBody)) {
-      card.appendChild(createItineraryList(visibleBody));
+    if (typeof visibleBody === "object") {
+      card.appendChild(createItineraryBoard(visibleBody));
     } else {
       const body = document.createElement("p");
+      body.className = "trip-card-copy";
       body.textContent = visibleBody;
       card.appendChild(body);
     }
@@ -599,6 +669,7 @@ function renderTripDetails() {
       link.href = detail.linkUrl;
       link.target = "_blank";
       link.rel = "noopener noreferrer";
+      link.className = "trip-card-link";
       link.textContent = detail.linkLabel;
       card.appendChild(link);
     }
@@ -780,10 +851,19 @@ function getResponseEntries() {
     .filter((entry) => Boolean(entry.response) && Boolean(normalizeStatus(entry.response.status)));
 }
 
-function createRollResult(status) {
+function needsWeekendReroll(availability) {
+  return normalizeAvailability(availability).includes(unavailableWeekend);
+}
+
+function createRollResult(status, availability) {
   const normalizedStatus = normalizeStatus(status);
+  const requiresReroll = needsWeekendReroll(availability);
   const rollResult = document.createElement("div");
-  rollResult.className = normalizedStatus === yesStatus ? "roll-result is-success" : "roll-result is-failure";
+  rollResult.className = requiresReroll
+    ? "roll-result is-reroll"
+    : normalizedStatus === yesStatus
+      ? "roll-result is-success"
+      : "roll-result is-failure";
 
   const diceIcon = document.createElement("span");
   diceIcon.className = "dice-icon";
@@ -799,7 +879,11 @@ function createRollResult(status) {
 
   const rollValue = document.createElement("span");
   rollValue.className = "roll-value";
-  rollValue.textContent = normalizedStatus === yesStatus ? "CRITICAL SUCCESS" : "CRITICAL FAILURE";
+  rollValue.textContent = requiresReroll
+    ? "ERROR, REROLL"
+    : normalizedStatus === yesStatus
+      ? "CRITICAL SUCCESS"
+      : "CRITICAL FAILURE";
 
   rollResult.append(diceIcon, rollDie, rollLabel, rollValue);
   rollResult.setAttribute("aria-label", `D20 roll: ${rollValue.textContent}`);
@@ -827,7 +911,7 @@ function renderResponseList() {
 
     const heading = document.createElement("h3");
     heading.textContent = invitee.name;
-    responseHeading.append(heading, createRollResult(response.status));
+    responseHeading.append(heading, createRollResult(response.status, response.availability));
 
     item.appendChild(responseHeading);
 
@@ -853,8 +937,8 @@ function renderOverlapTracker() {
   const eligibleResponses = responseEntries
     .map((entry) => entry.response)
     .filter((response) => normalizeStatus(response.status) === yesStatus);
-  const needsAnotherDateOption = eligibleResponses.some((response) =>
-    normalizeAvailability(response.availability).includes(unavailableWeekend),
+  const needsAnotherDateOption = responseEntries.some(({ response }) =>
+    needsWeekendReroll(response.availability),
   );
   const weekendCounts = weekendOptions
     .filter((weekend) => weekend.value !== unavailableWeekend)
@@ -872,7 +956,8 @@ function renderOverlapTracker() {
   const summary = document.createElement("p");
   summary.className = "overlap-callout";
   if (needsAnotherDateOption) {
-    summary.textContent = "Need to pick another date to choose from.";
+    summary.classList.add("is-reroll");
+    summary.textContent = "Weekend reroll needed: add another date option for the group.";
   } else if (completeWeekends.length === 1) {
     summary.textContent = `${completeWeekends[0].summary}: works best for everyone.`;
   } else if (completeWeekends.length > 1) {
