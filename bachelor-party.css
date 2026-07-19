@@ -285,6 +285,91 @@ h3 {
   flex-wrap: wrap;
 }
 
+.collapsible-panel [data-collapsible-content][hidden] {
+  display: none;
+}
+
+.collapsible-panel.is-collapsed .panel-heading {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom-color: transparent;
+}
+
+.section-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem;
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+}
+
+.panel-heading-with-action .section-toggle {
+  flex: 1 1 auto;
+  width: auto;
+}
+
+.collapse-indicator {
+  position: relative;
+  width: 1.65rem;
+  height: 1.65rem;
+  flex: 0 0 auto;
+  border: 1px solid color-mix(in srgb, var(--gold) 42%, var(--line));
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--gold) 8%, var(--page-strong));
+}
+
+.collapse-indicator::before,
+.collapse-indicator::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0.62rem;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--red-strong);
+  content: "";
+  transform: translate(-50%, -50%);
+  transition: transform 160ms ease;
+}
+
+.collapse-indicator::after {
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+
+.section-toggle[aria-expanded="true"] .collapse-indicator::after {
+  transform: translate(-50%, -50%) rotate(0deg);
+}
+
+.rsvp-panel.is-finalized {
+  border-color: color-mix(in srgb, var(--green) 52%, var(--gold));
+}
+
+.rsvp-panel.is-finalized .section-toggle:disabled {
+  cursor: default;
+  opacity: 1;
+}
+
+.rsvp-panel.is-finalized .collapse-indicator {
+  border-color: color-mix(in srgb, var(--green) 48%, var(--line));
+  background: color-mix(in srgb, var(--green) 12%, var(--page-strong));
+}
+
+.rsvp-panel.is-finalized .collapse-indicator::before,
+.rsvp-panel.is-finalized .collapse-indicator::after {
+  background: var(--green);
+}
+
+.rsvp-panel.is-finalized .heading-action {
+  border-color: color-mix(in srgb, var(--green) 58%, var(--line));
+  background: color-mix(in srgb, var(--green) 14%, var(--page-strong));
+  color: var(--green);
+}
+
 .panel-heading .eyebrow {
   color: var(--red-strong);
   font-size: 1rem;
@@ -832,9 +917,36 @@ textarea {
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--gold) 20%, transparent);
 }
 
+.overlap-callout.is-pending {
+  border-color: color-mix(in srgb, var(--gold) 54%, var(--line));
+  background: color-mix(in srgb, var(--gold) 10%, var(--page-strong));
+  color: var(--green);
+}
+
 .overlap-card {
   display: grid;
   gap: 0.32rem;
+}
+
+.overlap-card.is-selected {
+  border-color: color-mix(in srgb, var(--green) 58%, var(--gold));
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--green) 12%, transparent), transparent 60%),
+    var(--page-strong);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--green) 16%, transparent);
+}
+
+.overlap-selected-label {
+  justify-self: start;
+  padding: 0.24rem 0.48rem;
+  border: 1px solid color-mix(in srgb, var(--green) 42%, var(--line));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--green) 12%, var(--page-strong));
+  color: var(--green);
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .overlap-card h3 {
@@ -922,6 +1034,7 @@ textarea {
   .primary-action:hover,
   .secondary-action:hover,
   .back-button:hover,
+  .section-toggle:hover .collapse-indicator,
   .heading-action:hover,
   .footer-reset-form button:hover {
     transform: translateY(-1px);
