@@ -137,6 +137,8 @@ const tripDetails = [
 
 const elements = {
   rsvpPage: document.querySelector("[data-rsvp-page]"),
+  rsvpPanel: document.querySelector("[data-roll-call]"),
+  rollCallToggle: document.querySelector("[data-roll-call] [data-collapse-toggle]"),
   detailsPage: document.querySelector("[data-details-page]"),
   backToRsvp: document.querySelector("[data-back-to-rsvp]"),
   alreadyDidThis: document.querySelector("[data-already-did-this]"),
@@ -162,6 +164,7 @@ let responses = {};
 let plannerAccessGranted = false;
 let sharedRefreshTimer = 0;
 let isRefreshingSharedResponses = false;
+let isSavingRsvp = false;
 
 function formatPhone(phone) {
   const digits = phone.replace(/\D/g, "");
@@ -488,6 +491,8 @@ async function syncVisibleSharedResponses({ showError = false } = {}) {
     if (!elements.rsvpPage.hidden) {
       updateInviteeState();
     }
+
+    updateRollCallState();
   } catch (error) {
     if (showError) {
       setStatus("Shared RSVPs could not be refreshed. Showing saved browser entries for now.", "error");
@@ -516,6 +521,38 @@ function startSharedPolling() {
 function setResetMessage(message, type = "neutral") {
   elements.resetMessage.textContent = message;
   elements.resetMessage.dataset.state = type;
+}
+
+function setCollapsibleExpanded(panel, expanded) {
+  const toggle = panel.querySelector("[data-collapse-toggle]");
+  const content = panel.querySelector("[data-collapsible-content]");
+
+  if (!toggle || !content) {
+    return;
+  }
+
+  toggle.setAttribute("aria-expanded", String(expanded));
+  content.hidden = !expanded;
+  panel.classList.toggle("is-collapsed", !expanded);
+}
+
+function initializeCollapsibles() {
+  document.querySelectorAll("[data-collapsible]").forEach((panel) => {
+    const toggle = panel.querySelector("[data-collapse-toggle]");
+
+    if (!toggle) {
+      return;
+    }
+
+    setCollapsibleExpanded(panel, toggle.getAttribute("aria-expanded") !== "false");
+    toggle.addEventListener("click", () => {
+      if (toggle.disabled) {
+        return;
+      }
+
+      setCollapsibleExpanded(panel, toggle.getAttribute("aria-expanded") !== "true");
+    });
+  });
 }
 
 function createOption(type, name, value, label, detail = "") {
@@ -776,6 +813,7 @@ function handleAvailabilityChange(event) {
 function showRsvpPage({ updateHash = true } = {}) {
   elements.detailsPage.hidden = true;
   elements.rsvpPage.hidden = false;
+  updateRollCallState();
 
   if (updateHash) {
     window.history.replaceState(null, "", window.location.pathname);
@@ -806,6 +844,12 @@ async function showDetailsPage({ updateHash = true, refresh = true } = {}) {
 
 async function handleSubmit(event) {
   event.preventDefault();
+
+  if (getWeekendDecision().isFinalized) {
+    updateRollCallState();
+    setStatus("The roll call is complete and the winning weekend is locked.", "success");
+    return;
+  }
 
   const invitee = getInviteeById(elements.inviteeSelect.value);
   const status = getSelectedStatus();
@@ -842,6 +886,7 @@ async function handleSubmit(event) {
     updatedAt: now,
   };
 
+  isSavingRsvp = true;
   elements.submitRsvp.disabled = true;
   elements.submitRsvp.textContent = remoteStoreUrl ? "Saving Shared RSVP..." : "Saving RSVP...";
 
@@ -854,7 +899,8 @@ async function handleSubmit(event) {
     elements.submitRsvp.textContent = "Update RSVP";
     setStatus("Saved on this device, but the shared RSVP log could not be updated. Please try again.", "error");
   } finally {
-    elements.submitRsvp.disabled = false;
+    isSavingRsvp = false;
+    updateRollCallState();
   }
 }
 
@@ -862,6 +908,69 @@ function getResponseEntries() {
   return invitees
     .map((invitee) => ({ invitee, response: responses[invitee.id] }))
     .filter((entry) => Boolean(entry.response) && Boolean(normalizeStatus(entry.response.status)));
+}
+
+function getWeekendDecision() {
+  const responseEntries = getResponseEntries();
+  const submittedResponses = responseEntries.map((entry) => entry.response);
+  const hasAllExpectedResponses = responseEntries.length === expectedRsvpCount;
+  const hasDeclined = submittedResponses.some((response) => normalizeStatus(response.status) === noStatus);
+  const needsAnotherDateOption = submittedResponses.some((response) =>
+    needsWeekendReroll(response.availability),
+  );
+  const eligibleResponses = submittedResponses.filter(
+    (response) => normalizeStatus(response.status) === yesStatus,
+  );
+  const weekendCounts = weekendOptions
+    .filter((weekend) => weekend.value !== unavailableWeekend)
+    .map((weekend) => ({
+      ...weekend,
+      names: eligibleResponses
+        .filter((response) => normalizeAvailability(response.availability).includes(weekend.value))
+        .map((response) => response.name),
+    }));
+  const unanimousWeekends = hasAllExpectedResponses && !hasDeclined && !needsAnotherDateOption
+    ? weekendCounts.filter((weekend) => weekend.names.length === expectedRsvpCount)
+    : [];
+  const finalizedWeekend = unanimousWeekends.length === 1 ? unanimousWeekends[0] : null;
+  const visibleWeekends = finalizedWeekend ? [finalizedWeekend] : weekendCounts;
+
+  return {
+    eligibleResponses,
+    finalizedWeekend,
+    hasAllExpectedResponses,
+    hasDeclined,
+    isFinalized: Boolean(finalizedWeekend),
+    needsAnotherDateOption,
+    responseEntries,
+    unanimousWeekends,
+    visibleWeekends,
+    weekendCounts,
+  };
+}
+
+function updateRollCallState(decision = getWeekendDecision()) {
+  const isLocked = decision.isFinalized;
+
+  elements.alreadyDidThis.textContent = isLocked ? "Let our journey begin!" : "Already Did This";
+  elements.rsvpPanel.classList.toggle("is-finalized", isLocked);
+  elements.rollCallToggle.disabled = isLocked;
+  elements.rollCallToggle.setAttribute(
+    "aria-label",
+    isLocked ? "Roll call complete and locked" : "Toggle Roll call",
+  );
+
+  elements.form.querySelectorAll("input, select, textarea, button").forEach((control) => {
+    control.disabled = isLocked;
+  });
+
+  if (!isLocked && isSavingRsvp) {
+    elements.submitRsvp.disabled = true;
+  }
+
+  if (isLocked) {
+    setCollapsibleExpanded(elements.rsvpPanel, false);
+  }
 }
 
 function needsWeekendReroll(availability) {
@@ -944,48 +1053,44 @@ function createDetailLine(label, value) {
   return line;
 }
 
-function renderOverlapTracker() {
-  const responseEntries = getResponseEntries();
-  const hasAllExpectedResponses = responseEntries.length >= expectedRsvpCount;
-  const eligibleResponses = responseEntries
-    .map((entry) => entry.response)
-    .filter((response) => normalizeStatus(response.status) === yesStatus);
-  const needsAnotherDateOption = responseEntries.some(({ response }) =>
-    needsWeekendReroll(response.availability),
-  );
-  const weekendCounts = weekendOptions
-    .filter((weekend) => weekend.value !== unavailableWeekend)
-    .map((weekend) => ({
-      ...weekend,
-      names: eligibleResponses
-        .filter((response) => normalizeAvailability(response.availability).includes(weekend.value))
-        .map((response) => response.name),
-    }));
-  const completeWeekends = weekendCounts.filter((weekend) => weekend.names.length >= expectedRsvpCount);
-
+function renderOverlapTracker(decision = getWeekendDecision()) {
   elements.overlapSummary.textContent = "";
   elements.overlapList.textContent = "";
 
   const summary = document.createElement("p");
   summary.className = "overlap-callout";
-  if (needsAnotherDateOption) {
+  if (decision.needsAnotherDateOption) {
     summary.classList.add("is-reroll");
     summary.textContent = "Weekend reroll needed: add another date option for the group.";
-  } else if (completeWeekends.length === 1) {
-    summary.textContent = `${completeWeekends[0].summary}: works best for everyone.`;
-  } else if (completeWeekends.length > 1) {
-    const labels = completeWeekends.map((weekend) => weekend.summary).join(", ");
-    summary.textContent = `${labels}: all work for everyone.`;
-  } else if (!hasAllExpectedResponses) {
+  } else if (decision.hasDeclined) {
+    summary.classList.add("is-reroll");
+    summary.textContent = "Roll call stays open: at least one guest cannot attend. No weekend has been selected.";
+  } else if (decision.isFinalized) {
+    summary.textContent = `${decision.finalizedWeekend.summary}: selected for all 7 guests. Let the journey begin!`;
+  } else if (!decision.hasAllExpectedResponses) {
+    summary.classList.add("is-pending");
     summary.textContent = `Waiting for all ${expectedRsvpCount} RSVPs before calling the best weekend.`;
+  } else if (decision.unanimousWeekends.length > 1) {
+    summary.classList.add("is-pending");
+    const labels = decision.unanimousWeekends.map((weekend) => weekend.summary).join(", ");
+    summary.textContent = `${labels}: all work for everyone. No single weekend has been locked yet.`;
   } else {
-    summary.textContent = `No single date has all ${expectedRsvpCount} votes yet.`;
+    summary.classList.add("is-reroll");
+    summary.textContent = `No single weekend works for all ${expectedRsvpCount} guests. Add another date option and reroll.`;
   }
   elements.overlapSummary.appendChild(summary);
 
-  weekendCounts.forEach(({ label, detail, names }) => {
+  decision.visibleWeekends.forEach(({ label, detail, names, value }) => {
     const item = document.createElement("article");
     item.className = "overlap-card";
+
+    if (decision.isFinalized && value === decision.finalizedWeekend.value) {
+      item.classList.add("is-selected");
+      const selectedLabel = document.createElement("span");
+      selectedLabel.className = "overlap-selected-label";
+      selectedLabel.textContent = "Selected weekend";
+      item.appendChild(selectedLabel);
+    }
 
     const title = document.createElement("h3");
     title.textContent = label;
@@ -1003,9 +1108,11 @@ function renderOverlapTracker() {
 }
 
 function renderDetailsPage() {
+  const decision = getWeekendDecision();
   renderTripDetails();
   renderResponseList();
-  renderOverlapTracker();
+  renderOverlapTracker(decision);
+  updateRollCallState(decision);
 }
 
 function handleResetForm(event) {
@@ -1028,9 +1135,11 @@ function handleResetForm(event) {
 document.addEventListener("DOMContentLoaded", async () => {
   renderInviteeOptions();
   renderChoices();
+  initializeCollapsibles();
   await loadResponses();
   setStatus("", "loading");
   updateInviteeState();
+  updateRollCallState();
 
   elements.inviteeSelect.addEventListener("change", updateInviteeState);
   elements.availabilityOptions.addEventListener("change", handleAvailabilityChange);

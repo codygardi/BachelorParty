@@ -13,7 +13,7 @@
       href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Poppins:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     >
-    <link rel="stylesheet" href="bachelor-party.css?v=20260719c">
+    <link rel="stylesheet" href="bachelor-party.css?v=20260719d">
     <title>Robbie's Bachelor Party RSVP</title>
   </head>
   <body>
@@ -32,9 +32,18 @@
           </p>
         </section>
 
-        <section class="rsvp-panel" aria-labelledby="rsvp-title">
+        <section class="rsvp-panel collapsible-panel" aria-labelledby="rsvp-title" data-collapsible data-roll-call>
           <div class="panel-heading panel-heading-compact panel-heading-with-action">
-            <p class="eyebrow" id="rsvp-title">Roll call</p>
+            <button
+              type="button"
+              class="section-toggle"
+              data-collapse-toggle
+              aria-expanded="true"
+              aria-controls="roll-call-content"
+            >
+              <span class="eyebrow" id="rsvp-title">Roll call</span>
+              <span class="collapse-indicator" aria-hidden="true"></span>
+            </button>
             <button
               type="button"
               class="heading-action"
@@ -44,70 +53,105 @@
             </button>
           </div>
 
-          <p class="status-message" data-status-message role="status" aria-live="polite" hidden></p>
+          <div id="roll-call-content" data-collapsible-content>
+            <p class="status-message" data-status-message role="status" aria-live="polite" hidden></p>
 
-          <form class="rsvp-form" data-rsvp-form novalidate>
-            <div class="field-group">
-              <label for="invitee-select">Name</label>
-              <select id="invitee-select" name="invitee" data-invitee-select required>
-                <option value="">Choose your name</option>
-              </select>
-            </div>
+            <form class="rsvp-form" data-rsvp-form novalidate>
+              <div class="field-group">
+                <label for="invitee-select">Name</label>
+                <select id="invitee-select" name="invitee" data-invitee-select required>
+                  <option value="">Choose your name</option>
+                </select>
+              </div>
 
-            <div class="phone-card" data-phone-card hidden>
-              <span>Saved phone</span>
-              <strong data-phone-display></strong>
-            </div>
+              <div class="phone-card" data-phone-card hidden>
+                <span>Saved phone</span>
+                <strong data-phone-display></strong>
+              </div>
 
-            <fieldset class="choice-group">
-              <legend>RSVP status</legend>
-              <div class="stacked-options" data-status-options></div>
-            </fieldset>
+              <fieldset class="choice-group">
+                <legend>RSVP status</legend>
+                <div class="stacked-options" data-status-options></div>
+              </fieldset>
 
-            <fieldset class="choice-group">
-              <legend>Weekend availability</legend>
-              <div class="stacked-options" data-availability-options></div>
-            </fieldset>
+              <fieldset class="choice-group">
+                <legend>Weekend availability</legend>
+                <div class="stacked-options" data-availability-options></div>
+              </fieldset>
 
-            <div class="field-group">
-              <label for="notes">Notes</label>
-              <textarea
-                id="notes"
-                name="notes"
-                rows="5"
-                data-notes
-                placeholder="Travel constraints, timing notes, dietary restrictions, or party-planning details"
-              ></textarea>
-            </div>
+              <div class="field-group">
+                <label for="notes">Notes</label>
+                <textarea
+                  id="notes"
+                  name="notes"
+                  rows="5"
+                  data-notes
+                  placeholder="Travel constraints, timing notes, dietary restrictions, or party-planning details"
+                ></textarea>
+              </div>
 
-            <button type="submit" class="primary-action" data-submit-rsvp>Submit RSVP</button>
-          </form>
+              <button type="submit" class="primary-action" data-submit-rsvp>Submit RSVP</button>
+            </form>
+          </div>
         </section>
       </div>
 
       <section class="details-page" data-details-page hidden aria-label="Quest details dashboard">
         <button type="button" class="back-button" data-back-to-rsvp aria-label="Back to RSVP form">Back</button>
 
-      <div class="details-card">
-        <div class="panel-heading panel-heading-compact">
-          <p class="eyebrow">Party log</p>
-        </div>
-        <div class="response-list" data-response-list></div>
-      </div>
-
-      <div class="details-card">
-        <div class="panel-heading panel-heading-compact">
-          <p class="eyebrow">Availability</p>
-        </div>
-        <div class="overlap-summary" data-overlap-summary></div>
-        <div class="overlap-list" data-overlap-list></div>
-        </div>
-
-        <div class="details-card">
+        <div class="details-card collapsible-panel" data-collapsible>
           <div class="panel-heading panel-heading-compact">
-            <p class="eyebrow">Quest details</p>
+            <button
+              type="button"
+              class="section-toggle"
+              data-collapse-toggle
+              aria-expanded="true"
+              aria-controls="party-log-content"
+            >
+              <span class="eyebrow">Party log</span>
+              <span class="collapse-indicator" aria-hidden="true"></span>
+            </button>
           </div>
-          <div class="trip-list" data-trip-details></div>
+          <div id="party-log-content" data-collapsible-content>
+            <div class="response-list" data-response-list></div>
+          </div>
+        </div>
+
+        <div class="details-card collapsible-panel" data-collapsible>
+          <div class="panel-heading panel-heading-compact">
+            <button
+              type="button"
+              class="section-toggle"
+              data-collapse-toggle
+              aria-expanded="true"
+              aria-controls="availability-content"
+            >
+              <span class="eyebrow">Availability</span>
+              <span class="collapse-indicator" aria-hidden="true"></span>
+            </button>
+          </div>
+          <div id="availability-content" data-collapsible-content>
+            <div class="overlap-summary" data-overlap-summary></div>
+            <div class="overlap-list" data-overlap-list></div>
+          </div>
+        </div>
+
+        <div class="details-card collapsible-panel" data-collapsible>
+          <div class="panel-heading panel-heading-compact">
+            <button
+              type="button"
+              class="section-toggle"
+              data-collapse-toggle
+              aria-expanded="true"
+              aria-controls="quest-details-content"
+            >
+              <span class="eyebrow">Quest details</span>
+              <span class="collapse-indicator" aria-hidden="true"></span>
+            </button>
+          </div>
+          <div id="quest-details-content" data-collapsible-content>
+            <div class="trip-list" data-trip-details></div>
+          </div>
         </div>
       </section>
     </main>
@@ -129,7 +173,7 @@
       </form>
     </footer>
 
-    <script src="bachelor-party-config.js?v=20260719c"></script>
-    <script src="bachelor-party.js?v=20260719c"></script>
+    <script src="bachelor-party-config.js?v=20260719d"></script>
+    <script src="bachelor-party.js?v=20260719d"></script>
   </body>
 </html>
