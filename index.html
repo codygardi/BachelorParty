@@ -13,7 +13,7 @@
       href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Poppins:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     >
-    <link rel="stylesheet" href="bachelor-party.css?v=20260719d">
+    <link rel="stylesheet" href="bachelor-party.css?v=20260719e">
     <title>Robbie's Bachelor Party RSVP</title>
   </head>
   <body>
@@ -38,7 +38,7 @@
               type="button"
               class="section-toggle"
               data-collapse-toggle
-              aria-expanded="true"
+              aria-expanded="false"
               aria-controls="roll-call-content"
             >
               <span class="eyebrow" id="rsvp-title">Roll call</span>
@@ -53,7 +53,7 @@
             </button>
           </div>
 
-          <div id="roll-call-content" data-collapsible-content>
+          <div id="roll-call-content" data-collapsible-content hidden>
             <p class="status-message" data-status-message role="status" aria-live="polite" hidden></p>
 
             <form class="rsvp-form" data-rsvp-form novalidate>
@@ -105,14 +105,14 @@
               type="button"
               class="section-toggle"
               data-collapse-toggle
-              aria-expanded="true"
+              aria-expanded="false"
               aria-controls="party-log-content"
             >
               <span class="eyebrow">Party log</span>
               <span class="collapse-indicator" aria-hidden="true"></span>
             </button>
           </div>
-          <div id="party-log-content" data-collapsible-content>
+          <div id="party-log-content" data-collapsible-content hidden>
             <div class="response-list" data-response-list></div>
           </div>
         </div>
@@ -123,14 +123,14 @@
               type="button"
               class="section-toggle"
               data-collapse-toggle
-              aria-expanded="true"
+              aria-expanded="false"
               aria-controls="availability-content"
             >
               <span class="eyebrow">Availability</span>
               <span class="collapse-indicator" aria-hidden="true"></span>
             </button>
           </div>
-          <div id="availability-content" data-collapsible-content>
+          <div id="availability-content" data-collapsible-content hidden>
             <div class="overlap-summary" data-overlap-summary></div>
             <div class="overlap-list" data-overlap-list></div>
           </div>
@@ -142,14 +142,14 @@
               type="button"
               class="section-toggle"
               data-collapse-toggle
-              aria-expanded="true"
+              aria-expanded="false"
               aria-controls="quest-details-content"
             >
               <span class="eyebrow">Quest details</span>
               <span class="collapse-indicator" aria-hidden="true"></span>
             </button>
           </div>
-          <div id="quest-details-content" data-collapsible-content>
+          <div id="quest-details-content" data-collapsible-content hidden>
             <div class="trip-list" data-trip-details></div>
           </div>
         </div>
@@ -173,7 +173,7 @@
       </form>
     </footer>
 
-    <script src="bachelor-party-config.js?v=20260719d"></script>
-    <script src="bachelor-party.js?v=20260719d"></script>
+    <script src="bachelor-party-config.js?v=20260719e"></script>
+    <script src="bachelor-party.js?v=20260719e"></script>
   </body>
 </html>
