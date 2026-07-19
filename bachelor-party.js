@@ -104,15 +104,32 @@ const tripDetails = [
             "More games, with a possible D&D finale to close the quest from the night before",
           ],
         },
-        {
-          day: "Sunday",
-          label: "Wrap-up",
-          items: ["Breakfast", "Say your goodbyes"],
-        },
       ],
       prep: [
-        { title: "Estimated cost", body: detailNotice },
-        { title: "What to bring", body: detailNotice },
+        {
+          title: "Estimated cost",
+          items: [
+            "Friday food & drinks — approx. $30–50",
+            "Saturday breakfast — approx. $15–25",
+            "Axe throwing / group activity — approx. $25–45",
+            "Escape room — approx. $35–50",
+            "Comedy show — approx. $25–45",
+            "Saturday food & drinks — approx. $50–80",
+            "Shared transportation — approx. $10–25",
+            "Estimated total — approx. $190–320 per person",
+          ],
+        },
+        {
+          title: "What to bring",
+          items: [
+            "Weekend clothes and an overnight bag",
+            "Comfortable walking shoes",
+            "Toiletries and any medications",
+            "Valid photo ID",
+            "Phone charger",
+            "D&D dice or character materials, if you have them",
+          ],
+        },
       ],
     },
   },
@@ -594,32 +611,28 @@ function createItineraryBoard(plan) {
   prep.className = "itinerary-prep";
   prep.setAttribute("aria-label", "Weekend prep");
 
-  const prepHeading = document.createElement("div");
-  prepHeading.className = "itinerary-prep-heading";
-
-  const prepEyebrow = document.createElement("span");
-  prepEyebrow.textContent = "Prep at a glance";
-
-  const prepCopy = document.createElement("p");
-  prepCopy.textContent = "Budget and packing notes live with the plan.";
-  prepHeading.append(prepEyebrow, prepCopy);
-
   const prepGrid = document.createElement("div");
   prepGrid.className = "itinerary-prep-grid";
 
   plan.prep.forEach((prepItem) => {
     const item = document.createElement("article");
     const title = document.createElement("h5");
-    const body = document.createElement("p");
+    const list = document.createElement("ul");
 
     item.className = "itinerary-prep-card";
     title.textContent = prepItem.title;
-    body.textContent = prepItem.body;
-    item.append(title, body);
+
+    prepItem.items.forEach((itemText) => {
+      const listItem = document.createElement("li");
+      listItem.textContent = itemText;
+      list.appendChild(listItem);
+    });
+
+    item.append(title, list);
     prepGrid.appendChild(item);
   });
 
-  prep.append(prepHeading, prepGrid);
+  prep.appendChild(prepGrid);
   wrapper.append(days, prep);
 
   return wrapper;

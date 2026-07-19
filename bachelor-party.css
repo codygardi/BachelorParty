@@ -395,7 +395,7 @@ h3 {
 
 .itinerary-days {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.65rem;
   align-items: start;
 }
@@ -492,34 +492,7 @@ h3 {
 }
 
 .itinerary-prep {
-  display: grid;
-  grid-template-columns: minmax(9.5rem, 0.8fr) minmax(0, 2fr);
-  gap: 0.7rem;
-  align-items: stretch;
-  padding: 0.72rem;
-  border: 1px solid color-mix(in srgb, var(--green) 30%, var(--line));
-  border-radius: 6px;
-  background: color-mix(in srgb, var(--green) 8%, var(--page-strong));
-}
-
-.itinerary-prep-heading {
-  display: grid;
-  align-content: center;
-  gap: 0.14rem;
-  padding: 0.22rem 0.3rem;
-}
-
-.itinerary-prep-heading span {
-  color: var(--green);
-  font-family: var(--font-display);
-  font-size: 0.86rem;
-  font-weight: 700;
-}
-
-.itinerary-prep-heading p {
-  color: var(--muted);
-  font-size: 0.68rem;
-  line-height: 1.38;
+  min-width: 0;
 }
 
 .itinerary-prep-grid {
@@ -530,27 +503,51 @@ h3 {
 
 .itinerary-prep-card {
   min-width: 0;
-  padding: 0.62rem 0.68rem;
+  padding: 0.72rem;
   border: 1px solid color-mix(in srgb, var(--green) 24%, var(--line));
-  border-radius: 5px;
-  background: color-mix(in srgb, var(--page-strong) 82%, white);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--green) 7%, var(--page-strong));
 }
 
 .itinerary-prep-card h5 {
-  margin: 0 0 0.18rem;
+  margin: 0 0 0.55rem;
+  padding-bottom: 0.48rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--green) 24%, var(--line));
   color: var(--red-strong);
-  font-size: 0.69rem;
+  font-family: var(--font-display);
+  font-size: 0.78rem;
   font-weight: 800;
   letter-spacing: 0.06em;
   line-height: 1.2;
   text-transform: uppercase;
 }
 
-.itinerary-prep-card p {
+.itinerary-prep-card ul {
+  display: grid;
+  gap: 0.34rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.itinerary-prep-card li {
+  position: relative;
+  padding-left: 0.82rem;
   color: var(--ink);
   font-size: 0.72rem;
   font-weight: 600;
   line-height: 1.35;
+}
+
+.itinerary-prep-card li::before {
+  position: absolute;
+  top: 0.48em;
+  left: 0.08rem;
+  width: 0.34rem;
+  height: 0.34rem;
+  border-radius: 50%;
+  background: var(--green);
+  content: "";
 }
 
 .status-message {
@@ -1029,14 +1026,6 @@ textarea {
 
   .trip-card--itinerary {
     grid-column: auto;
-  }
-
-  .itinerary-prep {
-    grid-template-columns: 1fr;
-  }
-
-  .itinerary-prep-heading {
-    padding: 0.1rem;
   }
 
   .hero-links {
