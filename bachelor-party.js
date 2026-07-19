@@ -851,10 +851,19 @@ function getResponseEntries() {
     .filter((entry) => Boolean(entry.response) && Boolean(normalizeStatus(entry.response.status)));
 }
 
-function createRollResult(status) {
+function needsWeekendReroll(availability) {
+  return normalizeAvailability(availability).includes(unavailableWeekend);
+}
+
+function createRollResult(status, availability) {
   const normalizedStatus = normalizeStatus(status);
+  const requiresReroll = needsWeekendReroll(availability);
   const rollResult = document.createElement("div");
-  rollResult.className = normalizedStatus === yesStatus ? "roll-result is-success" : "roll-result is-failure";
+  rollResult.className = requiresReroll
+    ? "roll-result is-reroll"
+    : normalizedStatus === yesStatus
+      ? "roll-result is-success"
+      : "roll-result is-failure";
 
   const diceIcon = document.createElement("span");
   diceIcon.className = "dice-icon";
@@ -870,7 +879,11 @@ function createRollResult(status) {
 
   const rollValue = document.createElement("span");
   rollValue.className = "roll-value";
-  rollValue.textContent = normalizedStatus === yesStatus ? "CRITICAL SUCCESS" : "CRITICAL FAILURE";
+  rollValue.textContent = requiresReroll
+    ? "ERROR, REROLL"
+    : normalizedStatus === yesStatus
+      ? "CRITICAL SUCCESS"
+      : "CRITICAL FAILURE";
 
   rollResult.append(diceIcon, rollDie, rollLabel, rollValue);
   rollResult.setAttribute("aria-label", `D20 roll: ${rollValue.textContent}`);
@@ -898,7 +911,7 @@ function renderResponseList() {
 
     const heading = document.createElement("h3");
     heading.textContent = invitee.name;
-    responseHeading.append(heading, createRollResult(response.status));
+    responseHeading.append(heading, createRollResult(response.status, response.availability));
 
     item.appendChild(responseHeading);
 
@@ -924,8 +937,8 @@ function renderOverlapTracker() {
   const eligibleResponses = responseEntries
     .map((entry) => entry.response)
     .filter((response) => normalizeStatus(response.status) === yesStatus);
-  const needsAnotherDateOption = eligibleResponses.some((response) =>
-    normalizeAvailability(response.availability).includes(unavailableWeekend),
+  const needsAnotherDateOption = responseEntries.some(({ response }) =>
+    needsWeekendReroll(response.availability),
   );
   const weekendCounts = weekendOptions
     .filter((weekend) => weekend.value !== unavailableWeekend)
@@ -943,7 +956,8 @@ function renderOverlapTracker() {
   const summary = document.createElement("p");
   summary.className = "overlap-callout";
   if (needsAnotherDateOption) {
-    summary.textContent = "Need to pick another date to choose from.";
+    summary.classList.add("is-reroll");
+    summary.textContent = "Weekend reroll needed: add another date option for the group.";
   } else if (completeWeekends.length === 1) {
     summary.textContent = `${completeWeekends[0].summary}: works best for everyone.`;
   } else if (completeWeekends.length > 1) {
