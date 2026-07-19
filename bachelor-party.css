@@ -555,6 +555,59 @@ h3 {
   line-height: 1.35;
 }
 
+.itinerary-event {
+  display: grid;
+  gap: 0.12rem;
+  min-width: 0;
+}
+
+.itinerary-event > strong {
+  color: var(--ink);
+  font-size: 0.76rem;
+  line-height: 1.3;
+}
+
+.itinerary-event-detail {
+  color: var(--muted);
+  font-size: 0.66rem;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.itinerary-event-price {
+  color: var(--green);
+  font-size: 0.65rem;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.itinerary-event-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.28rem;
+  margin-top: 0.08rem;
+}
+
+.itinerary-event-link,
+.cost-source-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.18rem;
+  color: var(--red-strong);
+  font-size: 0.62rem;
+  font-weight: 800;
+  line-height: 1.2;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--red-strong) 34%, transparent);
+  text-underline-offset: 0.15em;
+}
+
+.itinerary-event-link::after,
+.cost-source-link::after {
+  content: "\2197";
+  font-size: 0.82em;
+}
+
 .itinerary-marker {
   position: relative;
   z-index: 1;
@@ -584,6 +637,7 @@ h3 {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.5rem;
+  align-items: start;
 }
 
 .itinerary-prep-card {
@@ -633,6 +687,176 @@ h3 {
   border-radius: 50%;
   background: var(--green);
   content: "";
+}
+
+.checklist-groups {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.checklist-groups section {
+  display: grid;
+  gap: 0.32rem;
+}
+
+.checklist-groups h6 {
+  margin: 0;
+  color: var(--green);
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.cost-breakdown {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.cost-intro,
+.cost-footnote {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.62rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.cost-header,
+.cost-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(4.8rem, 0.72fr) minmax(4.8rem, 0.72fr);
+  gap: 0.38rem;
+  align-items: start;
+}
+
+.cost-header {
+  padding: 0 0.38rem 0.22rem;
+  color: var(--muted);
+  font-size: 0.56rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.cost-header span:not(:first-child) {
+  text-align: right;
+}
+
+.cost-row {
+  padding: 0.44rem;
+  border: 1px solid color-mix(in srgb, var(--green) 18%, var(--line));
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--page-strong) 78%, white);
+}
+
+.cost-row.is-optional {
+  border-style: dashed;
+  background: color-mix(in srgb, var(--gold) 7%, var(--page-strong));
+}
+
+.cost-event {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.cost-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.28rem;
+  flex-wrap: wrap;
+}
+
+.cost-event > strong,
+.cost-title-row > strong {
+  color: var(--ink);
+  font-size: 0.65rem;
+  line-height: 1.25;
+}
+
+.cost-event small {
+  color: var(--muted);
+  font-size: 0.55rem;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.cost-badge {
+  padding: 0.08rem 0.24rem;
+  border: 1px solid color-mix(in srgb, var(--gold) 52%, var(--line));
+  border-radius: 999px;
+  color: var(--red-strong);
+  font-size: 0.48rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.cost-value {
+  display: grid;
+  gap: 0.12rem;
+  min-width: 0;
+  text-align: right;
+}
+
+.cost-value span {
+  display: none;
+  color: var(--muted);
+  font-size: 0.52rem;
+  font-weight: 700;
+}
+
+.cost-value strong {
+  color: var(--green);
+  font-size: 0.65rem;
+  line-height: 1.28;
+  overflow-wrap: anywhere;
+}
+
+.cost-alcohol {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding-top: 0.3rem;
+  border-top: 1px dotted color-mix(in srgb, var(--gold) 34%, var(--line));
+  color: var(--muted);
+  font-size: 0.56rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.cost-alcohol strong {
+  color: var(--red-strong);
+  font-size: inherit;
+}
+
+.cost-alcohol em {
+  color: var(--green);
+  font-style: italic;
+  font-weight: 800;
+}
+
+.cost-total {
+  border-color: color-mix(in srgb, var(--green) 48%, var(--gold));
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--green) 11%, transparent), transparent 60%),
+    var(--page-strong);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--green) 10%, transparent);
+}
+
+.cost-total .cost-event > strong {
+  color: var(--red-strong);
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+}
+
+.cost-alcohol-total {
+  color: var(--green);
+  font-weight: 800;
+}
+
+.cost-footnote {
+  padding: 0.1rem 0.12rem 0;
 }
 
 .status-message {

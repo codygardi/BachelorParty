@@ -89,45 +89,239 @@ const tripDetails = [
         {
           day: "Friday",
           label: "Arrival & kickoff",
-          items: ["Meet up", "GV Brew or another local stop", "Games and D&D"],
+          items: [
+            {
+              title: "Meet at base camp",
+              detail: "Grass Valley · settle in and get the party together",
+            },
+            {
+              title: "Grass Valley Brewing Co.",
+              detail: "141 E Main St, Grass Valley · dinner and first round",
+              price: "Food $6–$29 pp · ALC.* +$2.84–$9.46 pp",
+              links: [
+                {
+                  label: "Location",
+                  url: "https://www.google.com/maps/search/?api=1&query=Grass%20Valley%20Brewing%20Co%20141%20E%20Main%20St%20Grass%20Valley%20CA",
+                },
+                {
+                  label: "Menu",
+                  url: "https://www.toasttab.com/local/order/grass-valley-brewing-comp-141-east-main-street",
+                },
+              ],
+            },
+            {
+              title: "Games and D&D",
+              detail: "Back at base camp · launch the weekend campaign",
+            },
+          ],
         },
         {
           day: "Saturday",
-          label: "Main quest",
+          label: "Central Sacramento loop",
           items: [
-            "Late breakfast",
-            "Head to Sacramento",
-            "Axe throwing, bar, karaoke, pool, or another group pick",
-            "Escape room",
-            "Comedy show",
-            "Head back",
-            "More games, with a possible D&D finale to close the quest from the night before",
+            {
+              title: "The Morning Fork",
+              detail: "1111 21st St · breakfast before the main quest",
+              price: "Food $4.50–$27 pp · ALC.* +$5–$12 pp",
+              links: [
+                {
+                  label: "Location",
+                  url: "https://www.google.com/maps/search/?api=1&query=The%20Morning%20Fork%201111%2021st%20St%20Sacramento%20CA",
+                },
+                {
+                  label: "Menu",
+                  url: "https://www.themorningfork.com/wp-content/uploads/2025/06/The-Morning-Fork-Menu.pdf",
+                },
+              ],
+            },
+            {
+              title: "Smash Sacramento",
+              detail: "600 Broadway, Suite D · one hour of axe throwing",
+              price: "$20 pp · $160 for 8",
+              links: [
+                {
+                  label: "Location",
+                  url: "https://www.google.com/maps/search/?api=1&query=Smash%20Sacramento%20600%20Broadway%20Suite%20D%20Sacramento%20CA",
+                },
+                { label: "Book", url: "https://www.smashsacramento.com/downtown-sacramento-location" },
+              ],
+            },
+            {
+              title: "Escape Sacramento",
+              detail: "1831 I St · private escape-room challenge",
+              price: "$37.50 pp at 8 · $300 total",
+              links: [
+                {
+                  label: "Location",
+                  url: "https://www.google.com/maps/search/?api=1&query=Escape%20Sacramento%201831%20I%20St%20Sacramento%20CA",
+                },
+                { label: "Tickets", url: "https://escapesacramento.com/tickets/" },
+              ],
+            },
+            {
+              title: "LowBrau",
+              detail: "1050 20th St · dinner next door to the comedy show",
+              price: "Entrées $12–$21 pp · ALC.* est. +$6–$16 pp",
+              links: [
+                {
+                  label: "Location",
+                  url: "https://www.google.com/maps/search/?api=1&query=LowBrau%201050%2020th%20St%20Sacramento%20CA",
+                },
+                { label: "Menu", url: "https://order.toasttab.com/online/lowbrau-sacramento" },
+              ],
+            },
+            {
+              title: "Sacramento Comedy Spot",
+              detail: "1050 20th St, Suite 130 · Saturday 9pm ACL show",
+              price: "$12 pp · $96 for 8 · ALC.* est. +$6–$10 pp",
+              links: [
+                {
+                  label: "Location",
+                  url: "https://www.google.com/maps/search/?api=1&query=Sacramento%20Comedy%20Spot%201050%2020th%20St%20Suite%20130%20Sacramento%20CA",
+                },
+                { label: "Tickets", url: "https://www.showclix.com/event/anti-cooperation-league" },
+              ],
+            },
+            {
+              title: "Optional: Oishii karaoke",
+              detail: "1000 K St, Suite 200 · one private room fits all 8",
+              price: "$53.09 total for 1 hour after required 18% fee",
+              links: [
+                {
+                  label: "Location",
+                  url: "https://www.google.com/maps/search/?api=1&query=Oishii%20Sushi%20Karaoke%201000%20K%20St%20Suite%20200%20Sacramento%20CA",
+                },
+                { label: "Menu", url: "https://www.oishiikaraokesac.com/menu" },
+                { label: "Reserve", url: "https://www.oishiikaraokesac.com/" },
+              ],
+            },
+            {
+              title: "Optional: Blue Cue billiards",
+              detail: "1004 28th St · Midtown pool by the table-hour",
+              price: "$10–$20 per table-hour · nightly cover may apply",
+              links: [
+                {
+                  label: "Location",
+                  url: "https://www.google.com/maps/search/?api=1&query=Blue%20Cue%201004%2028th%20St%20Sacramento%20CA",
+                },
+                { label: "Rates", url: "https://www.bluecue.com/billiards" },
+              ],
+            },
+            {
+              title: "Return to Grass Valley",
+              detail: "Games and a possible D&D finale at base camp",
+            },
           ],
         },
       ],
       prep: [
         {
           title: "Estimated cost",
+          kind: "costs",
+          intro: "Current published base prices. Taxes, travel, and unlisted service charges are excluded.",
           items: [
-            "Friday food & drinks — approx. $30–50",
-            "Saturday breakfast — approx. $15–25",
-            "Axe throwing / group activity — approx. $25–45",
-            "Escape room — approx. $35–50",
-            "Comedy show — approx. $25–45",
-            "Saturday food & drinks — approx. $50–80",
-            "Shared transportation — approx. $10–25",
-            "Estimated total — approx. $190–320 per person",
+            {
+              title: "GV Brewing · food",
+              onePerson: [6, 29],
+              eightPeople: [48, 232],
+              detail: "Full menu $5–$80; adult individual items $6–$29.",
+              sourceLabel: "Menu",
+              sourceUrl: "https://www.toasttab.com/local/order/grass-valley-brewing-comp-141-east-main-street",
+              alcohol: { onePerson: [2.84, 9.46], eightPeople: [22.72, 75.68] },
+            },
+            {
+              title: "Morning Fork · food",
+              onePerson: [4.5, 27],
+              eightPeople: [42.48, 254.88],
+              detail: "Menu $4.50–$27. The 8-person range includes the required 18% gratuity for parties of 6+.",
+              sourceLabel: "Menu PDF",
+              sourceUrl: "https://www.themorningfork.com/wp-content/uploads/2025/06/The-Morning-Fork-Menu.pdf",
+              alcohol: { onePerson: [5, 12], eightPeople: [40, 96] },
+            },
+            {
+              title: "Smash · 1 hour",
+              onePerson: [20, 20],
+              eightPeople: [160, 160],
+              detail: "Published at $20 per person; closed-toe shoes required.",
+              sourceLabel: "Rates",
+              sourceUrl: "https://www.smashsacramento.com/downtown-sacramento-location",
+            },
+            {
+              title: "Escape Sacramento",
+              onePerson: null,
+              onePersonLabel: "N/A · 2 min.",
+              eightPeople: [300, 300],
+              detail: "Eight players are $37.50 each. The smallest booking is 2 players at $90 total.",
+              sourceLabel: "Pricing",
+              sourceUrl: "https://escapesacramento.com/about/",
+            },
+            {
+              title: "LowBrau · food",
+              onePerson: [12, 21],
+              eightPeople: [96, 168],
+              detail: "Full menu $3–$75; a typical single entrée is $12–$21.",
+              sourceLabel: "Menu",
+              sourceUrl: "https://order.toasttab.com/online/lowbrau-sacramento",
+              alcohol: { onePerson: [6, 16], eightPeople: [48, 128], estimated: true },
+            },
+            {
+              title: "Comedy Spot · ACL",
+              onePerson: [12, 12],
+              eightPeople: [96, 96],
+              detail: "Saturday 9pm admission. An 8pm + 9pm combo is $15 per person.",
+              sourceLabel: "Tickets",
+              sourceUrl: "https://www.showclix.com/event/anti-cooperation-league",
+              alcohol: { onePerson: [6, 10], eightPeople: [48, 80], estimated: true },
+            },
+            {
+              title: "Optional · Oishii karaoke",
+              onePerson: [53.09, 53.09],
+              eightPeople: [53.09, 53.09],
+              detail: "One-hour small room (max 8): $44.99 + required 18% system/cleaning fee. Food menu $5.50–$85.",
+              sourceLabel: "Rates + menu",
+              sourceUrl: "https://www.oishiikaraokesac.com/",
+              optional: true,
+              alcohol: { onePerson: [8, 16], eightPeople: [64, 128], estimated: true },
+            },
+            {
+              title: "Optional · Blue Cue pool",
+              onePerson: [10, 20],
+              eightPeople: [10, 20],
+              onePersonSuffix: " / table hr",
+              eightPeopleSuffix: " / table hr",
+              detail: "$10 from 6–8pm; $15 after 8pm Sun–Thu; $20 after 8pm Fri–Sat. Nightly cover is extra and unpublished.",
+              sourceLabel: "Rates",
+              sourceUrl: "https://www.bluecue.com/billiards",
+              optional: true,
+              alcohol: { onePerson: [6, 12], eightPeople: [48, 96], estimated: true },
+            },
           ],
+          totalLabel: "Core plan subtotal",
+          totalNote: "Solo subtotal excludes Escape Sacramento because it does not sell 1-player tickets. The 8-person total includes Morning Fork's 18% group gratuity.",
+          footnote: "ALC.* = optional alcohol. Exact where published; ‘est.’ marks venues that do not publish drink prices. ALC.* ranges assume one drink at each alcohol-serving core stop and are not included in the core subtotal.",
         },
         {
           title: "What to bring",
-          items: [
-            "Weekend clothes and an overnight bag",
-            "Comfortable walking shoes",
-            "Toiletries and any medications",
-            "Valid photo ID",
-            "Phone charger",
-            "D&D dice or character materials, if you have them",
+          kind: "checklist",
+          groups: [
+            {
+              title: "Essentials",
+              items: [
+                "Weekend clothes + overnight bag",
+                "Toiletries + medications",
+                "Valid photo ID",
+                "Phone charger",
+              ],
+            },
+            {
+              title: "Activity ready",
+              items: [
+                "Closed-toe walking shoes for axe throwing",
+                "Light layer for the evening",
+                "D&D dice or character materials",
+                "Reusable water bottle",
+              ],
+            },
           ],
         },
       ],
@@ -600,6 +794,257 @@ function renderChoices() {
   });
 }
 
+function createOutboundLink(linkData, className) {
+  const link = document.createElement("a");
+  link.href = linkData.url;
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+  link.className = className;
+  link.textContent = linkData.label;
+  return link;
+}
+
+function formatPrice(value) {
+  return value.toLocaleString("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: Number.isInteger(value) ? 0 : 2,
+    maximumFractionDigits: 2,
+  });
+}
+
+function formatCostRange(range) {
+  if (!range) {
+    return "N/A";
+  }
+
+  return range[0] === range[1]
+    ? formatPrice(range[0])
+    : `${formatPrice(range[0])}–${formatPrice(range[1])}`;
+}
+
+function sumCostRanges(items, field) {
+  return items.reduce(
+    (total, item) => {
+      const range = item[field];
+      if (range) {
+        total[0] += range[0];
+        total[1] += range[1];
+      }
+      return total;
+    },
+    [0, 0],
+  );
+}
+
+function createItineraryItem(itemData) {
+  const marker = document.createElement("span");
+  const item = document.createElement("li");
+  const copy = document.createElement("div");
+
+  marker.className = "itinerary-marker";
+  marker.setAttribute("aria-hidden", "true");
+  copy.className = "itinerary-event";
+
+  if (typeof itemData === "string") {
+    copy.textContent = itemData;
+  } else {
+    const title = document.createElement("strong");
+    title.textContent = itemData.title;
+    copy.appendChild(title);
+
+    if (itemData.detail) {
+      const detail = document.createElement("span");
+      detail.className = "itinerary-event-detail";
+      detail.textContent = itemData.detail;
+      copy.appendChild(detail);
+    }
+
+    if (itemData.price) {
+      const price = document.createElement("span");
+      price.className = "itinerary-event-price";
+      price.textContent = itemData.price;
+      copy.appendChild(price);
+    }
+
+    if (itemData.links?.length) {
+      const links = document.createElement("span");
+      links.className = "itinerary-event-links";
+      itemData.links.forEach((linkData) => {
+        links.appendChild(createOutboundLink(linkData, "itinerary-event-link"));
+      });
+      copy.appendChild(links);
+    }
+  }
+
+  item.append(marker, copy);
+  return item;
+}
+
+function createCostCell(label, range, fallback = "N/A", suffix = "") {
+  const cell = document.createElement("div");
+  const caption = document.createElement("span");
+  const value = document.createElement("strong");
+
+  cell.className = "cost-value";
+  caption.textContent = label;
+  value.textContent = `${range ? formatCostRange(range) : fallback}${suffix}`;
+  cell.append(caption, value);
+  return cell;
+}
+
+function createAlcoholLine(alcohol) {
+  const line = document.createElement("p");
+  const label = document.createElement("strong");
+  const onePerson = document.createElement("em");
+  const eightPeople = document.createElement("em");
+
+  line.className = "cost-alcohol";
+  label.textContent = "ALC.*";
+  onePerson.textContent = `+${formatCostRange(alcohol.onePerson)}`;
+  eightPeople.textContent = `+${formatCostRange(alcohol.eightPeople)}`;
+  line.append(
+    label,
+    " ",
+    onePerson,
+    " pp · ",
+    eightPeople,
+    " / 8",
+    alcohol.estimated ? " · est." : "",
+  );
+  return line;
+}
+
+function createCostBreakdown(prepItem) {
+  const wrapper = document.createElement("div");
+  const intro = document.createElement("p");
+  const header = document.createElement("div");
+  const coreItems = prepItem.items.filter((item) => !item.optional);
+
+  wrapper.className = "cost-breakdown";
+  intro.className = "cost-intro";
+  intro.textContent = prepItem.intro;
+  header.className = "cost-header";
+  header.innerHTML = "<span>Event</span><span>1 person</span><span>8 people</span>";
+  wrapper.append(intro, header);
+
+  prepItem.items.forEach((costItem) => {
+    const row = document.createElement("article");
+    const event = document.createElement("div");
+    const titleRow = document.createElement("div");
+    const title = document.createElement("strong");
+    const detail = document.createElement("small");
+
+    row.className = "cost-row";
+    event.className = "cost-event";
+    titleRow.className = "cost-title-row";
+    title.textContent = costItem.title;
+    titleRow.appendChild(title);
+
+    if (costItem.optional) {
+      const badge = document.createElement("span");
+      badge.className = "cost-badge";
+      badge.textContent = "Swap";
+      titleRow.appendChild(badge);
+      row.classList.add("is-optional");
+    }
+
+    detail.textContent = costItem.detail;
+    event.append(
+      titleRow,
+      detail,
+      createOutboundLink(
+        { label: costItem.sourceLabel, url: costItem.sourceUrl },
+        "cost-source-link",
+      ),
+    );
+    row.append(
+      event,
+      createCostCell(
+        "1 person",
+        costItem.onePerson,
+        costItem.onePersonLabel,
+        costItem.onePersonSuffix || "",
+      ),
+      createCostCell(
+        "8 people",
+        costItem.eightPeople,
+        costItem.eightPeopleLabel,
+        costItem.eightPeopleSuffix || "",
+      ),
+    );
+
+    if (costItem.alcohol) {
+      row.appendChild(createAlcoholLine(costItem.alcohol));
+    }
+
+    wrapper.appendChild(row);
+  });
+
+  const totals = document.createElement("div");
+  const totalEvent = document.createElement("div");
+  const totalTitle = document.createElement("strong");
+  const totalNote = document.createElement("small");
+  const alcoholItems = coreItems
+    .filter((item) => item.alcohol)
+    .map((item) => item.alcohol);
+
+  totals.className = "cost-row cost-total";
+  totalEvent.className = "cost-event";
+  totalTitle.textContent = prepItem.totalLabel;
+  totalNote.textContent = prepItem.totalNote;
+  totalEvent.append(totalTitle, totalNote);
+  totals.append(
+    totalEvent,
+    createCostCell("1 person", sumCostRanges(coreItems, "onePerson")),
+    createCostCell("8 people", sumCostRanges(coreItems, "eightPeople")),
+  );
+
+  const alcoholTotal = document.createElement("p");
+  const alcoholLabel = document.createElement("strong");
+  const alcoholOne = sumCostRanges(alcoholItems, "onePerson");
+  const alcoholEight = sumCostRanges(alcoholItems, "eightPeople");
+
+  alcoholTotal.className = "cost-alcohol cost-alcohol-total";
+  alcoholLabel.textContent = "Optional ALC.* total";
+  alcoholTotal.append(
+    alcoholLabel,
+    " ",
+    `+${formatCostRange(alcoholOne)} pp · +${formatCostRange(alcoholEight)} / 8`,
+  );
+  totals.appendChild(alcoholTotal);
+  wrapper.appendChild(totals);
+
+  const footnote = document.createElement("p");
+  footnote.className = "cost-footnote";
+  footnote.textContent = prepItem.footnote;
+  wrapper.appendChild(footnote);
+
+  return wrapper;
+}
+
+function createChecklist(prepItem) {
+  const groups = document.createElement("div");
+  groups.className = "checklist-groups";
+
+  prepItem.groups.forEach((group) => {
+    const section = document.createElement("section");
+    const title = document.createElement("h6");
+    const list = document.createElement("ul");
+
+    title.textContent = group.title;
+    group.items.forEach((itemText) => {
+      const item = document.createElement("li");
+      item.textContent = itemText;
+      list.appendChild(item);
+    });
+    section.append(title, list);
+    groups.appendChild(section);
+  });
+
+  return groups;
+}
+
 function createItineraryBoard(plan) {
   const wrapper = document.createElement("div");
   wrapper.className = "trip-itinerary";
@@ -628,16 +1073,8 @@ function createItineraryBoard(plan) {
     headingText.append(heading, label);
     headingRow.append(dayNumber, headingText);
 
-    dayPlan.items.forEach((itemText) => {
-      const marker = document.createElement("span");
-      const item = document.createElement("li");
-      const copy = document.createElement("span");
-
-      marker.className = "itinerary-marker";
-      marker.setAttribute("aria-hidden", "true");
-      copy.textContent = itemText;
-      item.append(marker, copy);
-      list.appendChild(item);
+    dayPlan.items.forEach((itemData) => {
+      list.appendChild(createItineraryItem(itemData));
     });
 
     section.append(headingRow, list);
@@ -654,18 +1091,19 @@ function createItineraryBoard(plan) {
   plan.prep.forEach((prepItem) => {
     const item = document.createElement("article");
     const title = document.createElement("h5");
-    const list = document.createElement("ul");
 
     item.className = "itinerary-prep-card";
     title.textContent = prepItem.title;
+    item.appendChild(title);
 
-    prepItem.items.forEach((itemText) => {
-      const listItem = document.createElement("li");
-      listItem.textContent = itemText;
-      list.appendChild(listItem);
-    });
+    if (prepItem.kind === "costs") {
+      item.classList.add("itinerary-prep-card--costs");
+      item.appendChild(createCostBreakdown(prepItem));
+    } else if (prepItem.kind === "checklist") {
+      item.classList.add("itinerary-prep-card--checklist");
+      item.appendChild(createChecklist(prepItem));
+    }
 
-    item.append(title, list);
     prepGrid.appendChild(item);
   });
 

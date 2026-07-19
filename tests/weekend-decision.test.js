@@ -90,4 +90,30 @@ const tiedResponses = invitees.map((invitee) =>
 );
 assert.equal(getDecision(tiedResponses).isFinalized, false, "multiple unanimous weekends are not a unique best date");
 
-console.log("weekend decision tests passed");
+const eightPersonCoreTotal = vm.runInContext(
+  `(() => {
+    const costs = tripDetails.find(({ kind }) => kind === "itinerary").gatedBody.prep
+      .find(({ kind }) => kind === "costs").items.filter(({ optional }) => !optional);
+    return formatCostRange(sumCostRanges(costs, "eightPeople"));
+  })()`,
+  context,
+);
+assert.equal(eightPersonCoreTotal, "$742.48–$1,210.88", "the published 8-person subtotal must stay accurate");
+
+const alcoholCoreTotal = vm.runInContext(
+  `(() => {
+    const alcohol = tripDetails.find(({ kind }) => kind === "itinerary").gatedBody.prep
+      .find(({ kind }) => kind === "costs").items
+      .filter(({ optional, alcohol }) => !optional && alcohol)
+      .map(({ alcohol }) => alcohol);
+    return formatCostRange(sumCostRanges(alcohol, "eightPeople"));
+  })()`,
+  context,
+);
+assert.equal(alcoholCoreTotal, "$158.72–$379.68", "optional alcohol estimates must not drift");
+
+const indexSource = fs.readFileSync(path.join(__dirname, "..", "index.html"), "utf8");
+assert.equal((indexSource.match(/aria-expanded="false"/g) || []).length, 4, "all collapsible panels default closed");
+assert.equal((indexSource.match(/data-collapsible-content hidden/g) || []).length, 4, "collapsed content starts hidden");
+
+console.log("weekend decision and itinerary pricing tests passed");
