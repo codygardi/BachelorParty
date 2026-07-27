@@ -92,7 +92,7 @@ assert.equal(getDecision(tiedResponses).isFinalized, false, "multiple unanimous 
 
 const onePersonTotal = vm.runInContext(
   `(() => {
-    const costs = tripDetails.find(({ kind }) => kind === "itinerary").gatedBody.prep
+    const costs = tripDetails.find(({ kind }) => kind === "itinerary").body.prep
       .find(({ kind }) => kind === "costs").items;
     return formatCostRange(sumCostRanges(costs, "onePerson"));
   })()`,
@@ -101,7 +101,7 @@ const onePersonTotal = vm.runInContext(
 assert.equal(onePersonTotal, "$61.99–$119.99", "the one-person subtotal must stay accurate");
 
 const costsAreOnePersonOnly = vm.runInContext(
-  `tripDetails.find(({ kind }) => kind === "itinerary").gatedBody.prep
+  `tripDetails.find(({ kind }) => kind === "itinerary").body.prep
     .find(({ kind }) => kind === "costs").items
     .every((item) => !("eightPeople" in item) && !("alcohol" in item) && !("detail" in item) && !("links" in item))`,
   context,
@@ -109,7 +109,7 @@ const costsAreOnePersonOnly = vm.runInContext(
 assert.equal(costsAreOnePersonOnly, true, "cost rows must stay one-person-only and alcohol-free");
 
 const saturdayTitles = vm.runInContext(
-  `JSON.stringify(tripDetails.find(({ kind }) => kind === "itinerary").gatedBody.days
+  `JSON.stringify(tripDetails.find(({ kind }) => kind === "itinerary").body.days
     .find(({ day }) => day === "Saturday").items.map(({ title }) => title))`,
   context,
 );
@@ -124,7 +124,7 @@ assert.deepEqual(JSON.parse(saturdayTitles), [
 ]);
 
 const itineraryDetailsOnly = vm.runInContext(
-  `tripDetails.find(({ kind }) => kind === "itinerary").gatedBody.days
+  `tripDetails.find(({ kind }) => kind === "itinerary").body.days
     .flatMap(({ items }) => items)
     .every((item) => !("detail" in item) && !("price" in item))`,
   context,
@@ -132,7 +132,7 @@ const itineraryDetailsOnly = vm.runInContext(
 assert.equal(itineraryDetailsOnly, true, "Friday and Saturday cards should contain no sub-descriptions or prices");
 
 const itineraryLinkGroups = vm.runInContext(
-  `JSON.stringify(tripDetails.find(({ kind }) => kind === "itinerary").gatedBody.days
+  `JSON.stringify(tripDetails.find(({ kind }) => kind === "itinerary").body.days
     .flatMap(({ items }) => items)
     .filter(({ links }) => links)
     .map(({ title, links }) => ({ title, links: links.map(({ label }) => label) })))`,
@@ -157,5 +157,7 @@ assert.match(indexSource, /Click to begin Quest!/, "the quest button uses the re
 assert.doesNotMatch(source, /Let our journey begin!/, "the finalized state keeps the requested quest button label");
 assert.doesNotMatch(source, /eightPeople|cost-alcohol|ALC\.\*/, "8-person and alcohol costs stay removed");
 assert.doesNotMatch(cssSource, /\.cost-(?:alcohol|footnote|links)/, "obsolete cost details stay removed");
+assert.doesNotMatch(indexSource, /password|Grant Access|data-reset/i, "the page must not show a quest password form");
+assert.doesNotMatch(source, /plannerAccess|gatedBody|handleResetForm/, "quest details must remain ungated");
 
 console.log("weekend decision and itinerary pricing tests passed");

@@ -435,11 +435,6 @@ h3 {
   line-height: 1.5;
 }
 
-.trip-card.is-locked .trip-card-copy {
-  color: var(--red-strong);
-  font-weight: 700;
-}
-
 .trip-card-link {
   display: inline-flex;
   align-items: center;
@@ -466,10 +461,6 @@ h3 {
   padding: 1rem 1.05rem 0.78rem;
   border-bottom: 1px solid color-mix(in srgb, var(--gold) 34%, var(--line));
   background: color-mix(in srgb, var(--gold) 8%, var(--page-strong));
-}
-
-.trip-card--itinerary.is-locked .trip-card-copy {
-  padding: 0.95rem 1.05rem 1.05rem;
 }
 
 .trip-itinerary {
@@ -1102,68 +1093,12 @@ textarea {
 .page-footer {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 1rem;
   padding: 0 0 2rem;
   color: rgba(245, 234, 213, 0.72);
   font-size: 0.9rem;
-}
-
-.footer-reset-form {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 0.45rem;
-  min-width: 0;
-}
-
-.footer-reset-form label {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
-}
-
-.footer-reset-form input {
-  width: 8.8rem;
-  min-height: 2.35rem;
-  border-color: rgba(245, 234, 213, 0.25);
-  background: rgba(255, 242, 210, 0.08);
-  color: #fff2d2;
-  font-size: 0.86rem;
-}
-
-.footer-reset-form input::placeholder {
-  color: rgba(245, 234, 213, 0.62);
-}
-
-.footer-reset-form button {
-  min-height: 2.35rem;
-  padding: 0.46rem 0.72rem;
-  border: 1px solid rgba(245, 234, 213, 0.25);
-  border-radius: 6px;
-  background: rgba(139, 41, 48, 0.72);
-  color: #fff2d2;
-  font-size: 0.82rem;
-  font-weight: 800;
-}
-
-.footer-reset-message {
-  min-width: 5.6rem;
-  color: rgba(245, 234, 213, 0.72);
-  font-size: 0.78rem;
-  font-weight: 700;
-}
-
-.footer-reset-message[data-state="success"] {
-  color: #dfbf75;
-}
-
-.footer-reset-message[data-state="error"] {
-  color: #e08a79;
+  text-align: center;
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -1172,8 +1107,7 @@ textarea {
   .secondary-action:hover,
   .back-button:hover,
   .section-toggle:hover .collapse-indicator,
-  .heading-action:hover,
-  .footer-reset-form button:hover {
+  .heading-action:hover {
     transform: translateY(-1px);
   }
 }
@@ -1287,16 +1221,6 @@ textarea {
     width: 100%;
   }
 
-  .page-footer {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .footer-reset-form {
-    width: 100%;
-    justify-content: flex-start;
-  }
-
   .option-card {
     min-height: 2.9rem;
     padding: 0.72rem 0.78rem;
@@ -1338,8 +1262,7 @@ textarea {
 
   select,
   textarea,
-  input[type="text"],
-  input[type="password"] {
+  input[type="text"] {
     min-height: 2.75rem;
   }
 
@@ -1361,8 +1284,7 @@ textarea {
   }
 
   .trip-card,
-  .trip-card--itinerary > .trip-card-heading,
-  .trip-card--itinerary.is-locked .trip-card-copy {
+  .trip-card--itinerary > .trip-card-heading {
     padding: 0.78rem;
   }
 
@@ -1378,19 +1300,6 @@ textarea {
     grid-template-columns: 1fr;
   }
 
-  .footer-reset-form {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: start;
-  }
-
-  .footer-reset-form input {
-    width: 100%;
-  }
-
-  .footer-reset-message {
-    grid-column: 1 / -1;
-  }
 }
 
 @media (max-width: 360px) {

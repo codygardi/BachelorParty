@@ -29,7 +29,6 @@ const yesStatus = "Yes, I am in";
 const noStatus = "No, I cannot make it";
 const legacyNoStatus = "Sorry, I cannot make it";
 const unavailableWeekend = "None of these weekends work for me";
-const plannerAccessPassword = "archie";
 const expectedRsvpCount = 7;
 
 const weekendOptions = [
@@ -60,7 +59,6 @@ const weekendOptions = [
 ];
 
 // Trip details live here so updates do not affect saved RSVP records.
-const detailNotice = "Finalizing details with Robbie.";
 const tripDetails = [
   {
     eyebrow: "Base camp",
@@ -81,10 +79,8 @@ const tripDetails = [
   {
     eyebrow: "Weekend plan",
     title: "Itinerary",
-    body: detailNotice,
     kind: "itinerary",
-    gated: true,
-    gatedBody: {
+    body: {
       days: [
         {
           day: "Friday",
@@ -266,13 +262,9 @@ const elements = {
   responseList: document.querySelector("[data-response-list]"),
   overlapSummary: document.querySelector("[data-overlap-summary]"),
   overlapList: document.querySelector("[data-overlap-list]"),
-  resetForm: document.querySelector("[data-reset-form]"),
-  resetPassword: document.querySelector("[data-reset-password]"),
-  resetMessage: document.querySelector("[data-reset-message]"),
 };
 
 let responses = {};
-let plannerAccessGranted = false;
 let sharedRefreshTimer = 0;
 let isRefreshingSharedResponses = false;
 let isSavingRsvp = false;
@@ -629,11 +621,6 @@ function startSharedPolling() {
   });
 }
 
-function setResetMessage(message, type = "neutral") {
-  elements.resetMessage.textContent = message;
-  elements.resetMessage.dataset.state = type;
-}
-
 function setCollapsibleExpanded(panel, expanded) {
   const toggle = panel.querySelector("[data-collapse-toggle]");
   const content = panel.querySelector("[data-collapsible-content]");
@@ -955,12 +942,7 @@ function renderTripDetails() {
     title.textContent = detail.title;
     heading.appendChild(title);
 
-    const isLocked = detail.gated && !plannerAccessGranted;
-    const visibleBody = isLocked ? detail.body : detail.gatedBody || detail.body;
-
-    if (isLocked) {
-      card.classList.add("is-locked");
-    }
+    const visibleBody = detail.body;
 
     card.appendChild(heading);
 
@@ -1374,23 +1356,6 @@ function renderDetailsPage() {
   updateRollCallState(decision);
 }
 
-function handleResetForm(event) {
-  event.preventDefault();
-
-  const password = elements.resetPassword.value.trim();
-
-  if (password !== plannerAccessPassword) {
-    setResetMessage("Wrong password.", "error");
-    elements.resetPassword.select();
-    return;
-  }
-
-  plannerAccessGranted = true;
-  elements.resetPassword.value = "";
-  renderTripDetails();
-  setResetMessage("Access granted.", "success");
-}
-
 document.addEventListener("DOMContentLoaded", async () => {
   renderInviteeOptions();
   renderChoices();
@@ -1403,7 +1368,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   elements.inviteeSelect.addEventListener("change", updateInviteeState);
   elements.availabilityOptions.addEventListener("change", handleAvailabilityChange);
   elements.form.addEventListener("submit", handleSubmit);
-  elements.resetForm.addEventListener("submit", handleResetForm);
   elements.alreadyDidThis.addEventListener("click", () => showDetailsPage());
   elements.backToRsvp.addEventListener("click", () => {
     showRsvpPage();
