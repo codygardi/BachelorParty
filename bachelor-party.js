@@ -97,17 +97,6 @@ const tripDetails = [
             {
               title: "Grass Valley Brewing Co.",
               detail: "141 E Main St, Grass Valley · dinner and first round",
-              price: "Food $6–$29 pp · ALC.* +$2.84–$9.46 pp",
-              links: [
-                {
-                  label: "Location",
-                  url: "https://www.google.com/maps/search/?api=1&query=Grass%20Valley%20Brewing%20Co%20141%20E%20Main%20St%20Grass%20Valley%20CA",
-                },
-                {
-                  label: "Menu",
-                  url: "https://www.toasttab.com/local/order/grass-valley-brewing-comp-141-east-main-street",
-                },
-              ],
             },
             {
               title: "Games and D&D",
@@ -122,78 +111,26 @@ const tripDetails = [
             {
               title: "Late breakfast at Bubba's Bagels",
               detail: "860 Sutton Way, Grass Valley · bagels and sandwiches",
-              price: "Sandwiches $5.99–$12.99 pp",
-              links: [
-                {
-                  label: "Location",
-                  url: "https://www.google.com/maps/search/?api=1&query=Bubba%27s%20Bagels%20860%20Sutton%20Way%20Grass%20Valley%20CA",
-                },
-                {
-                  label: "Menu",
-                  url: "https://bubbas-bagels.com/",
-                },
-              ],
             },
             {
               title: "Head to Sacramento",
               detail: "Two cars · keep each car's return group together",
-              price: "Split gas between riders · total TBD",
-              links: [
-                {
-                  label: "Route",
-                  url: "https://www.google.com/maps/dir/?api=1&origin=Bubba%27s%20Bagels%2C%20860%20Sutton%20Way%2C%20Grass%20Valley%2C%20CA&destination=Enchambered%2C%202230%20Arden%20Way%2C%20Sacramento%2C%20CA",
-                },
-              ],
             },
             {
               title: "Pete's Arden bar",
               detail: "2100 Arden Way, Suite 123 · full bar in the same Arden corridor",
-              price: "ALC.* est. +$6–$14 pp",
-              links: [
-                {
-                  label: "Location",
-                  url: "https://www.google.com/maps/search/?api=1&query=Pete%27s%20Restaurant%20and%20Brewhouse%202100%20Arden%20Way%20Suite%20123%20Sacramento%20CA",
-                },
-                { label: "Menu", url: "https://petesarden.com/assets/Menu.pdf" },
-              ],
             },
             {
               title: "Enchambered escape room",
               detail: "2230 Arden Way, Suite C · choose one of the rooms that fits 8",
-              price: "$25–$35 pp · $200–$280 for 8",
-              links: [
-                {
-                  label: "Location",
-                  url: "https://www.google.com/maps/search/?api=1&query=Enchambered%202230%20Arden%20Way%20Suite%20C%20Sacramento%20CA",
-                },
-                { label: "Book", url: "https://www.enchambered.com/booking/" },
-              ],
             },
             {
               title: "Dinner at The Butterscotch Den",
               detail: "3406 Broadway · grill-your-own steakhouse powered by Irish Hospitality",
-              price: "Dinner budget $25–$43 pp · ALC.* est. +$12–$16 pp",
-              links: [
-                {
-                  label: "Location",
-                  url: "https://www.google.com/maps/search/?api=1&query=The%20Butterscotch%20Den%203406%20Broadway%20Sacramento%20CA",
-                },
-                { label: "Menu", url: "https://www.thebutterscotchden.com/s/MENU-47.pdf" },
-                { label: "Reserve", url: "https://www.thebutterscotchden.com/" },
-              ],
             },
             {
               title: "Punch Line Comedy Club",
               detail: "2100 Arden Way, Suite 225 · arrive together at least 45 minutes early",
-              price: "Ticket varies by act · 2-beverage minimum per guest",
-              links: [
-                {
-                  label: "Location",
-                  url: "https://www.google.com/maps/search/?api=1&query=Punch%20Line%20Sacramento%202100%20Arden%20Way%20Suite%20225%20Sacramento%20CA",
-                },
-                { label: "Shows", url: "https://www.punchlinesac.com/" },
-                { label: "Menu", url: "https://www.punchlinesac.com/menu" },
-              ],
             },
             {
               title: "Return to Grass Valley",
@@ -213,8 +150,16 @@ const tripDetails = [
               onePerson: [6, 29],
               eightPeople: [48, 232],
               detail: "Full menu $5–$80; adult individual items $6–$29.",
-              sourceLabel: "Menu",
-              sourceUrl: "https://www.toasttab.com/local/order/grass-valley-brewing-comp-141-east-main-street",
+              links: [
+                {
+                  label: "Location",
+                  url: "https://www.google.com/maps/search/?api=1&query=Grass%20Valley%20Brewing%20Co%20141%20E%20Main%20St%20Grass%20Valley%20CA",
+                },
+                {
+                  label: "Menu",
+                  url: "https://www.toasttab.com/local/order/grass-valley-brewing-comp-141-east-main-street",
+                },
+              ],
               alcohol: { onePerson: [2.84, 9.46], eightPeople: [22.72, 75.68] },
             },
             {
@@ -222,8 +167,27 @@ const tripDetails = [
               onePerson: [5.99, 12.99],
               eightPeople: [47.92, 103.92],
               detail: "Published sandwich menu $5.99–$12.99; prices may vary when ordering.",
-              sourceLabel: "Menu",
-              sourceUrl: "https://bubbas-bagels.com/",
+              links: [
+                {
+                  label: "Location",
+                  url: "https://www.google.com/maps/search/?api=1&query=Bubba%27s%20Bagels%20860%20Sutton%20Way%20Grass%20Valley%20CA",
+                },
+                { label: "Menu", url: "https://bubbas-bagels.com/" },
+              ],
+            },
+            {
+              title: "Two-car transportation",
+              onePerson: null,
+              onePersonLabel: "Gas TBD",
+              eightPeople: null,
+              eightPeopleLabel: "2-car gas TBD",
+              detail: "Split fuel between riders; keep each car's return group together.",
+              links: [
+                {
+                  label: "Route",
+                  url: "https://www.google.com/maps/dir/?api=1&origin=Bubba%27s%20Bagels%2C%20860%20Sutton%20Way%2C%20Grass%20Valley%2C%20CA&destination=Enchambered%2C%202230%20Arden%20Way%2C%20Sacramento%2C%20CA",
+                },
+              ],
             },
             {
               title: "Pete's Arden · bar",
@@ -232,8 +196,13 @@ const tripDetails = [
               eightPeople: null,
               eightPeopleLabel: "8 × order",
               detail: "Drink total depends on each order; the published menu lists $6 house beer/wine during happy hour.",
-              sourceLabel: "Menu PDF",
-              sourceUrl: "https://petesarden.com/assets/Menu.pdf",
+              links: [
+                {
+                  label: "Location",
+                  url: "https://www.google.com/maps/search/?api=1&query=Pete%27s%20Restaurant%20and%20Brewhouse%202100%20Arden%20Way%20Suite%20123%20Sacramento%20CA",
+                },
+                { label: "Menu PDF", url: "https://petesarden.com/assets/Menu.pdf" },
+              ],
               alcohol: { onePerson: [6, 14], eightPeople: [48, 112], estimated: true },
             },
             {
@@ -241,16 +210,27 @@ const tripDetails = [
               onePerson: [25, 35],
               eightPeople: [200, 280],
               detail: "Published at $25–$35 per player. Select a room with an 8-player capacity.",
-              sourceLabel: "Pricing",
-              sourceUrl: "https://www.enchambered.com/booking/",
+              links: [
+                {
+                  label: "Location",
+                  url: "https://www.google.com/maps/search/?api=1&query=Enchambered%202230%20Arden%20Way%20Suite%20C%20Sacramento%20CA",
+                },
+                { label: "Pricing + book", url: "https://www.enchambered.com/booking/" },
+              ],
             },
             {
               title: "Butterscotch Den · dinner",
               onePerson: [25, 43],
               eightPeople: [200, 344],
               detail: "Current steak dinner budget by cut; sides, tax, and gratuity are excluded.",
-              sourceLabel: "Menu",
-              sourceUrl: "https://www.thebutterscotchden.com/s/MENU-47.pdf",
+              links: [
+                {
+                  label: "Location",
+                  url: "https://www.google.com/maps/search/?api=1&query=The%20Butterscotch%20Den%203406%20Broadway%20Sacramento%20CA",
+                },
+                { label: "Menu", url: "https://www.thebutterscotchden.com/s/MENU-47.pdf" },
+                { label: "Reserve", url: "https://www.thebutterscotchden.com/" },
+              ],
               alcohol: { onePerson: [12, 16], eightPeople: [96, 128], estimated: true },
             },
             {
@@ -260,8 +240,15 @@ const tripDetails = [
               eightPeople: null,
               eightPeopleLabel: "8 × ticket",
               detail: "Ticket price depends on the selected weekend and act. Two beverages are required per guest; nonalcoholic drinks count.",
-              sourceLabel: "Shows + policy",
-              sourceUrl: "https://www.punchlinesac.com/visit",
+              links: [
+                {
+                  label: "Location",
+                  url: "https://www.google.com/maps/search/?api=1&query=Punch%20Line%20Sacramento%202100%20Arden%20Way%20Suite%20225%20Sacramento%20CA",
+                },
+                { label: "Shows", url: "https://www.punchlinesac.com/" },
+                { label: "Menu", url: "https://www.punchlinesac.com/menu" },
+                { label: "Policy", url: "https://www.punchlinesac.com/visit" },
+              ],
               alcohol: { onePerson: [24, 36], eightPeople: [192, 288], estimated: true },
             },
           ],
@@ -829,21 +816,6 @@ function createItineraryItem(itemData) {
       copy.appendChild(detail);
     }
 
-    if (itemData.price) {
-      const price = document.createElement("span");
-      price.className = "itinerary-event-price";
-      price.textContent = itemData.price;
-      copy.appendChild(price);
-    }
-
-    if (itemData.links?.length) {
-      const links = document.createElement("span");
-      links.className = "itinerary-event-links";
-      itemData.links.forEach((linkData) => {
-        links.appendChild(createOutboundLink(linkData, "itinerary-event-link"));
-      });
-      copy.appendChild(links);
-    }
   }
 
   item.append(marker, copy);
@@ -903,6 +875,7 @@ function createCostBreakdown(prepItem) {
     const titleRow = document.createElement("div");
     const title = document.createElement("strong");
     const detail = document.createElement("small");
+    const links = document.createElement("div");
 
     row.className = "cost-row";
     event.className = "cost-event";
@@ -919,14 +892,11 @@ function createCostBreakdown(prepItem) {
     }
 
     detail.textContent = costItem.detail;
-    event.append(
-      titleRow,
-      detail,
-      createOutboundLink(
-        { label: costItem.sourceLabel, url: costItem.sourceUrl },
-        "cost-source-link",
-      ),
-    );
+    links.className = "cost-links";
+    costItem.links.forEach((linkData) => {
+      links.appendChild(createOutboundLink(linkData, "cost-source-link"));
+    });
+    event.append(titleRow, detail, links);
     row.append(
       event,
       createCostCell(
