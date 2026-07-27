@@ -90,27 +90,23 @@ const tiedResponses = invitees.map((invitee) =>
 );
 assert.equal(getDecision(tiedResponses).isFinalized, false, "multiple unanimous weekends are not a unique best date");
 
-const eightPersonCoreTotal = vm.runInContext(
+const onePersonTotal = vm.runInContext(
   `(() => {
     const costs = tripDetails.find(({ kind }) => kind === "itinerary").gatedBody.prep
-      .find(({ kind }) => kind === "costs").items.filter(({ optional }) => !optional);
-    return formatCostRange(sumCostRanges(costs, "eightPeople"));
+      .find(({ kind }) => kind === "costs").items;
+    return formatCostRange(sumCostRanges(costs, "onePerson"));
   })()`,
   context,
 );
-assert.equal(eightPersonCoreTotal, "$495.92–$959.92", "the known 8-person subtotal must stay accurate");
+assert.equal(onePersonTotal, "$61.99–$119.99", "the one-person subtotal must stay accurate");
 
-const alcoholCoreTotal = vm.runInContext(
-  `(() => {
-    const alcohol = tripDetails.find(({ kind }) => kind === "itinerary").gatedBody.prep
-      .find(({ kind }) => kind === "costs").items
-      .filter(({ optional, alcohol }) => !optional && alcohol)
-      .map(({ alcohol }) => alcohol);
-    return formatCostRange(sumCostRanges(alcohol, "eightPeople"));
-  })()`,
+const costsAreOnePersonOnly = vm.runInContext(
+  `tripDetails.find(({ kind }) => kind === "itinerary").gatedBody.prep
+    .find(({ kind }) => kind === "costs").items
+    .every((item) => !("eightPeople" in item) && !("alcohol" in item) && !("detail" in item) && !("links" in item))`,
   context,
 );
-assert.equal(alcoholCoreTotal, "$358.72–$603.68", "optional alcohol estimates must not drift");
+assert.equal(costsAreOnePersonOnly, true, "cost rows must stay one-person-only and alcohol-free");
 
 const saturdayTitles = vm.runInContext(
   `JSON.stringify(tripDetails.find(({ kind }) => kind === "itinerary").gatedBody.days
@@ -130,25 +126,26 @@ assert.deepEqual(JSON.parse(saturdayTitles), [
 const itineraryDetailsOnly = vm.runInContext(
   `tripDetails.find(({ kind }) => kind === "itinerary").gatedBody.days
     .flatMap(({ items }) => items)
-    .every((item) => !("price" in item) && !("links" in item))`,
+    .every((item) => !("detail" in item) && !("price" in item))`,
   context,
 );
-assert.equal(itineraryDetailsOnly, true, "Friday and Saturday cards should contain schedule details only");
+assert.equal(itineraryDetailsOnly, true, "Friday and Saturday cards should contain no sub-descriptions or prices");
 
-const costLinkGroups = vm.runInContext(
-  `JSON.stringify(tripDetails.find(({ kind }) => kind === "itinerary").gatedBody.prep
-    .find(({ kind }) => kind === "costs").items
+const itineraryLinkGroups = vm.runInContext(
+  `JSON.stringify(tripDetails.find(({ kind }) => kind === "itinerary").gatedBody.days
+    .flatMap(({ items }) => items)
+    .filter(({ links }) => links)
     .map(({ title, links }) => ({ title, links: links.map(({ label }) => label) })))`,
   context,
 );
-assert.deepEqual(JSON.parse(costLinkGroups), [
-  { title: "GV Brewing · food", links: ["Location", "Menu"] },
-  { title: "Bubba's · sandwiches", links: ["Location", "Menu"] },
-  { title: "Two-car transportation", links: ["Route"] },
-  { title: "Pete's Arden · bar", links: ["Location", "Menu PDF"] },
-  { title: "Enchambered", links: ["Location", "Pricing + book"] },
-  { title: "Butterscotch Den · dinner", links: ["Location", "Menu", "Reserve"] },
-  { title: "Punch Line Comedy", links: ["Location", "Shows", "Menu", "Policy"] },
+assert.deepEqual(JSON.parse(itineraryLinkGroups), [
+  { title: "Grass Valley Brewing Co.", links: ["Location", "Menu"] },
+  { title: "Late breakfast at Bubba's Bagels", links: ["Location", "Menu"] },
+  { title: "Head to Sacramento", links: ["Route"] },
+  { title: "Pete's Arden bar", links: ["Location", "Menu"] },
+  { title: "Enchambered escape room", links: ["Location", "Book"] },
+  { title: "Dinner at The Butterscotch Den", links: ["Location", "Menu", "Reserve"] },
+  { title: "Punch Line Comedy Club", links: ["Location", "Shows", "Menu", "Policy"] },
 ]);
 
 const indexSource = fs.readFileSync(path.join(__dirname, "..", "index.html"), "utf8");
@@ -158,6 +155,7 @@ assert.equal((indexSource.match(/data-collapsible-content hidden/g) || []).lengt
 assert.equal((indexSource.match(/class="collapse-indicator"/g) || []).length, 3, "Roll Call no longer shows a plus icon");
 assert.match(indexSource, /Click to begin Quest!/, "the quest button uses the requested label");
 assert.doesNotMatch(source, /Let our journey begin!/, "the finalized state keeps the requested quest button label");
-assert.doesNotMatch(cssSource, /\.itinerary-event-(?:price|links)/, "the itinerary no longer styles moved pricing or links");
+assert.doesNotMatch(source, /eightPeople|cost-alcohol|ALC\.\*/, "8-person and alcohol costs stay removed");
+assert.doesNotMatch(cssSource, /\.cost-(?:alcohol|footnote|links)/, "obsolete cost details stay removed");
 
 console.log("weekend decision and itinerary pricing tests passed");
