@@ -98,7 +98,7 @@ const onePersonTotal = vm.runInContext(
   })()`,
   context,
 );
-assert.equal(onePersonTotal, "$61.99–$119.99", "the one-person subtotal must stay accurate");
+assert.equal(onePersonTotal, "$39.49–$109.99", "the known one-person subtotal must stay accurate");
 
 const costsAreOnePersonOnly = vm.runInContext(
   `tripDetails.find(({ kind }) => kind === "itinerary").body.prep
@@ -119,7 +119,7 @@ assert.deepEqual(JSON.parse(saturdayTitles), [
   "Pete's Arden bar",
   "Enchambered escape room",
   "Dinner at The Butterscotch Den",
-  "Punch Line Comedy Club",
+  "Punch Line Comedy Club — show TBD",
   "Return to Grass Valley",
 ]);
 
@@ -145,8 +145,54 @@ assert.deepEqual(JSON.parse(itineraryLinkGroups), [
   { title: "Pete's Arden bar", links: ["Location", "Menu"] },
   { title: "Enchambered escape room", links: ["Location", "Book"] },
   { title: "Dinner at The Butterscotch Den", links: ["Location", "Menu", "Reserve"] },
-  { title: "Punch Line Comedy Club", links: ["Location", "Shows", "Menu", "Policy"] },
+  { title: "Punch Line Comedy Club — show TBD", links: ["Location", "Shows", "Menu", "Policy"] },
 ]);
+
+const verifiedItinerary = vm.runInContext(
+  `(() => {
+    const itinerary = tripDetails.find(({ kind }) => kind === "itinerary").body;
+    const costs = itinerary.prep.find(({ kind }) => kind === "costs");
+    return JSON.stringify({
+      dayLabels: itinerary.days.map(({ label }) => label),
+      costs: costs.items.map(({ title, onePerson, onePersonLabel }) => ({
+        title,
+        onePerson,
+        onePersonLabel,
+      })),
+      totalLabel: costs.totalLabel,
+      links: itinerary.days.flatMap(({ items }) => items)
+        .flatMap(({ links = [] }) => links.map(({ label, url }) => ({ label, url }))),
+    });
+  })()`,
+  context,
+);
+const verifiedItineraryData = JSON.parse(verifiedItinerary);
+assert.deepEqual(verifiedItineraryData.dayLabels, [
+  "Jan 15, 2027 · Arrival & kickoff",
+  "Jan 16, 2027 · Grass Valley → Sacramento",
+]);
+assert.deepEqual(verifiedItineraryData.costs, [
+  { title: "Fri · GV Brewing food", onePerson: [5, 19] },
+  { title: "Sat · Bubba's sandwiches", onePerson: [5.99, 12.99] },
+  { title: "Sat · 2-car gas share", onePerson: null, onePersonLabel: "TBD" },
+  { title: "Sat · Enchambered", onePerson: [25, 35] },
+  { title: "Sat · Butterscotch food", onePerson: [3.5, 43] },
+  { title: "Sat · Punch Line ticket", onePerson: null, onePersonLabel: "Not released" },
+  { title: "Sat · Punch Line drinks (2)", onePerson: null, onePersonLabel: "Not posted" },
+]);
+assert.equal(verifiedItineraryData.totalLabel, "Known subtotal");
+assert.equal(
+  verifiedItineraryData.links.find(({ label, url }) =>
+    label === "Menu" && url.includes("bubbas-bagels.com"),
+  ).url,
+  "https://bubbas-bagels.com/#menu",
+);
+assert.equal(
+  verifiedItineraryData.links.find(({ label, url }) =>
+    label === "Menu" && url.includes("order.online/store/pete"),
+  ).url,
+  "https://order.online/store/pete%27s-restaurant-%26-brewhouse-sacramento-2467080/?hideModal=true&pickup=true",
+);
 
 const indexSource = fs.readFileSync(path.join(__dirname, "..", "index.html"), "utf8");
 const cssSource = fs.readFileSync(path.join(__dirname, "..", "bachelor-party.css"), "utf8");

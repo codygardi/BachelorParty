@@ -84,7 +84,7 @@ const tripDetails = [
       days: [
         {
           day: "Friday",
-          label: "Arrival & kickoff",
+          label: "Jan 15, 2027 · Arrival & kickoff",
           items: [
             {
               title: "Meet at base camp",
@@ -94,11 +94,11 @@ const tripDetails = [
               links: [
                 {
                   label: "Location",
-                  url: "https://www.google.com/maps/search/?api=1&query=Grass%20Valley%20Brewing%20Co%20141%20E%20Main%20St%20Grass%20Valley%20CA",
+                  url: "https://maps.google.com/maps?daddr=141+E+Main+St%2C+Grass+Valley%2C+CA+95945%2C+USA",
                 },
                 {
                   label: "Menu",
-                  url: "https://www.toasttab.com/local/order/grass-valley-brewing-comp-141-east-main-street",
+                  url: "https://www.gvbrew.com/menus-1",
                 },
               ],
             },
@@ -109,16 +109,16 @@ const tripDetails = [
         },
         {
           day: "Saturday",
-          label: "Grass Valley → Arden loop",
+          label: "Jan 16, 2027 · Grass Valley → Sacramento",
           items: [
             {
               title: "Late breakfast at Bubba's Bagels",
               links: [
                 {
                   label: "Location",
-                  url: "https://www.google.com/maps/search/?api=1&query=Bubba%27s%20Bagels%20860%20Sutton%20Way%20Grass%20Valley%20CA",
+                  url: "https://maps.google.com/?q=Bubba%27s+Bagels+860+Sutton+Way+Grass+Valley+CA",
                 },
-                { label: "Menu", url: "https://bubbas-bagels.com/" },
+                { label: "Menu", url: "https://bubbas-bagels.com/#menu" },
               ],
             },
             {
@@ -126,7 +126,7 @@ const tripDetails = [
               links: [
                 {
                   label: "Route",
-                  url: "https://www.google.com/maps/dir/?api=1&origin=Bubba%27s%20Bagels%2C%20860%20Sutton%20Way%2C%20Grass%20Valley%2C%20CA&destination=Enchambered%2C%202230%20Arden%20Way%2C%20Sacramento%2C%20CA",
+                  url: "https://www.google.com/maps/dir/?api=1&origin=Bubba%27s%20Bagels%2C%20860%20Sutton%20Way%2C%20Grass%20Valley%2C%20CA%2095945&destination=Pete%27s%20Restaurant%20%26%20Brewhouse%2C%202100%20Arden%20Way%20Suite%20123%2C%20Sacramento%2C%20CA%2095825",
                 },
               ],
             },
@@ -135,9 +135,12 @@ const tripDetails = [
               links: [
                 {
                   label: "Location",
-                  url: "https://www.google.com/maps/search/?api=1&query=Pete%27s%20Restaurant%20and%20Brewhouse%202100%20Arden%20Way%20Suite%20123%20Sacramento%20CA",
+                  url: "https://www.google.com/maps/search/?api=1&query=Pete%27s%20Restaurant%20%26%20Brewhouse%2C%202100%20Arden%20Way%20Suite%20123%2C%20Sacramento%2C%20CA%2095825",
                 },
-                { label: "Menu", url: "https://petesarden.com/assets/Menu.pdf" },
+                {
+                  label: "Menu",
+                  url: "https://order.online/store/pete%27s-restaurant-%26-brewhouse-sacramento-2467080/?hideModal=true&pickup=true",
+                },
               ],
             },
             {
@@ -145,7 +148,7 @@ const tripDetails = [
               links: [
                 {
                   label: "Location",
-                  url: "https://www.google.com/maps/search/?api=1&query=Enchambered%202230%20Arden%20Way%20Suite%20C%20Sacramento%20CA",
+                  url: "https://www.google.com/maps/place/Enchambered%3A%2BSacramento%2BEscape%2BRoom/%4038.5949739%2C-121.4155359%2C17z/data%3D%214m13%211m7%213m6%211s0x809ada3a26708365%3A0x8bb19e45ee56c972%212sEnchambered%3A%2BSacramento%2BEscape%2BRoom%213b1%218m2%213d38.5949739%214d-121.4133472%213m4%211s0x809ada3a26708365%3A0x8bb19e45ee56c972%218m2%213d38.5949739%214d-121.4133472",
                 },
                 { label: "Book", url: "https://www.enchambered.com/booking/" },
               ],
@@ -155,18 +158,18 @@ const tripDetails = [
               links: [
                 {
                   label: "Location",
-                  url: "https://www.google.com/maps/search/?api=1&query=The%20Butterscotch%20Den%203406%20Broadway%20Sacramento%20CA",
+                  url: "https://www.google.com/maps/search/?api=1&query=The%20Butterscotch%20Den%2C%203406%20Broadway%2C%20Sacramento%2C%20CA%2095817",
                 },
                 { label: "Menu", url: "https://www.thebutterscotchden.com/s/MENU-47.pdf" },
                 { label: "Reserve", url: "https://www.thebutterscotchden.com/" },
               ],
             },
             {
-              title: "Punch Line Comedy Club",
+              title: "Punch Line Comedy Club — show TBD",
               links: [
                 {
                   label: "Location",
-                  url: "https://www.google.com/maps/search/?api=1&query=Punch%20Line%20Sacramento%202100%20Arden%20Way%20Suite%20225%20Sacramento%20CA",
+                  url: "https://maps.app.goo.gl/Y6C8Zp7sqxmxSbVQ7",
                 },
                 { label: "Shows", url: "https://www.punchlinesac.com/" },
                 { label: "Menu", url: "https://www.punchlinesac.com/menu" },
@@ -185,33 +188,38 @@ const tripDetails = [
           kind: "costs",
           items: [
             {
-              title: "GV Brewing",
-              onePerson: [6, 29],
+              title: "Fri · GV Brewing food",
+              onePerson: [5, 19],
             },
             {
-              title: "Bubba's Bagels",
+              title: "Sat · Bubba's sandwiches",
               onePerson: [5.99, 12.99],
             },
             {
-              title: "Gas share",
+              title: "Sat · 2-car gas share",
               onePerson: null,
               onePersonLabel: "TBD",
             },
             {
-              title: "Enchambered",
+              title: "Sat · Enchambered",
               onePerson: [25, 35],
             },
             {
-              title: "Butterscotch Den",
-              onePerson: [25, 43],
+              title: "Sat · Butterscotch food",
+              onePerson: [3.5, 43],
             },
             {
-              title: "Punch Line ticket",
+              title: "Sat · Punch Line ticket",
               onePerson: null,
-              onePersonLabel: "TBD",
+              onePersonLabel: "Not released",
+            },
+            {
+              title: "Sat · Punch Line drinks (2)",
+              onePerson: null,
+              onePersonLabel: "Not posted",
             },
           ],
-          totalLabel: "Estimated subtotal",
+          totalLabel: "Known subtotal",
         },
         {
           title: "What to bring",
