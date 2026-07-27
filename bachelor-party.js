@@ -92,64 +92,9 @@ const tripDetails = [
           items: [
             {
               title: "Meet at base camp",
-              detail: "Grass Valley · settle in and get the party together",
             },
             {
               title: "Grass Valley Brewing Co.",
-              detail: "141 E Main St, Grass Valley · dinner and first round",
-            },
-            {
-              title: "Games and D&D",
-              detail: "Back at base camp · launch the weekend campaign",
-            },
-          ],
-        },
-        {
-          day: "Saturday",
-          label: "Grass Valley → Arden loop",
-          items: [
-            {
-              title: "Late breakfast at Bubba's Bagels",
-              detail: "860 Sutton Way, Grass Valley · bagels and sandwiches",
-            },
-            {
-              title: "Head to Sacramento",
-              detail: "Two cars · keep each car's return group together",
-            },
-            {
-              title: "Pete's Arden bar",
-              detail: "2100 Arden Way, Suite 123 · full bar in the same Arden corridor",
-            },
-            {
-              title: "Enchambered escape room",
-              detail: "2230 Arden Way, Suite C · choose one of the rooms that fits 8",
-            },
-            {
-              title: "Dinner at The Butterscotch Den",
-              detail: "3406 Broadway · grill-your-own steakhouse powered by Irish Hospitality",
-            },
-            {
-              title: "Punch Line Comedy Club",
-              detail: "2100 Arden Way, Suite 225 · arrive together at least 45 minutes early",
-            },
-            {
-              title: "Return to Grass Valley",
-              detail: "Two cars · designated drivers stay alcohol-free · possible D&D finale",
-            },
-          ],
-        },
-      ],
-      prep: [
-        {
-          title: "Estimated cost",
-          kind: "costs",
-          intro: "Current published base prices. Taxes, travel, and unlisted service charges are excluded.",
-          items: [
-            {
-              title: "GV Brewing · food",
-              onePerson: [6, 29],
-              eightPeople: [48, 232],
-              detail: "Full menu $5–$80; adult individual items $6–$29.",
               links: [
                 {
                   label: "Location",
@@ -160,13 +105,18 @@ const tripDetails = [
                   url: "https://www.toasttab.com/local/order/grass-valley-brewing-comp-141-east-main-street",
                 },
               ],
-              alcohol: { onePerson: [2.84, 9.46], eightPeople: [22.72, 75.68] },
             },
             {
-              title: "Bubba's · sandwiches",
-              onePerson: [5.99, 12.99],
-              eightPeople: [47.92, 103.92],
-              detail: "Published sandwich menu $5.99–$12.99; prices may vary when ordering.",
+              title: "Games and D&D",
+            },
+          ],
+        },
+        {
+          day: "Saturday",
+          label: "Grass Valley → Arden loop",
+          items: [
+            {
+              title: "Late breakfast at Bubba's Bagels",
               links: [
                 {
                   label: "Location",
@@ -176,12 +126,7 @@ const tripDetails = [
               ],
             },
             {
-              title: "Two-car transportation",
-              onePerson: null,
-              onePersonLabel: "Gas TBD",
-              eightPeople: null,
-              eightPeopleLabel: "2-car gas TBD",
-              detail: "Split fuel between riders; keep each car's return group together.",
+              title: "Head to Sacramento",
               links: [
                 {
                   label: "Route",
@@ -190,39 +135,27 @@ const tripDetails = [
               ],
             },
             {
-              title: "Pete's Arden · bar",
-              onePerson: null,
-              onePersonLabel: "ALC.* only",
-              eightPeople: null,
-              eightPeopleLabel: "8 × order",
-              detail: "Drink total depends on each order; the published menu lists $6 house beer/wine during happy hour.",
+              title: "Pete's Arden bar",
               links: [
                 {
                   label: "Location",
                   url: "https://www.google.com/maps/search/?api=1&query=Pete%27s%20Restaurant%20and%20Brewhouse%202100%20Arden%20Way%20Suite%20123%20Sacramento%20CA",
                 },
-                { label: "Menu PDF", url: "https://petesarden.com/assets/Menu.pdf" },
+                { label: "Menu", url: "https://petesarden.com/assets/Menu.pdf" },
               ],
-              alcohol: { onePerson: [6, 14], eightPeople: [48, 112], estimated: true },
             },
             {
-              title: "Enchambered",
-              onePerson: [25, 35],
-              eightPeople: [200, 280],
-              detail: "Published at $25–$35 per player. Select a room with an 8-player capacity.",
+              title: "Enchambered escape room",
               links: [
                 {
                   label: "Location",
                   url: "https://www.google.com/maps/search/?api=1&query=Enchambered%202230%20Arden%20Way%20Suite%20C%20Sacramento%20CA",
                 },
-                { label: "Pricing + book", url: "https://www.enchambered.com/booking/" },
+                { label: "Book", url: "https://www.enchambered.com/booking/" },
               ],
             },
             {
-              title: "Butterscotch Den · dinner",
-              onePerson: [25, 43],
-              eightPeople: [200, 344],
-              detail: "Current steak dinner budget by cut; sides, tax, and gratuity are excluded.",
+              title: "Dinner at The Butterscotch Den",
               links: [
                 {
                   label: "Location",
@@ -231,15 +164,9 @@ const tripDetails = [
                 { label: "Menu", url: "https://www.thebutterscotchden.com/s/MENU-47.pdf" },
                 { label: "Reserve", url: "https://www.thebutterscotchden.com/" },
               ],
-              alcohol: { onePerson: [12, 16], eightPeople: [96, 128], estimated: true },
             },
             {
-              title: "Punch Line Comedy",
-              onePerson: null,
-              onePersonLabel: "Ticket TBD",
-              eightPeople: null,
-              eightPeopleLabel: "8 × ticket",
-              detail: "Ticket price depends on the selected weekend and act. Two beverages are required per guest; nonalcoholic drinks count.",
+              title: "Punch Line Comedy Club",
               links: [
                 {
                   label: "Location",
@@ -249,12 +176,46 @@ const tripDetails = [
                 { label: "Menu", url: "https://www.punchlinesac.com/menu" },
                 { label: "Policy", url: "https://www.punchlinesac.com/visit" },
               ],
-              alcohol: { onePerson: [24, 36], eightPeople: [192, 288], estimated: true },
+            },
+            {
+              title: "Return to Grass Valley",
             },
           ],
-          totalLabel: "Core plan subtotal",
-          totalNote: "Known food and Enchambered costs only. Punch Line tickets, its two-beverage minimum, Pete's drinks, two-car gas, tax, and gratuity are excluded.",
-          footnote: "ALC.* = optional alcohol. ‘Est.’ marks unpublished drink prices. The ALC.* total assumes one drink at GV Brewing, Pete's, and The Butterscotch Den plus Punch Line's two required beverages; designated drivers should choose nonalcoholic options.",
+        },
+      ],
+      prep: [
+        {
+          title: "Estimated cost",
+          kind: "costs",
+          items: [
+            {
+              title: "GV Brewing",
+              onePerson: [6, 29],
+            },
+            {
+              title: "Bubba's Bagels",
+              onePerson: [5.99, 12.99],
+            },
+            {
+              title: "Gas share",
+              onePerson: null,
+              onePersonLabel: "TBD",
+            },
+            {
+              title: "Enchambered",
+              onePerson: [25, 35],
+            },
+            {
+              title: "Butterscotch Den",
+              onePerson: [25, 43],
+            },
+            {
+              title: "Punch Line ticket",
+              onePerson: null,
+              onePersonLabel: "TBD",
+            },
+          ],
+          totalLabel: "Estimated subtotal",
         },
         {
           title: "What to bring",
@@ -809,13 +770,14 @@ function createItineraryItem(itemData) {
     title.textContent = itemData.title;
     copy.appendChild(title);
 
-    if (itemData.detail) {
-      const detail = document.createElement("span");
-      detail.className = "itinerary-event-detail";
-      detail.textContent = itemData.detail;
-      copy.appendChild(detail);
+    if (itemData.links?.length) {
+      const links = document.createElement("span");
+      links.className = "itinerary-event-links";
+      itemData.links.forEach((linkData) => {
+        links.appendChild(createOutboundLink(linkData, "itinerary-event-link"));
+      });
+      copy.appendChild(links);
     }
-
   }
 
   item.append(marker, copy);
@@ -834,69 +796,24 @@ function createCostCell(label, range, fallback = "N/A", suffix = "") {
   return cell;
 }
 
-function createAlcoholLine(alcohol) {
-  const line = document.createElement("p");
-  const label = document.createElement("strong");
-  const onePerson = document.createElement("em");
-  const eightPeople = document.createElement("em");
-
-  line.className = "cost-alcohol";
-  label.textContent = "ALC.*";
-  onePerson.textContent = `+${formatCostRange(alcohol.onePerson)}`;
-  eightPeople.textContent = `+${formatCostRange(alcohol.eightPeople)}`;
-  line.append(
-    label,
-    " ",
-    onePerson,
-    " pp · ",
-    eightPeople,
-    " / 8",
-    alcohol.estimated ? " · est." : "",
-  );
-  return line;
-}
-
 function createCostBreakdown(prepItem) {
   const wrapper = document.createElement("div");
-  const intro = document.createElement("p");
   const header = document.createElement("div");
-  const coreItems = prepItem.items.filter((item) => !item.optional);
 
   wrapper.className = "cost-breakdown";
-  intro.className = "cost-intro";
-  intro.textContent = prepItem.intro;
   header.className = "cost-header";
-  header.innerHTML = "<span>Event</span><span>1 person</span><span>8 people</span>";
-  wrapper.append(intro, header);
+  header.innerHTML = "<span>Event</span><span>1 person</span>";
+  wrapper.appendChild(header);
 
   prepItem.items.forEach((costItem) => {
     const row = document.createElement("article");
     const event = document.createElement("div");
-    const titleRow = document.createElement("div");
     const title = document.createElement("strong");
-    const detail = document.createElement("small");
-    const links = document.createElement("div");
 
     row.className = "cost-row";
     event.className = "cost-event";
-    titleRow.className = "cost-title-row";
     title.textContent = costItem.title;
-    titleRow.appendChild(title);
-
-    if (costItem.optional) {
-      const badge = document.createElement("span");
-      badge.className = "cost-badge";
-      badge.textContent = "Swap";
-      titleRow.appendChild(badge);
-      row.classList.add("is-optional");
-    }
-
-    detail.textContent = costItem.detail;
-    links.className = "cost-links";
-    costItem.links.forEach((linkData) => {
-      links.appendChild(createOutboundLink(linkData, "cost-source-link"));
-    });
-    event.append(titleRow, detail, links);
+    event.appendChild(title);
     row.append(
       event,
       createCostCell(
@@ -905,17 +822,7 @@ function createCostBreakdown(prepItem) {
         costItem.onePersonLabel,
         costItem.onePersonSuffix || "",
       ),
-      createCostCell(
-        "8 people",
-        costItem.eightPeople,
-        costItem.eightPeopleLabel,
-        costItem.eightPeopleSuffix || "",
-      ),
     );
-
-    if (costItem.alcohol) {
-      row.appendChild(createAlcoholLine(costItem.alcohol));
-    }
 
     wrapper.appendChild(row);
   });
@@ -923,41 +830,16 @@ function createCostBreakdown(prepItem) {
   const totals = document.createElement("div");
   const totalEvent = document.createElement("div");
   const totalTitle = document.createElement("strong");
-  const totalNote = document.createElement("small");
-  const alcoholItems = coreItems
-    .filter((item) => item.alcohol)
-    .map((item) => item.alcohol);
 
   totals.className = "cost-row cost-total";
   totalEvent.className = "cost-event";
   totalTitle.textContent = prepItem.totalLabel;
-  totalNote.textContent = prepItem.totalNote;
-  totalEvent.append(totalTitle, totalNote);
+  totalEvent.appendChild(totalTitle);
   totals.append(
     totalEvent,
-    createCostCell("1 person", sumCostRanges(coreItems, "onePerson")),
-    createCostCell("8 people", sumCostRanges(coreItems, "eightPeople")),
+    createCostCell("1 person", sumCostRanges(prepItem.items, "onePerson")),
   );
-
-  const alcoholTotal = document.createElement("p");
-  const alcoholLabel = document.createElement("strong");
-  const alcoholOne = sumCostRanges(alcoholItems, "onePerson");
-  const alcoholEight = sumCostRanges(alcoholItems, "eightPeople");
-
-  alcoholTotal.className = "cost-alcohol cost-alcohol-total";
-  alcoholLabel.textContent = "Optional ALC.* total";
-  alcoholTotal.append(
-    alcoholLabel,
-    " ",
-    `+${formatCostRange(alcoholOne)} pp · +${formatCostRange(alcoholEight)} / 8`,
-  );
-  totals.appendChild(alcoholTotal);
   wrapper.appendChild(totals);
-
-  const footnote = document.createElement("p");
-  footnote.className = "cost-footnote";
-  footnote.textContent = prepItem.footnote;
-  wrapper.appendChild(footnote);
 
   return wrapper;
 }
