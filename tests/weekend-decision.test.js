@@ -98,7 +98,7 @@ const eightPersonCoreTotal = vm.runInContext(
   })()`,
   context,
 );
-assert.equal(eightPersonCoreTotal, "$742.48–$1,210.88", "the published 8-person subtotal must stay accurate");
+assert.equal(eightPersonCoreTotal, "$495.92–$959.92", "the known 8-person subtotal must stay accurate");
 
 const alcoholCoreTotal = vm.runInContext(
   `(() => {
@@ -110,10 +110,28 @@ const alcoholCoreTotal = vm.runInContext(
   })()`,
   context,
 );
-assert.equal(alcoholCoreTotal, "$158.72–$379.68", "optional alcohol estimates must not drift");
+assert.equal(alcoholCoreTotal, "$358.72–$603.68", "optional alcohol estimates must not drift");
+
+const saturdayTitles = vm.runInContext(
+  `JSON.stringify(tripDetails.find(({ kind }) => kind === "itinerary").gatedBody.days
+    .find(({ day }) => day === "Saturday").items.map(({ title }) => title))`,
+  context,
+);
+assert.deepEqual(JSON.parse(saturdayTitles), [
+  "Late breakfast at Bubba's Bagels",
+  "Head to Sacramento",
+  "Pete's Arden bar",
+  "Enchambered escape room",
+  "Dinner at The Butterscotch Den",
+  "Punch Line Comedy Club",
+  "Return to Grass Valley",
+]);
 
 const indexSource = fs.readFileSync(path.join(__dirname, "..", "index.html"), "utf8");
 assert.equal((indexSource.match(/aria-expanded="false"/g) || []).length, 4, "all collapsible panels default closed");
 assert.equal((indexSource.match(/data-collapsible-content hidden/g) || []).length, 4, "collapsed content starts hidden");
+assert.equal((indexSource.match(/class="collapse-indicator"/g) || []).length, 3, "Roll Call no longer shows a plus icon");
+assert.match(indexSource, /Click to begin Quest!/, "the quest button uses the requested label");
+assert.doesNotMatch(source, /Let our journey begin!/, "the finalized state keeps the requested quest button label");
 
 console.log("weekend decision and itinerary pricing tests passed");
