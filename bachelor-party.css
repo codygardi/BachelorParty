@@ -574,21 +574,13 @@ h3 {
   line-height: 1.35;
 }
 
-.itinerary-event-price {
-  color: var(--green);
-  font-size: 0.65rem;
-  font-weight: 800;
-  line-height: 1.35;
-}
-
-.itinerary-event-links {
+.cost-links {
   display: flex;
   flex-wrap: wrap;
   gap: 0.28rem;
   margin-top: 0.08rem;
 }
 
-.itinerary-event-link,
 .cost-source-link {
   display: inline-flex;
   align-items: center;
@@ -602,7 +594,6 @@ h3 {
   text-underline-offset: 0.15em;
 }
 
-.itinerary-event-link::after,
 .cost-source-link::after {
   content: "\2197";
   font-size: 0.82em;

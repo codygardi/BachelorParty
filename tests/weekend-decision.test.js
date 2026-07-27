@@ -127,11 +127,37 @@ assert.deepEqual(JSON.parse(saturdayTitles), [
   "Return to Grass Valley",
 ]);
 
+const itineraryDetailsOnly = vm.runInContext(
+  `tripDetails.find(({ kind }) => kind === "itinerary").gatedBody.days
+    .flatMap(({ items }) => items)
+    .every((item) => !("price" in item) && !("links" in item))`,
+  context,
+);
+assert.equal(itineraryDetailsOnly, true, "Friday and Saturday cards should contain schedule details only");
+
+const costLinkGroups = vm.runInContext(
+  `JSON.stringify(tripDetails.find(({ kind }) => kind === "itinerary").gatedBody.prep
+    .find(({ kind }) => kind === "costs").items
+    .map(({ title, links }) => ({ title, links: links.map(({ label }) => label) })))`,
+  context,
+);
+assert.deepEqual(JSON.parse(costLinkGroups), [
+  { title: "GV Brewing · food", links: ["Location", "Menu"] },
+  { title: "Bubba's · sandwiches", links: ["Location", "Menu"] },
+  { title: "Two-car transportation", links: ["Route"] },
+  { title: "Pete's Arden · bar", links: ["Location", "Menu PDF"] },
+  { title: "Enchambered", links: ["Location", "Pricing + book"] },
+  { title: "Butterscotch Den · dinner", links: ["Location", "Menu", "Reserve"] },
+  { title: "Punch Line Comedy", links: ["Location", "Shows", "Menu", "Policy"] },
+]);
+
 const indexSource = fs.readFileSync(path.join(__dirname, "..", "index.html"), "utf8");
+const cssSource = fs.readFileSync(path.join(__dirname, "..", "bachelor-party.css"), "utf8");
 assert.equal((indexSource.match(/aria-expanded="false"/g) || []).length, 4, "all collapsible panels default closed");
 assert.equal((indexSource.match(/data-collapsible-content hidden/g) || []).length, 4, "collapsed content starts hidden");
 assert.equal((indexSource.match(/class="collapse-indicator"/g) || []).length, 3, "Roll Call no longer shows a plus icon");
 assert.match(indexSource, /Click to begin Quest!/, "the quest button uses the requested label");
 assert.doesNotMatch(source, /Let our journey begin!/, "the finalized state keeps the requested quest button label");
+assert.doesNotMatch(cssSource, /\.itinerary-event-(?:price|links)/, "the itinerary no longer styles moved pricing or links");
 
 console.log("weekend decision and itinerary pricing tests passed");
