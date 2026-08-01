@@ -98,7 +98,7 @@ const onePersonTotal = vm.runInContext(
   })()`,
   context,
 );
-assert.equal(onePersonTotal, "$39.49–$109.99", "the known one-person subtotal must stay accurate");
+assert.equal(onePersonTotal, "$165.48", "the known high-price one-person subtotal must stay accurate");
 
 const costsAreOnePersonOnly = vm.runInContext(
   `tripDetails.find(({ kind }) => kind === "itinerary").body.prep
@@ -172,15 +172,16 @@ assert.deepEqual(verifiedItineraryData.dayLabels, [
   "Jan 16, 2027 · Grass Valley → Sacramento",
 ]);
 assert.deepEqual(verifiedItineraryData.costs, [
-  { title: "Fri · GV Brewing food", onePerson: [5, 19] },
-  { title: "Sat · Bubba's sandwiches", onePerson: [5.99, 12.99] },
+  { title: "Fri · GV Brewing food", onePerson: [19, 19] },
+  { title: "Sat · Bubba's sandwiches", onePerson: [12.99, 12.99] },
   { title: "Sat · 2-car gas share", onePerson: null, onePersonLabel: "TBD" },
-  { title: "Sat · Enchambered", onePerson: [25, 35] },
-  { title: "Sat · Butterscotch food", onePerson: [3.5, 43] },
+  { title: "Sat · Pete's food", onePerson: [45.49, 45.49] },
+  { title: "Sat · Enchambered", onePerson: [45, 45] },
+  { title: "Sat · Butterscotch food", onePerson: [43, 43] },
   { title: "Sat · Punch Line ticket", onePerson: null, onePersonLabel: "Not released" },
   { title: "Sat · Punch Line drinks (2)", onePerson: null, onePersonLabel: "Not posted" },
 ]);
-assert.equal(verifiedItineraryData.totalLabel, "Known subtotal");
+assert.equal(verifiedItineraryData.totalLabel, "High-price subtotal");
 assert.equal(
   verifiedItineraryData.links.find(({ label, url }) =>
     label === "Menu" && url.includes("bubbas-bagels.com"),
