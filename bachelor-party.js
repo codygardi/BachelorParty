@@ -189,11 +189,11 @@ const tripDetails = [
           items: [
             {
               title: "Fri · GV Brewing food",
-              onePerson: [5, 19],
+              onePerson: [19, 19],
             },
             {
               title: "Sat · Bubba's sandwiches",
-              onePerson: [5.99, 12.99],
+              onePerson: [12.99, 12.99],
             },
             {
               title: "Sat · 2-car gas share",
@@ -201,12 +201,16 @@ const tripDetails = [
               onePersonLabel: "TBD",
             },
             {
+              title: "Sat · Pete's food",
+              onePerson: [45.49, 45.49],
+            },
+            {
               title: "Sat · Enchambered",
-              onePerson: [25, 35],
+              onePerson: [45, 45],
             },
             {
               title: "Sat · Butterscotch food",
-              onePerson: [3.5, 43],
+              onePerson: [43, 43],
             },
             {
               title: "Sat · Punch Line ticket",
@@ -219,7 +223,7 @@ const tripDetails = [
               onePersonLabel: "Not posted",
             },
           ],
-          totalLabel: "Known subtotal",
+          totalLabel: "High-price subtotal",
         },
         {
           title: "What to bring",
