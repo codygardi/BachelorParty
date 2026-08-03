@@ -175,7 +175,7 @@ assert.deepEqual(verifiedItineraryData.costs, [
   { title: "Fri · GV Brewing food", onePerson: [19, 19] },
   { title: "Sat · Bubba's sandwiches", onePerson: [12.99, 12.99] },
   { title: "Sat · 2-car gas share", onePerson: null, onePersonLabel: "TBD" },
-  { title: "Sat · Pete's food", onePerson: [45.49, 45.49] },
+  { title: "Sat · Pete's food (optional)", onePerson: [45.49, 45.49] },
   { title: "Sat · Enchambered", onePerson: [45, 45] },
   { title: "Sat · Butterscotch food", onePerson: [43, 43] },
   { title: "Sat · Punch Line ticket", onePerson: null, onePersonLabel: "Not released" },
