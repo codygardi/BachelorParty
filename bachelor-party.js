@@ -201,7 +201,7 @@ const tripDetails = [
               onePersonLabel: "TBD",
             },
             {
-              title: "Sat · Pete's food",
+              title: "Sat · Pete's food (optional)",
               onePerson: [45.49, 45.49],
             },
             {
