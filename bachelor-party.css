@@ -705,8 +705,27 @@ h3 {
   text-transform: uppercase;
 }
 
-.cost-header span:not(:first-child) {
+.cost-header > span:not(:first-child) {
   text-align: right;
+}
+
+.cost-max-heading {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.28rem;
+}
+
+.cost-max-indicator {
+  padding: 0.08rem 0.28rem;
+  border: 1px solid color-mix(in srgb, var(--green) 42%, var(--line));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--green) 9%, var(--page-strong));
+  color: var(--green);
+  font-size: 0.47rem;
+  letter-spacing: 0.07em;
+  line-height: 1.15;
+  text-decoration: none;
 }
 
 .cost-row {

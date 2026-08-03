@@ -118,7 +118,7 @@ assert.deepEqual(JSON.parse(saturdayTitles), [
   "Head to Sacramento",
   "Pete's Arden bar",
   "Enchambered escape room",
-  "Dinner at The Butterscotch Den",
+  "Dinner at The Butterscotch Den (vegetarian options)",
   "Punch Line Comedy Club — show TBD",
   "Return to Grass Valley",
 ]);
@@ -144,7 +144,7 @@ assert.deepEqual(JSON.parse(itineraryLinkGroups), [
   { title: "Head to Sacramento", links: ["Route"] },
   { title: "Pete's Arden bar", links: ["Location", "Menu"] },
   { title: "Enchambered escape room", links: ["Location", "Book"] },
-  { title: "Dinner at The Butterscotch Den", links: ["Location", "Menu", "Reserve"] },
+  { title: "Dinner at The Butterscotch Den (vegetarian options)", links: ["Location", "Menu", "Reserve"] },
   { title: "Punch Line Comedy Club — show TBD", links: ["Location", "Shows", "Menu", "Policy"] },
 ]);
 
@@ -194,6 +194,12 @@ assert.equal(
   ).url,
   "https://order.online/store/pete%27s-restaurant-%26-brewhouse-sacramento-2467080/?hideModal=true&pickup=true",
 );
+assert.equal(
+  verifiedItineraryData.links.find(({ label, url }) =>
+    label === "Menu" && url.includes("thebutterscotchden.com"),
+  ).url,
+  "https://www.thebutterscotchden.com/s/MENU-47.pdf",
+);
 
 const indexSource = fs.readFileSync(path.join(__dirname, "..", "index.html"), "utf8");
 const cssSource = fs.readFileSync(path.join(__dirname, "..", "bachelor-party.css"), "utf8");
@@ -203,6 +209,8 @@ assert.equal((indexSource.match(/class="collapse-indicator"/g) || []).length, 3,
 assert.match(indexSource, /Click to begin Quest!/, "the quest button uses the requested label");
 assert.doesNotMatch(source, /Let our journey begin!/, "the finalized state keeps the requested quest button label");
 assert.doesNotMatch(source, /eightPeople|cost-alcohol|ALC\.\*/, "8-person and alcohol costs stay removed");
+assert.match(source, /Maximum price: assumes the most expensive listed item\./, "the max-price column is explained");
+assert.match(cssSource, /\.cost-max-indicator/, "the maximum-price indicator stays visually distinct");
 assert.doesNotMatch(cssSource, /\.cost-(?:alcohol|footnote|links)/, "obsolete cost details stay removed");
 assert.doesNotMatch(indexSource, /password|Grant Access|data-reset/i, "the page must not show a quest password form");
 assert.doesNotMatch(source, /plannerAccess|gatedBody|handleResetForm/, "quest details must remain ungated");

@@ -154,7 +154,7 @@ const tripDetails = [
               ],
             },
             {
-              title: "Dinner at The Butterscotch Den",
+              title: "Dinner at The Butterscotch Den (vegetarian options)",
               links: [
                 {
                   label: "Location",
@@ -798,10 +798,25 @@ function createCostCell(label, range, fallback = "N/A", suffix = "") {
 function createCostBreakdown(prepItem) {
   const wrapper = document.createElement("div");
   const header = document.createElement("div");
+  const eventHeading = document.createElement("span");
+  const maxHeading = document.createElement("span");
+  const maxLabel = document.createElement("span");
+  const maxIndicator = document.createElement("abbr");
 
   wrapper.className = "cost-breakdown";
   header.className = "cost-header";
-  header.innerHTML = "<span>Event</span><span>1 person</span>";
+  eventHeading.textContent = "Event";
+  maxHeading.className = "cost-max-heading";
+  maxLabel.textContent = "1 person";
+  maxIndicator.className = "cost-max-indicator";
+  maxIndicator.textContent = "MAX";
+  maxIndicator.title = "Maximum price: assumes the most expensive listed item.";
+  maxIndicator.setAttribute(
+    "aria-label",
+    "Maximum price: assumes the most expensive listed item.",
+  );
+  maxHeading.append(maxLabel, maxIndicator);
+  header.append(eventHeading, maxHeading);
   wrapper.appendChild(header);
 
   prepItem.items.forEach((costItem) => {
