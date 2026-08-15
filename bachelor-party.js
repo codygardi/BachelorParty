@@ -291,6 +291,10 @@ function getInviteeById(id) {
 }
 
 function setStatus(message, type = "loading") {
+  if (!elements.statusMessage) {
+    return;
+  }
+
   elements.statusMessage.textContent = message;
   elements.statusMessage.className = `status-message is-${type}`;
   elements.statusMessage.hidden = type === "loading";
@@ -599,15 +603,17 @@ async function syncVisibleSharedResponses({ showError = false } = {}) {
   try {
     await refreshSharedResponses();
 
-    if (!elements.detailsPage.hidden) {
+    if (elements.detailsPage && !elements.detailsPage.hidden) {
       renderDetailsPage();
     }
 
-    if (!elements.rsvpPage.hidden) {
+    if (elements.form && elements.rsvpPage && !elements.rsvpPage.hidden) {
       updateInviteeState();
     }
 
-    updateRollCallState();
+    if (elements.rsvpPanel) {
+      updateRollCallState();
+    }
   } catch (error) {
     if (showError) {
       setStatus("Shared RSVPs could not be refreshed. Showing saved browser entries for now.", "error");
@@ -1218,6 +1224,10 @@ function getWeekendDecision() {
 }
 
 function updateRollCallState(decision = getWeekendDecision()) {
+  if (!elements.rsvpPanel || !elements.rollCallToggle || !elements.alreadyDidThis || !elements.form) {
+    return;
+  }
+
   const isLocked = decision.isFinalized;
 
   elements.alreadyDidThis.textContent = "Click to begin Quest!";
@@ -1384,27 +1394,8 @@ function renderDetailsPage() {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-  renderInviteeOptions();
-  renderChoices();
   initializeCollapsibles();
   await loadResponses();
-  setStatus("", "loading");
-  updateInviteeState();
-  updateRollCallState();
-
-  elements.inviteeSelect.addEventListener("change", updateInviteeState);
-  elements.availabilityOptions.addEventListener("change", handleAvailabilityChange);
-  elements.form.addEventListener("submit", handleSubmit);
-  elements.alreadyDidThis.addEventListener("click", () => showDetailsPage());
-  elements.backToRsvp.addEventListener("click", () => {
-    showRsvpPage();
-    updateInviteeState();
-  });
+  renderDetailsPage();
   startSharedPolling();
-
-  if (window.location.hash === "#quest-details") {
-    showDetailsPage({ updateHash: false });
-  } else {
-    showRsvpPage({ updateHash: false });
-  }
 });

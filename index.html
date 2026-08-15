@@ -13,7 +13,7 @@
       href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Poppins:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     >
-    <link rel="stylesheet" href="bachelor-party.css?v=20260802b">
+    <link rel="stylesheet" href="bachelor-party.css?v=20260815a">
     <title>Robbie's Bachelor Party RSVP</title>
   </head>
   <body>
@@ -28,138 +28,74 @@
           <p class="eyebrow">Quest notice</p>
           <h1 id="page-title">Robbie's Bachelor Party RSVP</h1>
           <p class="hero-lead">
-            Pick your name below, mark the weekends you have available, and leave any travel notes for the quest log.
+            Review the party log, confirmed availability, and complete quest itinerary below.
           </p>
         </section>
 
-        <section class="rsvp-panel collapsible-panel" aria-labelledby="rsvp-title" data-collapsible data-roll-call>
-          <div class="panel-heading panel-heading-compact panel-heading-with-action">
-            <button
-              type="button"
-              class="section-toggle"
-              data-collapse-toggle
-              aria-expanded="false"
-              aria-controls="roll-call-content"
-            >
-              <span class="eyebrow" id="rsvp-title">Roll call</span>
-            </button>
-            <button
-              type="button"
-              class="heading-action"
-              data-already-did-this
-            >
-              Click to begin Quest!
-            </button>
+        <section id="quest-details" class="details-page" data-details-page aria-label="Quest details dashboard">
+          <div class="details-card collapsible-panel" data-collapsible>
+            <div class="panel-heading panel-heading-compact">
+              <button
+                type="button"
+                class="section-toggle"
+                data-collapse-toggle
+                aria-expanded="false"
+                aria-controls="party-log-content"
+              >
+                <span class="eyebrow">Party log</span>
+                <span class="collapse-indicator" aria-hidden="true"></span>
+              </button>
+            </div>
+            <div id="party-log-content" data-collapsible-content hidden>
+              <div class="response-list" data-response-list></div>
+            </div>
           </div>
 
-          <div id="roll-call-content" data-collapsible-content hidden>
-            <p class="status-message" data-status-message role="status" aria-live="polite" hidden></p>
+          <div class="details-card collapsible-panel" data-collapsible>
+            <div class="panel-heading panel-heading-compact">
+              <button
+                type="button"
+                class="section-toggle"
+                data-collapse-toggle
+                aria-expanded="false"
+                aria-controls="availability-content"
+              >
+                <span class="eyebrow">Availability</span>
+                <span class="collapse-indicator" aria-hidden="true"></span>
+              </button>
+            </div>
+            <div id="availability-content" data-collapsible-content hidden>
+              <div class="overlap-summary" data-overlap-summary></div>
+              <div class="overlap-list" data-overlap-list></div>
+            </div>
+          </div>
 
-            <form class="rsvp-form" data-rsvp-form novalidate>
-              <div class="field-group">
-                <label for="invitee-select">Name</label>
-                <select id="invitee-select" name="invitee" data-invitee-select required>
-                  <option value="">Choose your name</option>
-                </select>
-              </div>
-
-              <div class="phone-card" data-phone-card hidden>
-                <span>Saved phone</span>
-                <strong data-phone-display></strong>
-              </div>
-
-              <fieldset class="choice-group">
-                <legend>RSVP status</legend>
-                <div class="stacked-options" data-status-options></div>
-              </fieldset>
-
-              <fieldset class="choice-group">
-                <legend>Weekend availability</legend>
-                <div class="stacked-options" data-availability-options></div>
-              </fieldset>
-
-              <div class="field-group">
-                <label for="notes">Notes</label>
-                <textarea
-                  id="notes"
-                  name="notes"
-                  rows="5"
-                  data-notes
-                  placeholder="Travel constraints, timing notes, dietary restrictions, or party-planning details"
-                ></textarea>
-              </div>
-
-              <button type="submit" class="primary-action" data-submit-rsvp>Submit RSVP</button>
-            </form>
+          <div class="details-card collapsible-panel" data-collapsible>
+            <div class="panel-heading panel-heading-compact">
+              <button
+                type="button"
+                class="section-toggle"
+                data-collapse-toggle
+                aria-expanded="false"
+                aria-controls="quest-details-content"
+              >
+                <span class="eyebrow">Quest details</span>
+                <span class="collapse-indicator" aria-hidden="true"></span>
+              </button>
+            </div>
+            <div id="quest-details-content" data-collapsible-content hidden>
+              <div class="trip-list" data-trip-details></div>
+            </div>
           </div>
         </section>
       </div>
-
-      <section class="details-page" data-details-page hidden aria-label="Quest details dashboard">
-        <button type="button" class="back-button" data-back-to-rsvp aria-label="Back to RSVP form">Back</button>
-
-        <div class="details-card collapsible-panel" data-collapsible>
-          <div class="panel-heading panel-heading-compact">
-            <button
-              type="button"
-              class="section-toggle"
-              data-collapse-toggle
-              aria-expanded="false"
-              aria-controls="party-log-content"
-            >
-              <span class="eyebrow">Party log</span>
-              <span class="collapse-indicator" aria-hidden="true"></span>
-            </button>
-          </div>
-          <div id="party-log-content" data-collapsible-content hidden>
-            <div class="response-list" data-response-list></div>
-          </div>
-        </div>
-
-        <div class="details-card collapsible-panel" data-collapsible>
-          <div class="panel-heading panel-heading-compact">
-            <button
-              type="button"
-              class="section-toggle"
-              data-collapse-toggle
-              aria-expanded="false"
-              aria-controls="availability-content"
-            >
-              <span class="eyebrow">Availability</span>
-              <span class="collapse-indicator" aria-hidden="true"></span>
-            </button>
-          </div>
-          <div id="availability-content" data-collapsible-content hidden>
-            <div class="overlap-summary" data-overlap-summary></div>
-            <div class="overlap-list" data-overlap-list></div>
-          </div>
-        </div>
-
-        <div class="details-card collapsible-panel" data-collapsible>
-          <div class="panel-heading panel-heading-compact">
-            <button
-              type="button"
-              class="section-toggle"
-              data-collapse-toggle
-              aria-expanded="false"
-              aria-controls="quest-details-content"
-            >
-              <span class="eyebrow">Quest details</span>
-              <span class="collapse-indicator" aria-hidden="true"></span>
-            </button>
-          </div>
-          <div id="quest-details-content" data-collapsible-content hidden>
-            <div class="trip-list" data-trip-details></div>
-          </div>
-        </div>
-      </section>
     </main>
 
     <footer class="page-footer">
       <p>Celebrating Robbie Merchant in Grass Valley, CA.</p>
     </footer>
 
-    <script src="bachelor-party-config.js?v=20260802b"></script>
-    <script src="bachelor-party.js?v=20260802b"></script>
+    <script src="bachelor-party-config.js?v=20260815a"></script>
+    <script src="bachelor-party.js?v=20260815a"></script>
   </body>
 </html>
