@@ -272,6 +272,7 @@ const elements = {
   submitRsvp: document.querySelector("[data-submit-rsvp]"),
   tripDetails: document.querySelector("[data-trip-details]"),
   responseList: document.querySelector("[data-response-list]"),
+  partyCount: document.querySelector("[data-party-count]"),
   overlapSummary: document.querySelector("[data-overlap-summary]"),
   overlapList: document.querySelector("[data-overlap-list]"),
 };
@@ -1293,32 +1294,20 @@ function createRollResult(status, availability) {
 function renderResponseList() {
   const entries = getResponseEntries();
   elements.responseList.textContent = "";
+  elements.partyCount.textContent = `${entries.length} / ${expectedRsvpCount} accounted for`;
 
   if (!entries.length) {
-    const empty = document.createElement("p");
-    empty.className = "empty-state";
+    const empty = document.createElement("li");
+    empty.className = "party-roster-empty";
     empty.textContent = "No responses yet.";
     elements.responseList.appendChild(empty);
     return;
   }
 
-  entries.forEach(({ invitee, response }) => {
-    const item = document.createElement("article");
-    item.className = "response-card";
-
-    const responseHeading = document.createElement("div");
-    responseHeading.className = "response-heading";
-
-    const heading = document.createElement("h3");
-    heading.textContent = invitee.name;
-    responseHeading.append(heading, createRollResult(response.status, response.availability));
-
-    item.appendChild(responseHeading);
-
-    if (response.notes) {
-      item.appendChild(createDetailLine("Notes", response.notes));
-    }
-
+  entries.forEach(({ invitee }) => {
+    const item = document.createElement("li");
+    item.className = "party-roster-name";
+    item.textContent = invitee.name;
     elements.responseList.appendChild(item);
   });
 }
@@ -1344,7 +1333,7 @@ function renderOverlapTracker(decision = getWeekendDecision()) {
     summary.classList.add("is-reroll");
     summary.textContent = "Roll call stays open: at least one guest cannot attend. No weekend has been selected.";
   } else if (decision.isFinalized) {
-    summary.textContent = `${decision.finalizedWeekend.summary}: selected for all 7 guests. Let the journey begin!`;
+    summary.textContent = "";
   } else if (!decision.hasAllExpectedResponses) {
     summary.classList.add("is-pending");
     summary.textContent = `Waiting for all ${expectedRsvpCount} RSVPs before calling the best weekend.`;
@@ -1356,7 +1345,9 @@ function renderOverlapTracker(decision = getWeekendDecision()) {
     summary.classList.add("is-reroll");
     summary.textContent = `No single weekend works for all ${expectedRsvpCount} guests. Add another date option and reroll.`;
   }
-  elements.overlapSummary.appendChild(summary);
+  if (!decision.isFinalized) {
+    elements.overlapSummary.appendChild(summary);
+  }
 
   decision.visibleWeekends.forEach(({ label, detail, names, value }) => {
     const item = document.createElement("article");
@@ -1378,7 +1369,9 @@ function renderOverlapTracker(decision = getWeekendDecision()) {
     detailLine.textContent = detail;
 
     const count = document.createElement("p");
-    count.textContent = `${names.length} ${names.length === 1 ? "vote" : "votes"}`;
+    count.textContent = decision.isFinalized
+      ? `${names.length} / ${expectedRsvpCount} votes`
+      : `${names.length} ${names.length === 1 ? "vote" : "votes"}`;
 
     item.append(title, detailLine, count);
     elements.overlapList.appendChild(item);
@@ -1394,7 +1387,6 @@ function renderDetailsPage() {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-  initializeCollapsibles();
   await loadResponses();
   renderDetailsPage();
   startSharedPolling();

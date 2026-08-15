@@ -13,7 +13,7 @@
       href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Poppins:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     >
-    <link rel="stylesheet" href="bachelor-party.css?v=20260815a">
+    <link rel="stylesheet" href="bachelor-party.css?v=20260815b">
     <title>Robbie's Bachelor Party RSVP</title>
   </head>
   <body>
@@ -28,65 +28,37 @@
           <p class="eyebrow">Quest notice</p>
           <h1 id="page-title">Robbie's Bachelor Party RSVP</h1>
           <p class="hero-lead">
-            Review the party log, confirmed availability, and complete quest itinerary below.
+            Review the final party roster, selected weekend, and complete quest itinerary below.
           </p>
         </section>
 
         <section id="quest-details" class="details-page" data-details-page aria-label="Quest details dashboard">
-          <div class="details-card collapsible-panel" data-collapsible>
-            <div class="panel-heading panel-heading-compact">
-              <button
-                type="button"
-                class="section-toggle"
-                data-collapse-toggle
-                aria-expanded="false"
-                aria-controls="party-log-content"
-              >
-                <span class="eyebrow">Party log</span>
-                <span class="collapse-indicator" aria-hidden="true"></span>
-              </button>
+          <article class="details-card party-overview-card" aria-labelledby="party-overview-title">
+            <div class="panel-heading static-panel-heading">
+              <div>
+                <p class="eyebrow">Party log &amp; availability</p>
+                <h2 id="party-overview-title">The adventuring party</h2>
+              </div>
+              <span class="party-count" data-party-count></span>
             </div>
-            <div id="party-log-content" data-collapsible-content hidden>
-              <div class="response-list" data-response-list></div>
-            </div>
-          </div>
+            <ul class="party-roster" data-response-list></ul>
+          </article>
 
-          <div class="details-card collapsible-panel" data-collapsible>
-            <div class="panel-heading panel-heading-compact">
-              <button
-                type="button"
-                class="section-toggle"
-                data-collapse-toggle
-                aria-expanded="false"
-                aria-controls="availability-content"
-              >
-                <span class="eyebrow">Availability</span>
-                <span class="collapse-indicator" aria-hidden="true"></span>
-              </button>
+          <article class="details-card quest-details-card" aria-labelledby="quest-dashboard-title">
+            <div class="panel-heading static-panel-heading">
+              <div>
+                <p class="eyebrow">Quest details</p>
+                <h2 id="quest-dashboard-title">Weekend plan</h2>
+              </div>
             </div>
-            <div id="availability-content" data-collapsible-content hidden>
+
+            <div class="quest-weekend-block" aria-label="Weekend selection">
               <div class="overlap-summary" data-overlap-summary></div>
               <div class="overlap-list" data-overlap-list></div>
             </div>
-          </div>
 
-          <div class="details-card collapsible-panel" data-collapsible>
-            <div class="panel-heading panel-heading-compact">
-              <button
-                type="button"
-                class="section-toggle"
-                data-collapse-toggle
-                aria-expanded="false"
-                aria-controls="quest-details-content"
-              >
-                <span class="eyebrow">Quest details</span>
-                <span class="collapse-indicator" aria-hidden="true"></span>
-              </button>
-            </div>
-            <div id="quest-details-content" data-collapsible-content hidden>
-              <div class="trip-list" data-trip-details></div>
-            </div>
-          </div>
+            <div class="trip-list" data-trip-details></div>
+          </article>
         </section>
       </div>
     </main>
@@ -95,7 +67,7 @@
       <p>Celebrating Robbie Merchant in Grass Valley, CA.</p>
     </footer>
 
-    <script src="bachelor-party-config.js?v=20260815a"></script>
-    <script src="bachelor-party.js?v=20260815a"></script>
+    <script src="bachelor-party-config.js?v=20260815b"></script>
+    <script src="bachelor-party.js?v=20260815b"></script>
   </body>
 </html>
