@@ -213,17 +213,29 @@ const tripDetails = [
               onePerson: [43, 43],
             },
             {
-              title: "Sat · Punch Line ticket",
-              onePerson: null,
-              onePersonLabel: "Not released",
+              title: "Sat · Punch Line ticket (est.)",
+              onePerson: [69, 69],
             },
             {
-              title: "Sat · Punch Line drinks (2)",
-              onePerson: null,
-              onePersonLabel: "Not posted",
+              title: "Sat · Punch Line drinks (2, est.)",
+              onePerson: [44, 44],
             },
           ],
-          totalLabel: "High-price subtotal",
+          totalLabel: "Known-cost subtotal",
+          coverLabel: "Robbie's share ÷ 7",
+          payerTotalLabel: "Each payer total",
+          estimateNote:
+            "Punch Line estimates use $69 for a comparable January 2027 ticket and $44 for two beverages at the recent reported high of $22 each. Gas, ticket fees, tax, and gratuity are excluded.",
+          estimateLinks: [
+            {
+              label: "Ticket comparison",
+              url: "https://concerts50.com/venues/usa/sacramento-ca/punch-line-sacramento",
+            },
+            {
+              label: "Official drink menu",
+              url: "https://www.punchlinesac.com/menu",
+            },
+          ],
         },
         {
           title: "What to bring",
@@ -760,6 +772,14 @@ function sumCostRanges(items, field) {
   );
 }
 
+function divideCostRange(range, divisor) {
+  return range.map((value) => value / divisor);
+}
+
+function addCostRanges(first, second) {
+  return first.map((value, index) => value + second[index]);
+}
+
 function createItineraryItem(itemData) {
   const marker = document.createElement("span");
   const item = document.createElement("li");
@@ -848,6 +868,9 @@ function createCostBreakdown(prepItem) {
     wrapper.appendChild(row);
   });
 
+  const subtotal = sumCostRanges(prepItem.items, "onePerson");
+  const robbieShare = divideCostRange(subtotal, expectedRsvpCount);
+  const payerTotal = addCostRanges(subtotal, robbieShare);
   const totals = document.createElement("div");
   const totalEvent = document.createElement("div");
   const totalTitle = document.createElement("strong");
@@ -858,9 +881,48 @@ function createCostBreakdown(prepItem) {
   totalEvent.appendChild(totalTitle);
   totals.append(
     totalEvent,
-    createCostCell("1 person", sumCostRanges(prepItem.items, "onePerson")),
+    createCostCell("1 person", subtotal),
   );
   wrapper.appendChild(totals);
+
+  const coverRow = document.createElement("div");
+  const coverEvent = document.createElement("div");
+  const coverTitle = document.createElement("strong");
+
+  coverRow.className = "cost-row cost-cover-share";
+  coverEvent.className = "cost-event";
+  coverTitle.textContent = prepItem.coverLabel;
+  coverEvent.appendChild(coverTitle);
+  coverRow.append(coverEvent, createCostCell("Per payer", robbieShare));
+  wrapper.appendChild(coverRow);
+
+  const payerTotalRow = document.createElement("div");
+  const payerTotalEvent = document.createElement("div");
+  const payerTotalTitle = document.createElement("strong");
+
+  payerTotalRow.className = "cost-row cost-payer-total";
+  payerTotalEvent.className = "cost-event";
+  payerTotalTitle.textContent = prepItem.payerTotalLabel;
+  payerTotalEvent.appendChild(payerTotalTitle);
+  payerTotalRow.append(payerTotalEvent, createCostCell("Per payer", payerTotal));
+  wrapper.appendChild(payerTotalRow);
+
+  if (prepItem.estimateNote) {
+    const note = document.createElement("p");
+    note.className = "cost-estimate-note";
+    note.textContent = prepItem.estimateNote;
+
+    if (prepItem.estimateLinks?.length) {
+      const links = document.createElement("span");
+      links.className = "cost-estimate-links";
+      prepItem.estimateLinks.forEach((linkData) => {
+        links.appendChild(createOutboundLink(linkData, "cost-estimate-link"));
+      });
+      note.appendChild(links);
+    }
+
+    wrapper.appendChild(note);
+  }
 
   return wrapper;
 }

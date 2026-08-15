@@ -870,6 +870,61 @@ h3 {
   font-size: 0.68rem;
 }
 
+.cost-cover-share {
+  border-style: dashed;
+  border-color: color-mix(in srgb, var(--gold) 54%, var(--line));
+  background: color-mix(in srgb, var(--gold) 8%, var(--page-strong));
+}
+
+.cost-cover-share .cost-event > strong {
+  color: var(--red-strong);
+}
+
+.cost-payer-total {
+  border-color: color-mix(in srgb, var(--red-strong) 48%, var(--gold));
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--red) 10%, transparent), transparent 60%),
+    var(--page-strong);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--red) 10%, transparent);
+}
+
+.cost-payer-total .cost-event > strong,
+.cost-payer-total .cost-value strong {
+  color: var(--red-strong);
+  font-size: 0.72rem;
+}
+
+.cost-estimate-note {
+  margin-top: 0.12rem;
+  padding: 0.48rem 0.52rem;
+  border-left: 2px solid color-mix(in srgb, var(--gold) 64%, var(--line));
+  color: var(--muted);
+  font-size: 0.58rem;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.cost-estimate-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.46rem;
+  margin-top: 0.28rem;
+}
+
+.cost-estimate-link {
+  color: var(--red-strong);
+  font-size: 0.58rem;
+  font-weight: 800;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--red-strong) 34%, transparent);
+  text-underline-offset: 0.14em;
+}
+
+.cost-estimate-link::after {
+  content: " \2197";
+  font-size: 0.82em;
+}
+
 .status-message {
   min-height: 2.6rem;
   margin-bottom: 1rem;
