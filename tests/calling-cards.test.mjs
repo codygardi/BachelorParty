@@ -61,8 +61,9 @@ test("room and seating ballots can be edited independently and cleared", async (
   for (const response of responses) assert.equal(response.status, 200);
   assert.deepEqual(await api.read(), [{ ...existing, room: "fortunes-favor", seating: "general" }]);
 
-  for (const room of ["seance", "pirates-of-tortuga", "skull-witch"]) {
+  for (const room of ["seance", "pirates-of-tortuga", "the-collection", "skull-witch"]) {
     assert.equal((await api.save({ inviteeId, room })).status, 200);
+    assert.deepEqual(await api.read(), [{ ...existing, room, seating: "general" }]);
   }
   assert.equal((await api.save({ inviteeId, room: "invalid", seating: "preferred" })).status, 400);
   assert.equal((await api.save({ inviteeId, seating: "vip" })).status, 400);

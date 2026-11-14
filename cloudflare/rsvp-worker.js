@@ -7,7 +7,7 @@ const voterIds = new Set([
 const driveChoices = new Set(["volunteer", "rider"]);
 const barChoices = new Set(["", "snug", "omallys", "cabin", "shady-lady", "finnegans", "bookstore", "trapcat"]);
 const dinnerChoices = new Set(["", "petes-arden", "thai-terrace", "wildwood", "tapa-the-world"]);
-const roomChoices = new Set(["", "seance", "pirates-of-tortuga", "fortunes-favor", "skull-witch"]);
+const roomChoices = new Set(["", "seance", "pirates-of-tortuga", "fortunes-favor", "skull-witch", "the-collection"]);
 const seatingChoices = new Set(["", "general", "preferred"]);
 const ballotChoices = { drive: driveChoices, bar: barChoices, dinner: dinnerChoices, room: roomChoices, seating: seatingChoices };
 

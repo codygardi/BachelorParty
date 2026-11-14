@@ -1,3 +1,14 @@
+const enchambered = {
+  address: "2230 Arden Way #C",
+  fromSnug: { mode: "driving", time: "6.7 mi from The Snug" },
+  fromBars: [
+    ["The Cabin", "4.7 mi · 10–15 min"],
+    ["The Snug", "6.7 mi · 12–20 min"],
+    ["Shady Lady Saloon", "6.7 mi · 12–20 min"],
+    ["O’Mally’s Pub", "7.3 mi · 15–20 min"],
+  ],
+};
+
 const venues = {
   bar: [
     {
@@ -132,7 +143,7 @@ const venues = {
       type: "Exit Strategy Games · Haunted parlor",
       address: "1831 I St",
       fromSnug: { mode: "walking", time: "20 min walk from The Snug" },
-      note: "$35 each for eight · 60 min · Private room",
+      note: "$35 each for eight · 60 min · 2–8 players",
       theme: "A mystic’s candlelit parlor with patterned rugs and wards. Find the charms to send a spirit back through its portal.",
       website: "https://exitstrategygames.com/seance/",
       booking: "https://offthecouch.io/book/escapesac/seance",
@@ -148,8 +159,8 @@ const venues = {
       type: "PanIQ · Pirate storeroom",
       address: "2642 5th St",
       fromSnug: { mode: "driving", time: "1.5 mi from The Snug" },
-      note: "$40.95 each · 60 min · Confirm space for eight",
-      theme: "Lanterns, timber, and barrels give the pirates’ storeroom an old-tavern feel. The room page lists up to eight players. PanIQ’s FAQ lists seven.",
+      note: "$40.95 each · 60 min · 2–8 players",
+      theme: "Lanterns, timber, and barrels give the pirates’ storeroom an old-tavern feel. The Jan 16 booking form allows eight players.",
       website: "https://paniqescaperoom.com/sacramento/en/escape-rooms/pirates-of-tortuga",
       booking: "https://paniqescaperoom.com/sacramento/en/booking/escape-room/pirates-of-tortuga?date=2027-01-16&limit=7#day-jump",
       photos: [
@@ -164,7 +175,7 @@ const venues = {
       type: "Exit Strategy Games · Enchanted forest",
       address: "1831 I St",
       fromSnug: { mode: "walking", time: "20 min walk from The Snug" },
-      note: "$35 each for eight · 60 min · Private room",
+      note: "$35 each for eight · 60 min · 2–8 players",
       theme: "Trace a missing friend through an enchanted grove with a stone well and a little woodland hut. Closest fit for a classic fantasy quest.",
       website: "https://exitstrategygames.com/fortunes-favor/",
       booking: "https://offthecouch.io/book/escapesac/fortunes",
@@ -176,26 +187,32 @@ const venues = {
       photoSource: "https://roomescapeartist.com/2023/02/20/escape-sacramento-fortunes-favor-review/",
     },
     {
+      ...enchambered,
       id: "skull-witch",
       name: "The Legend of the Skull Witch",
       type: "Enchambered · Cursed bayou cabin",
-      address: "2230 Arden Way #C",
-      fromSnug: { mode: "driving", time: "6.7 mi from The Snug" },
-      note: "$45 each on Saturday · 60 min · Up to eight\nAcross town from the bars · About 5–8 min walk to Punch Line",
+      note: "$45 each on Saturday · 60 min · 3–8 players\nAcross town from the bars · About 5–8 min walk to Punch Line",
       theme: "A candlelit swamp cabin full of wooden totems and witchcraft. Enchambered is a drive from the bars and a short walk from Punch Line and Pete’s Arden.",
       website: "https://www.enchambered.com/booking/skull-witch/",
-      fromBars: [
-        ["The Cabin", "4.7 mi · 10–15 min"],
-        ["The Snug", "6.7 mi · 12–20 min"],
-        ["Shady Lady Saloon", "6.7 mi · 12–20 min"],
-        ["O’Mally’s Pub", "7.3 mi · 15–20 min"],
-      ],
       photos: [
         ["skull-witch-cabin", "Wooden cabin shelves with bottles and candlelight"],
         ["skull-witch-tree", "Green lanterns suspended in the bayou set"],
         ["skull-witch-totems", "Wooden masks and totems along a purple-lit wall"],
       ],
       photoSource: "https://roomescapeartist.com/2019/04/09/enchambered-the-legend-of-the-skull-witch-review/",
+    },
+    {
+      ...enchambered,
+      id: "the-collection",
+      name: "The Collection",
+      type: "Enchambered · Cursed lighthouse",
+      note: "60 min · 4–8 players\nAcross town from the bars · About 5–8 min walk to Punch Line",
+      theme: "Follow a professor’s journal through a lighthouse full of cursed relics and stop a ritual before the eclipse.",
+      website: "https://www.enchambered.com/booking/the-collection/",
+      photos: [
+        ["the-collection", "Enchambered’s official artwork for The Collection with a lighthouse above a dark sea"],
+      ],
+      photoSource: "https://morty.app/attraction/53801/the-collection",
     },
   ],
 };
@@ -368,7 +385,9 @@ function renderVenue() {
   venueDialog.querySelector("[data-venue-address]").textContent = trip ? `${venue.address} · ${trip.time}` : venue.address;
   venueDialog.querySelector("[data-venue-short]").textContent = venue.note;
   venueDialog.querySelector("[data-venue-theme]").textContent = venue.theme;
-  venueDialog.querySelector("[data-venue-site]").href = venue.website;
+  const site = venueDialog.querySelector("[data-venue-site]");
+  site.href = venue.website;
+  site.firstChild.textContent = activeDeck === "room" && !venue.booking ? "Room & booking " : "Venue details ";
   const booking = venueDialog.querySelector("[data-venue-booking]");
   booking.hidden = !venue.booking;
   if (venue.booking) booking.href = venue.booking;
@@ -395,7 +414,7 @@ function renderVenue() {
     return [bar, drive];
   }));
   const credit = venueDialog.querySelector("[data-venue-credit]");
-  credit.textContent = "Photo sources ↗";
+  credit.textContent = venue.photos.length === 1 ? "Image source ↗" : "Photo sources ↗";
   credit.href = venue.photoSource || venue.website;
   const photoLinks = venue.photos.map(([file, alt, source]) => {
     const img = new Image(640, 400);
