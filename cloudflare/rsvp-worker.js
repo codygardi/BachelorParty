@@ -7,7 +7,9 @@ const voterIds = new Set([
 const driveChoices = new Set(["volunteer", "rider"]);
 const barChoices = new Set(["", "snug", "omallys", "cabin", "shady-lady", "finnegans", "bookstore", "trapcat"]);
 const dinnerChoices = new Set(["", "petes-arden", "thai-terrace", "wildwood", "tapa-the-world"]);
-const ballotChoices = { drive: driveChoices, bar: barChoices, dinner: dinnerChoices };
+const roomChoices = new Set(["", "seance", "pirates-of-tortuga", "fortunes-favor", "skull-witch"]);
+const seatingChoices = new Set(["", "general", "preferred"]);
+const ballotChoices = { drive: driveChoices, bar: barChoices, dinner: dinnerChoices, room: roomChoices, seating: seatingChoices };
 
 const defaultHeaders = {
   "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
@@ -103,24 +105,33 @@ export class CallingCards {
         inviteeId TEXT PRIMARY KEY,
         drive TEXT NOT NULL,
         bar TEXT NOT NULL,
-        dinner TEXT NOT NULL
+        dinner TEXT NOT NULL,
+        room TEXT NOT NULL DEFAULT '',
+        seating TEXT NOT NULL DEFAULT ''
       )
     `);
+    const columns = this.sql.exec("PRAGMA table_info(ballots)").toArray().map(({ name }) => name);
+    for (const name of ["room", "seating"]) {
+      if (!columns.includes(name)) this.sql.exec(`ALTER TABLE ballots ADD COLUMN ${name} TEXT NOT NULL DEFAULT ''`);
+    }
   }
 
   async fetch(request) {
     if (request.method === "POST") {
-      const { inviteeId, drive, bar, dinner } = await request.json();
+      const { inviteeId, drive, bar, dinner, room, seating } = await request.json();
       this.sql.exec(`
-        INSERT INTO ballots (inviteeId, drive, bar, dinner) VALUES (?, ?, ?, ?)
+        INSERT INTO ballots (inviteeId, drive, bar, dinner, room, seating) VALUES (?, ?, ?, ?, ?, ?)
         ON CONFLICT (inviteeId) DO UPDATE SET
           drive = COALESCE(?, ballots.drive),
           bar = COALESCE(?, ballots.bar),
-          dinner = COALESCE(?, ballots.dinner)
-      `, inviteeId, drive ?? "", bar ?? "", dinner ?? "", drive ?? null, bar ?? null, dinner ?? null);
+          dinner = COALESCE(?, ballots.dinner),
+          room = COALESCE(?, ballots.room),
+          seating = COALESCE(?, ballots.seating)
+      `, inviteeId, drive ?? "", bar ?? "", dinner ?? "", room ?? "", seating ?? "",
+      drive ?? null, bar ?? null, dinner ?? null, room ?? null, seating ?? null);
     }
 
-    const ballots = this.sql.exec("SELECT inviteeId, drive, bar, dinner FROM ballots").toArray();
+    const ballots = this.sql.exec("SELECT inviteeId, drive, bar, dinner, room, seating FROM ballots").toArray();
     return Response.json({ ballots });
   }
 }

@@ -32,8 +32,8 @@ const venues = {
       id: "cabin",
       name: "The Cabin",
       type: "Lodge bar · Whiskey cocktails",
-      address: "1207 21st St · Walk to Séance",
-      note: "The closest bar on the ballot to Séance.",
+      address: "1207 21st St · 10–12 min walk to Exit Strategy Games",
+      note: "The shortest walk to Séance and Fortune’s Favor.",
       theme: "Log walls, a stone fireplace, and campfire cocktails give it the feel of a mountain lodge.",
       website: "https://thecab.in/menu/",
       photos: [
@@ -48,7 +48,7 @@ const venues = {
       name: "Shady Lady Saloon",
       type: "Vintage saloon · Whiskey cocktails",
       address: "1409 R St · Next to The Snug",
-      note: "A short drive to either escape room.",
+      note: "Around the corner from The Snug for the same Midtown route.",
       theme: "Red wallpaper, low-lit booths, and classic bourbon or rye drinks in a 1920s saloon.",
       website: "https://www.shadyladybar.com/menu/house-cocktails",
       photos: [
@@ -125,8 +125,82 @@ const venues = {
       photoSource: "https://www.tapatheworld.com/reservations",
     },
   ],
+  room: [
+    {
+      id: "seance",
+      name: "Séance",
+      type: "Exit Strategy Games · Haunted parlor",
+      address: "1831 I St",
+      fromSnug: { mode: "walking", time: "20 min walk from The Snug" },
+      note: "$35 each for eight · 60 min · Private room",
+      theme: "A mystic’s candlelit parlor with patterned rugs and wards. Find the charms to send a spirit back through its portal.",
+      website: "https://exitstrategygames.com/seance/",
+      booking: "https://offthecouch.io/book/escapesac/seance",
+      photos: [
+        ["seance-room", "Séance’s boarded windows and patterned rug under red and blue light"],
+        ["seance-props", "Crystal ball on purple velvet between brass candlesticks", "https://worldofescapes.com/sacramento/quests/escape-sacramento-the-seance"],
+        ["seance-board", "Séance symbols painted on a wood tabletop"],
+      ],
+    },
+    {
+      id: "pirates-of-tortuga",
+      name: "Pirates of Tortuga",
+      type: "PanIQ · Pirate storeroom",
+      address: "2642 5th St",
+      fromSnug: { mode: "driving", time: "1.5 mi from The Snug" },
+      note: "$40.95 each · 60 min · Confirm space for eight",
+      theme: "Lanterns, timber, and barrels give the pirates’ storeroom an old-tavern feel. The room page lists up to eight players. PanIQ’s FAQ lists seven.",
+      website: "https://paniqescaperoom.com/sacramento/en/escape-rooms/pirates-of-tortuga",
+      booking: "https://paniqescaperoom.com/sacramento/en/booking/escape-room/pirates-of-tortuga?date=2027-01-16&limit=7#day-jump",
+      photos: [
+        ["tortuga-room", "Guest photo of the pirate room with timber trim, lanterns, a flag, and barrels", "https://morty.app/attraction/44491/pirates-of-tortuga"],
+        ["tortuga-props", "A candle, coins, and a model ship on a wooden table"],
+        ["tortuga-skulls", "Skulls and bones from the Pirates of Tortuga photo gallery", "https://morty.app/attraction/44491/pirates-of-tortuga"],
+      ],
+    },
+    {
+      id: "fortunes-favor",
+      name: "Fortune’s Favor",
+      type: "Exit Strategy Games · Enchanted forest",
+      address: "1831 I St",
+      fromSnug: { mode: "walking", time: "20 min walk from The Snug" },
+      note: "$35 each for eight · 60 min · Private room",
+      theme: "Trace a missing friend through an enchanted grove with a stone well and a little woodland hut. Closest fit for a classic fantasy quest.",
+      website: "https://exitstrategygames.com/fortunes-favor/",
+      booking: "https://offthecouch.io/book/escapesac/fortunes",
+      photos: [
+        ["fortune-woods", "Enchanted forest set with textured trees and a stone well"],
+        ["fortune-hut", "Woodland hut with a glowing window in Fortune’s Favor"],
+        ["fortune-well", "Lanterns on the rim of the stone well", "https://worldofescapes.com/companies/escape-sacramento"],
+      ],
+      photoSource: "https://roomescapeartist.com/2023/02/20/escape-sacramento-fortunes-favor-review/",
+    },
+    {
+      id: "skull-witch",
+      name: "The Legend of the Skull Witch",
+      type: "Enchambered · Cursed bayou cabin",
+      address: "2230 Arden Way #C",
+      fromSnug: { mode: "driving", time: "6.7 mi from The Snug" },
+      note: "$45 each on Saturday · 60 min · Up to eight\nAcross town from the bars · About 5–8 min walk to Punch Line",
+      theme: "A candlelit swamp cabin full of wooden totems and witchcraft. Enchambered is a drive from the bars and a short walk from Punch Line and Pete’s Arden.",
+      website: "https://www.enchambered.com/booking/skull-witch/",
+      fromBars: [
+        ["The Cabin", "4.7 mi · 10–15 min"],
+        ["The Snug", "6.7 mi · 12–20 min"],
+        ["Shady Lady Saloon", "6.7 mi · 12–20 min"],
+        ["O’Mally’s Pub", "7.3 mi · 15–20 min"],
+      ],
+      photos: [
+        ["skull-witch-cabin", "Wooden cabin shelves with bottles and candlelight"],
+        ["skull-witch-tree", "Green lanterns suspended in the bayou set"],
+        ["skull-witch-totems", "Wooden masks and totems along a purple-lit wall"],
+      ],
+      photoSource: "https://roomescapeartist.com/2019/04/09/enchambered-the-legend-of-the-skull-witch-review/",
+    },
+  ],
 };
 
+const ballotTitles = { bar: "Vote for a bar", dinner: "Vote for dinner", room: "Vote for an escape room" };
 const dashboard = document.querySelector("[data-view]");
 const scheduleTabs = Array.from(document.querySelectorAll('[role="tab"]'));
 const compactViews = window.matchMedia("(max-width: 48rem), (max-height: 40rem)");
@@ -140,6 +214,10 @@ const flipButton = venueDialog.querySelector("[data-flip-card]");
 const venueSnapshot = document.querySelector("#venue-snapshot");
 const voteButtons = Array.from(document.querySelectorAll("[data-vote]"));
 const retryButtons = Array.from(document.querySelectorAll("[data-ballot-retry]"));
+const deckOpeners = Array.from(document.querySelectorAll("[data-open-ballot]"));
+const seatingOpener = document.querySelector('[data-open-dialog="seating-voting"]');
+const seatingButtons = Array.from(document.querySelectorAll('[data-vote="seating"][aria-pressed]'));
+const clearSeating = document.querySelector("[data-clear-seating]");
 const ballotStoreUrl = persistenceConfig.ballotEndpointUrl ?? remoteStoreUrl;
 const ballotGuestKey = "bachelor-party-calling-card-guest";
 
@@ -203,11 +281,18 @@ function selectedCard() {
 }
 
 function setStatus(scope, message = "") {
-  document.querySelector(`[data-ballot-status="${scope}"]`).textContent = message;
+  const selector = scope ? `[data-ballot-status="${scope}"]` : "[data-ballot-status]";
+  for (const status of document.querySelectorAll(selector)) status.textContent = message;
 }
 
 function voteCount(field, choice) {
   return callingCards.filter((card) => card[field] === choice).length;
+}
+
+function voteTally(field, choice) {
+  if (!connected && !callingCards.length) return "Tally unavailable";
+  const count = voteCount(field, choice);
+  return `${count} ${count === 1 ? "vote" : "votes"}`;
 }
 
 function renderVotingState() {
@@ -239,18 +324,21 @@ function renderVotingState() {
   }
 
   const venue = venues[activeDeck][venueIndex];
-  const count = voteCount(activeDeck, venue.id);
   venueVote.textContent = selected?.[activeDeck] === venue.id ? "Voted" : "Vote";
-  venueDialog.querySelector("[data-venue-tally]").textContent = connected || callingCards.length
-    ? `${count} ${count === 1 ? "vote" : "votes"}`
-    : "Tally unavailable";
+  venueDialog.querySelector("[data-venue-tally]").textContent = voteTally(activeDeck, venue.id);
   clearVenue.hidden = !selected?.[activeDeck];
 
-  for (const button of document.querySelectorAll("[data-open-ballot]")) {
+  for (const button of deckOpeners) {
     const field = button.dataset.openBallot;
     const choice = venues[field].find(({ id }) => id === selected?.[field]);
-    button.firstChild.textContent = choice ? `Voted: ${choice.name} ` : field === "bar" ? "Vote for a bar " : "Vote for dinner ";
+    button.firstChild.textContent = choice ? `Your vote · ${choice.name} ` : `${ballotTitles[field]} `;
   }
+  for (const button of seatingButtons) {
+    button.querySelector("[data-seating-tally]").textContent = voteTally("seating", button.dataset.choice);
+  }
+  const seatingChoice = seatingButtons.find((button) => button.dataset.choice === selected?.seating);
+  seatingOpener.firstChild.textContent = seatingChoice ? `Your vote · ${seatingChoice.querySelector("strong").textContent} ` : "Vote on seating ";
+  clearSeating.hidden = !selected?.seating;
 }
 
 function selectGuest(id) {
@@ -260,10 +348,7 @@ function selectGuest(id) {
   } catch {
     // The selected calling card still works for this visit.
   }
-  if (connected) {
-    setStatus("drive");
-    setStatus("venue");
-  }
+  if (connected) setStatus();
   renderVotingState();
 }
 
@@ -277,25 +362,38 @@ function flipCard(showPhotos) {
 function renderVenue() {
   const deck = venues[activeDeck];
   const venue = deck[venueIndex];
+  const trip = venue.toComedy || venue.fromSnug;
   venueDialog.querySelector("[data-venue-type]").textContent = venue.type;
   venueDialog.querySelector("[data-venue-name]").textContent = venue.name;
-  venueDialog.querySelector("[data-venue-address]").textContent = venue.toComedy
-    ? `${venue.address} · ${venue.toComedy.time}`
-    : venue.address;
+  venueDialog.querySelector("[data-venue-address]").textContent = trip ? `${venue.address} · ${trip.time}` : venue.address;
   venueDialog.querySelector("[data-venue-short]").textContent = venue.note;
   venueDialog.querySelector("[data-venue-theme]").textContent = venue.theme;
   venueDialog.querySelector("[data-venue-site]").href = venue.website;
+  const booking = venueDialog.querySelector("[data-venue-booking]");
+  booking.hidden = !venue.booking;
+  if (venue.booking) booking.href = venue.booking;
   const directions = venueDialog.querySelector("[data-venue-directions]");
-  directions.hidden = !venue.toComedy;
-  if (venue.toComedy) {
+  directions.hidden = !trip;
+  if (trip) {
+    const address = `${venue.address}, Sacramento, CA`;
     const route = new URLSearchParams({
       api: "1",
-      origin: `${venue.name}, ${venue.address}, Sacramento, CA`,
-      destination: "Punch Line Sacramento, 2100 Arden Way #225, Sacramento, CA",
-      travelmode: venue.toComedy.mode,
+      origin: venue.toComedy ? `${venue.name}, ${address}` : "The Snug, 1800 15th St, Sacramento, CA",
+      destination: venue.toComedy ? "Punch Line Sacramento, 2100 Arden Way #225, Sacramento, CA" : address,
+      travelmode: trip.mode,
     });
+    directions.firstChild.textContent = venue.toComedy ? "Route to Punch Line " : "Route from The Snug ";
     directions.href = `https://www.google.com/maps/dir/?${route}`;
   }
+  const barRoutes = venueDialog.querySelector("[data-bar-routes]");
+  barRoutes.hidden = !venue.fromBars;
+  barRoutes.replaceChildren(...(venue.fromBars ?? []).flatMap(([name, distance]) => {
+    const bar = document.createElement("dt");
+    bar.textContent = name;
+    const drive = document.createElement("dd");
+    drive.textContent = distance;
+    return [bar, drive];
+  }));
   const credit = venueDialog.querySelector("[data-venue-credit]");
   credit.textContent = "Photo sources ↗";
   credit.href = venue.photoSource || venue.website;
@@ -323,14 +421,14 @@ function renderVenue() {
   renderVotingState();
 }
 
-for (const button of document.querySelectorAll("[data-open-ballot]")) {
+for (const button of deckOpeners) {
   button.addEventListener("click", () => {
     activeDeck = button.dataset.openBallot;
     const currentChoice = selectedCard()?.[activeDeck];
     const currentIndex = venues[activeDeck].findIndex(({ id }) => id === currentChoice);
     venueIndex = Math.max(currentIndex, 0);
-    venueDialog.querySelector("[data-venue-ballot-title]").textContent = activeDeck === "bar" ? "Vote for a bar" : "Vote for dinner";
-    setStatus("venue", connected && currentChoice && currentIndex < 0 ? "Choose again from the updated venues." : "");
+    venueDialog.querySelector("[data-venue-ballot-title]").textContent = ballotTitles[activeDeck];
+    if (connected) setStatus("venue", currentChoice && currentIndex < 0 ? "Choose again from the updated venues." : "");
     renderVenue();
     showDialog("venue-voting");
   });
@@ -371,16 +469,12 @@ async function refreshCallingCards() {
     const cards = await requestCallingCards();
     if (version !== saveVersion) return;
     callingCards = cards;
-    if (!connected) {
-      setStatus("drive");
-      setStatus("venue");
-    }
+    if (!connected) setStatus();
     connected = true;
   } catch {
     if (version !== saveVersion) return;
     connected = false;
-    setStatus("drive", "Shared voting is unavailable.");
-    setStatus("venue", "Shared voting is unavailable.");
+    setStatus(null, "Shared voting is unavailable.");
   } finally {
     refreshing = false;
     renderVotingState();
@@ -390,25 +484,24 @@ async function refreshCallingCards() {
 async function saveVote({ currentTarget }) {
   if (!connected || saving) return;
   const { vote, choice } = currentTarget.dataset;
-  const isDriverVote = vote === "drive";
-  const scope = isDriverVote ? "drive" : "venue";
+  const panel = currentTarget.closest("[data-ballot-panel]");
+  const scope = panel.dataset.ballotPanel;
   if (!activeGuest) {
     setStatus(scope, "Choose your name to vote.");
-    guestSelectors[isDriverVote ? 0 : 1].focus();
+    panel.querySelector("[data-ballot-guest]").focus();
     return;
   }
   if (selectedCard()?.[vote] === choice) return;
 
-  const saveDeck = activeDeck;
   saveVersion += 1;
   saving = true;
   renderVotingState();
   setStatus(scope, "Saving…");
   try {
     callingCards = await requestCallingCards({ inviteeId: activeGuest, [vote]: choice });
-    if (isDriverVote || activeDeck === saveDeck) setStatus(scope, choice ? "Vote saved." : "Vote cleared.");
+    if (scope !== "venue" || vote === activeDeck) setStatus(scope, choice ? "Vote saved." : "Vote cleared.");
   } catch {
-    if (isDriverVote || activeDeck === saveDeck) setStatus(scope, "Vote could not be saved. Try again.");
+    if (scope !== "venue" || vote === activeDeck) setStatus(scope, "Vote could not be saved. Try again.");
   } finally {
     saving = false;
     renderVotingState();

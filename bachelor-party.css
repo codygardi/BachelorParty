@@ -305,6 +305,7 @@ button[aria-disabled="true"] { opacity: 0.58; cursor: default; }
   font-weight: 700;
   text-align: left;
 }
+.inline-vote-compact { flex-basis: auto; }
 .inline-vote:hover { color: var(--gold-light); text-decoration: underline; text-underline-offset: 0.2em; }
 
 dialog {
@@ -337,30 +338,28 @@ dialog::backdrop { background: #0a0b08bd; }
 .dialog-copy { display: grid; gap: 0.65rem; color: var(--muted); }
 .dialog-copy strong, .dialog-copy h3 { color: var(--text); }
 .dialog-copy h3 { font-size: 1.5rem; }
-.escape-dialog { width: min(54rem, calc(100% - 1.5rem)); }
-.escape-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.85rem; }
-.escape-option {
+.seating-choices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.48rem; }
+.seating-choice {
   display: grid;
+  justify-content: stretch;
   align-content: start;
-  gap: 0.3rem;
-  padding: 0.68rem;
-  border: 1px solid var(--line);
-  border-radius: 0.48rem;
-  background: var(--panel-dark);
+  gap: 0.23rem;
+  padding: 0.7rem;
+  text-align: start;
 }
-.escape-photos { display: grid; grid-template-columns: 3fr 2fr; gap: 0.32rem; margin-block: 0.16rem; }
-.escape-photos a { display: block; min-width: 0; border-radius: 0.25rem; }
-.escape-photos img {
+.seating-choice strong { color: inherit; }
+.seating-price { font: 1.5rem/1.12 "Instrument Serif", Georgia, serif; }
+.seating-tally { margin-top: 0.18rem; font-size: 0.74rem; }
+.seating-map summary { width: fit-content; cursor: pointer; color: var(--gold); font-size: 0.82rem; }
+.seating-map img {
   display: block;
-  width: 100%;
-  height: clamp(5.35rem, 18vw, 9.3rem);
-  object-fit: cover;
-  border-radius: inherit;
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  max-height: min(15rem, 34dvh);
+  margin-top: 0.4rem;
+  border-radius: 0.27rem;
 }
-.tortuga-room-photo { object-position: center 30%; }
-.escape-location { color: var(--gold); font-size: 0.79rem; }
-.escape-capacity { font-size: 0.76rem; }
-.escape-option .dialog-links { margin-top: 0.15rem; font-size: 0.77rem; }
 .dice-result { color: var(--gold-light); font-weight: 700; }
 .roll-call { display: grid; grid-template-columns: auto 1fr; gap: 0.5rem 0.8rem; margin: 0; }
 .roll-call dt { font-weight: 700; color: var(--green); }
@@ -372,6 +371,7 @@ dialog::backdrop { background: #0a0b08bd; }
 .venue-heading h3 { margin-top: 0.18rem; font-size: clamp(1.95rem, 4.2vw, 2.8rem); }
 .venue-address { margin-top: 0.45rem; color: var(--gold); font-size: 0.78rem; }
 .venue-short, .venue-snapshot p { margin-top: 0.3rem; color: var(--muted); font-size: 0.85rem; }
+.venue-short { white-space: pre-line; }
 .venue-front { min-height: 3.65rem; }
 .venue-photos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.3rem; margin-block: 0.62rem; }
 .venue-photos img {
@@ -384,7 +384,19 @@ dialog::backdrop { background: #0a0b08bd; }
   border-radius: 0.27rem;
   background: var(--panel);
 }
+.venue-photos img[src$="/tortuga-room.webp"] { object-position: center 30%; }
 .venue-links { margin-top: 0.4rem; font-size: 0.75rem; }
+.bar-routes {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.14rem 0.55rem;
+  margin: 0.45rem 0 0.35rem;
+  padding: 0.35rem 0.5rem;
+  border-left: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+.bar-routes dd { margin: 0; text-align: end; }
 .venue-actions { margin-top: 0.65rem; padding-top: 0.64rem; border-top: 1px solid var(--line); }
 .venue-tally { margin-left: auto; color: var(--green); font-size: 0.83rem; }
 .deck-navigation { display: flex; align-items: center; justify-content: space-between; margin-top: 0.55rem; color: var(--muted); font-size: 0.79rem; }
@@ -436,7 +448,4 @@ dialog::backdrop { background: #0a0b08bd; }
   .schedule-panel { padding-inline: 0.55rem; }
   .schedule-tabs button, .party-tab { padding-inline: 0.51rem; }
   dialog { padding: 0.85rem; }
-  .escape-options { grid-template-columns: 1fr; gap: 0.55rem; }
-  .escape-option { padding: 0.55rem; gap: 0.22rem; }
-  .escape-photos img { height: 4.8rem; }
 }

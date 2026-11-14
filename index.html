@@ -8,10 +8,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="bachelor-party.css?v=20261113f">
+    <link rel="stylesheet" href="bachelor-party.css?v=20261113g">
     <script src="bachelor-party-config.js" defer></script>
     <script src="bachelor-party.js?v=20261113c" defer></script>
-    <script src="calling-cards.js?v=20261113h" defer></script>
+    <script src="calling-cards.js?v=20261113i" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
@@ -36,7 +36,7 @@
         </div>
         <ul class="party-roster" data-response-list></ul>
 
-        <section class="driver-ballot" id="calling-cards" aria-labelledby="driver-title">
+        <section class="driver-ballot" id="calling-cards" aria-labelledby="driver-title" data-ballot-panel="drive">
           <div class="driver-heading">
             <h3 id="driver-title">Driver roll call</h3>
             <p>Two sober drivers, three passengers each.</p>
@@ -121,8 +121,7 @@
               <span class="timeline-time">5:30–5:45 pm</span>
               <div class="timeline-stop">
                 <h3>Escape room</h3>
-                <p>Séance or Pirates of Tortuga</p>
-                <button class="quiet-button" type="button" data-open-dialog="escape-rooms" aria-haspopup="dialog">Compare rooms <span aria-hidden="true">↗</span></button>
+                <button class="inline-vote inline-vote-compact" type="button" data-open-ballot="room" aria-haspopup="dialog">Vote for an escape room <span aria-hidden="true">↗</span></button>
               </div>
             </li>
             <li>
@@ -137,6 +136,7 @@
               <div class="timeline-stop">
                 <h3>Leslie Liao at Punch Line</h3>
                 <p>Doors 8:45 pm · Two beverages per guest.</p>
+                <button class="inline-vote inline-vote-compact" type="button" data-open-dialog="seating-voting" aria-haspopup="dialog">Vote on seating <span aria-hidden="true">↗</span></button>
                 <a href="https://www.ticketmaster.com/leslie-liao-sacramento-california-01-16-2027/event/1C006543E18B42C7" target="_blank" rel="noopener">Show tickets <span aria-hidden="true">↗</span></a>
               </div>
             </li>
@@ -149,7 +149,7 @@
       </section>
     </main>
 
-    <dialog id="venue-voting" class="venue-dialog" aria-labelledby="venue-ballot-title">
+    <dialog id="venue-voting" class="venue-dialog" aria-labelledby="venue-ballot-title" data-ballot-panel="venue">
       <div class="dialog-header">
         <h2 id="venue-ballot-title" data-venue-ballot-title></h2>
         <form method="dialog"><button class="close-button" aria-label="Close ballot">×</button></form>
@@ -172,8 +172,10 @@
         <div class="venue-snapshot" id="venue-snapshot" hidden>
           <div class="venue-photos" data-venue-photos></div>
           <p data-venue-theme></p>
+          <dl class="bar-routes" aria-label="Estimated drives to Enchambered" data-bar-routes hidden></dl>
           <div class="venue-links">
             <a data-venue-site target="_blank" rel="noopener">Venue details <span aria-hidden="true">↗</span></a>
+            <a data-venue-booking target="_blank" rel="noopener" hidden>Check times <span aria-hidden="true">↗</span></a>
             <a data-venue-credit target="_blank" rel="noopener">Photo sources <span aria-hidden="true">↗</span></a>
             <a data-venue-directions target="_blank" rel="noopener" hidden>Route to Punch Line <span aria-hidden="true">↗</span></a>
           </div>
@@ -196,41 +198,39 @@
       </div>
     </dialog>
 
-    <dialog id="escape-rooms" class="escape-dialog" aria-labelledby="escape-rooms-title">
-      <div class="dialog-header"><h2 id="escape-rooms-title">Escape rooms near The Snug</h2><form method="dialog"><button class="close-button" aria-label="Close escape room options">×</button></form></div>
+    <dialog id="seating-voting" aria-labelledby="seating-ballot-title" data-ballot-panel="seating">
+      <div class="dialog-header"><h2 id="seating-ballot-title">Vote on comedy seating</h2><form method="dialog"><button class="close-button" aria-label="Close seating ballot">×</button></form></div>
+      <div class="venue-identity">
+        <label for="seating-guest">Your calling card</label>
+        <select id="seating-guest" data-ballot-guest>
+          <option value="">Choose your name</option>
+        </select>
+      </div>
       <div class="dialog-copy">
-        <p>Saturday, Jan 16 · 60 minutes each · Suggested times</p>
-        <div class="escape-options">
-          <article class="escape-option" aria-labelledby="seance-title">
-            <h3 id="seance-title">Séance</h3>
-            <div class="escape-photos">
-              <a href="https://exitstrategygames.com/seance/" target="_blank" rel="noopener"><img src="assets/venues/seance-room.webp" width="750" height="500" loading="lazy" alt="Séance room with a patterned rug and boarded windows in red and blue light"></a>
-              <a href="https://worldofescapes.com/sacramento/quests/escape-sacramento-the-seance" target="_blank" rel="noopener"><img src="assets/venues/seance-props.webp" width="596" height="400" loading="lazy" alt="Crystal ball on purple velvet between two brass candlesticks"></a>
-            </div>
-            <p class="escape-location">Exit Strategy Games · 1831 I St · 20-minute walk</p>
-            <p>A haunted parlor with patterned rugs, brass candlesticks, and boarded windows.</p>
-            <p><strong>5:30 pm</strong> · Check in by 5:15 pm · $35 each for eight · Dinner at 7 pm</p>
-            <p class="dialog-links">
-              <a href="https://offthecouch.io/book/escapesac/seance" target="_blank" rel="noopener">Check Séance times <span aria-hidden="true">↗</span></a>
-              <a href="https://www.google.com/maps/dir/?api=1&amp;origin=The+Snug+1800+15th+St+Sacramento&amp;destination=Exit+Strategy+Games+1831+I+St+Sacramento&amp;travelmode=walking" target="_blank" rel="noopener">Walk from The Snug <span aria-hidden="true">↗</span></a>
-            </p>
-          </article>
-          <article class="escape-option" aria-labelledby="tortuga-title">
-            <h3 id="tortuga-title">Pirates of Tortuga</h3>
-            <div class="escape-photos">
-              <a href="https://morty.app/attraction/44491/pirates-of-tortuga" target="_blank" rel="noopener"><img class="tortuga-room-photo" src="assets/venues/tortuga-room.webp" width="520" height="690" loading="lazy" alt="Guest photo of the Tortuga room with timber trim, lanterns, a pirate flag and barrels"></a>
-              <a href="https://paniqescaperoom.com/sacramento/en/escape-rooms/pirates-of-tortuga" target="_blank" rel="noopener"><img src="assets/venues/tortuga-props.webp" width="840" height="357" loading="lazy" alt="PanIQ’s photo of a candle, coins and a ship in a bottle on a wooden table"></a>
-            </div>
-            <p class="escape-location">PanIQ Escape Room · 2642 5th St · 1.5-mile drive</p>
-            <p>Timber, barrels, and lanterns give the pirate storeroom more of an old tavern feel.</p>
-            <p><strong>5:45 pm</strong> · Check in by 5:30 pm · $40.95 each for eight · Dinner at 7:20 pm</p>
-            <p class="escape-capacity">Booking lists eight. PanIQ’s FAQ lists seven, so confirm before paying.</p>
-            <p class="dialog-links">
-              <a href="https://paniqescaperoom.com/sacramento/en/booking/escape-room/pirates-of-tortuga?date=2027-01-16&amp;limit=7#day-jump" target="_blank" rel="noopener">Check Tortuga times <span aria-hidden="true">↗</span></a>
-              <a href="https://www.google.com/maps/dir/?api=1&amp;origin=The+Snug+1800+15th+St+Sacramento&amp;destination=PanIQ+Escape+Room+2642+5th+St+Sacramento&amp;travelmode=driving" target="_blank" rel="noopener">Drive from The Snug <span aria-hidden="true">↗</span></a>
-            </p>
-          </article>
+        <p>Leslie Liao · Saturday, Jan 16 at 9:15 pm · Prices include fees, before any tax</p>
+        <div class="seating-choices" role="group" aria-label="Seating choices">
+          <button class="button button-choice seating-choice" type="button" data-vote="seating" data-choice="general" aria-pressed="false" aria-disabled="true">
+            <strong>General Admission</strong><span class="seating-price">$256.40 for 8</span><span>$32.05 each</span><span class="seating-tally" data-seating-tally></span>
+          </button>
+          <button class="button button-choice seating-choice" type="button" data-vote="seating" data-choice="preferred" aria-pressed="false" aria-disabled="true">
+            <strong>Preferred Premium Seating</strong><span class="seating-price">$366.40 for 8</span><span>$45.80 each</span><span class="seating-tally" data-seating-tally></span>
+          </button>
         </div>
+        <p><strong>+$13.75 each ($110 total)</strong> for the section closest to the stage. Both sections seat guests first come, first served. Specific seats and sitting together depend on availability.</p>
+        <p>Line up together by <strong>8:30 pm</strong> for the best chance of sitting together. Doors open at 8:45 pm.</p>
+        <details class="seating-map">
+          <summary>View seating map</summary>
+          <img src="assets/venues/punch-line-seating.webp" width="783" height="572" loading="lazy" alt="Punch Line seating map with the preferred section directly in front of the stage and general seating around it">
+        </details>
+        <p class="dialog-links">
+          <a href="https://www.punchlinesac.com/visit" target="_blank" rel="noopener">Seating policy <span aria-hidden="true">↗</span></a>
+          <a href="https://www.ticketmaster.com/leslie-liao-sacramento-california-01-16-2027/event/1C006543E18B42C7" target="_blank" rel="noopener">Show tickets <span aria-hidden="true">↗</span></a>
+        </p>
+      </div>
+      <div class="deck-footer">
+        <p class="vote-message" role="status" data-ballot-status="seating"></p>
+        <button class="quiet-button" type="button" data-vote="seating" data-choice="" data-clear-seating hidden>Clear my vote</button>
+        <button class="quiet-button" type="button" data-ballot-retry hidden>Retry connection</button>
       </div>
     </dialog>
 
@@ -238,13 +238,14 @@
       <div class="dialog-header"><h2 id="route-title">Saturday route</h2><form method="dialog"><button class="close-button" aria-label="Close route details">×</button></form></div>
       <div class="dialog-copy">
         <p><strong>1 pm departure.</strong> Meet at Bubba’s by 12:45. Allow 75–90 minutes for the drive and parking. Leave by 2 pm at the latest.</p>
-        <p><strong>Drinks and escape room.</strong> The Snug opens at 4 pm. Leave by 4:50 for Séance’s 5:15 check-in or by 5:10 for Tortuga’s 5:30 check-in. Take both cars to Tortuga. After Séance, allow time for the drivers to reach the cars.</p>
-        <p><strong>Dinner.</strong> Aim for 7 pm after Séance if the cars are parked at the room, or 7:20 pm after Tortuga. Walk from Pete’s or Thai Terrace. Wildwood and Tapa the World are a short drive. Flip each dinner card for directions, and leave dinner by 8:25 pm.</p>
-        <p><strong>Show.</strong> Arrive together by 8:45 pm at 2100 Arden Way. Bring photo ID. Two beverages per guest, including alcohol-free options.</p>
-        <p><strong>Weekend cap.</strong> $250 per person before restaurant tips. Punch Line general admission lists $32.05 before tax, plus two drinks.</p>
+        <p><strong>Drinks and escape room.</strong> Target a room at 5:30–5:45 pm and check in 15 minutes early. From The Snug, leave by 4:50 for a 5:30 pm Midtown room or 5:05 for 5:45 pm in Arden. For Tortuga or Enchambered, take both cars from the bar.</p>
+        <p><strong>Dinner.</strong> Aim for 7 pm near Punch Line, or 7:20 after Tortuga. Leave Tapa the World by 8 pm, Wildwood by 8:10, or Pete’s or Thai Terrace by 8:20 to walk over.</p>
+        <p><strong>Show.</strong> Line up together by 8:30 pm at 2100 Arden Way. Doors open at 8:45 pm. Bring photo ID. Two beverages per guest, including alcohol-free options.</p>
+        <p><strong>Weekend cap.</strong> $250 per person before restaurant tips. The seating ballot lists $32.05 general or $45.80 preferred per guest, plus two drinks.</p>
         <p class="dialog-links">
-          <a href="https://www.google.com/maps/dir/?api=1&amp;origin=Bubba%27s+Bagels+860+Sutton+Way+Grass+Valley&amp;destination=Punch+Line+Sacramento+2100+Arden+Way&amp;waypoints=The+Snug+1800+15th+St+Sacramento%7C1831+I+St+Sacramento&amp;travelmode=driving" target="_blank" rel="noopener">Via Séance <span aria-hidden="true">↗</span></a>
+          <a href="https://www.google.com/maps/dir/?api=1&amp;origin=Bubba%27s+Bagels+860+Sutton+Way+Grass+Valley&amp;destination=Punch+Line+Sacramento+2100+Arden+Way&amp;waypoints=The+Snug+1800+15th+St+Sacramento%7C1831+I+St+Sacramento&amp;travelmode=driving" target="_blank" rel="noopener">Via Exit Strategy <span aria-hidden="true">↗</span></a>
           <a href="https://www.google.com/maps/dir/?api=1&amp;origin=Bubba%27s+Bagels+860+Sutton+Way+Grass+Valley&amp;destination=Punch+Line+Sacramento+2100+Arden+Way&amp;waypoints=The+Snug+1800+15th+St+Sacramento%7C2642+5th+St+Sacramento&amp;travelmode=driving" target="_blank" rel="noopener">Via Tortuga <span aria-hidden="true">↗</span></a>
+          <a href="https://www.google.com/maps/dir/?api=1&amp;origin=Bubba%27s+Bagels+860+Sutton+Way+Grass+Valley&amp;destination=Punch+Line+Sacramento+2100+Arden+Way&amp;waypoints=The+Snug+1800+15th+St+Sacramento%7C2230+Arden+Way+Sacramento&amp;travelmode=driving" target="_blank" rel="noopener">Via Enchambered <span aria-hidden="true">↗</span></a>
           <a href="https://www.punchlinesac.com/visit" target="_blank" rel="noopener">Club policy <span aria-hidden="true">↗</span></a>
         </p>
       </div>
