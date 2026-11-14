@@ -6,7 +6,7 @@ const voterIds = new Set([
 ]);
 const driveChoices = new Set(["volunteer", "rider"]);
 const barChoices = new Set(["", "snug", "omallys", "cabin", "shady-lady", "finnegans", "bookstore", "trapcat"]);
-const dinnerChoices = new Set(["", "wildwood", "pitch-and-fiddle"]);
+const dinnerChoices = new Set(["", "petes-arden", "thai-terrace", "wildwood", "tapa-the-world"]);
 const ballotChoices = { drive: driveChoices, bar: barChoices, dinner: dinnerChoices };
 
 const defaultHeaders = {

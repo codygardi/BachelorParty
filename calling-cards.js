@@ -61,10 +61,43 @@ const venues = {
   ],
   dinner: [
     {
+      id: "petes-arden",
+      name: "Pete’s Arden",
+      type: "Brewhouse dining room · Flatbreads",
+      address: "2100 Arden Way #123",
+      toComedy: { mode: "walking", time: "Same plaza as Punch Line" },
+      note: "Share $14.49 vegetarian garden flatbreads and $16.49 fried artichoke hearts.",
+      theme: "Wood tables, warm lighting, and a downstairs dining room. Ask for a table for eight downstairs.",
+      website: "https://order.online/store/pete-s-restaurant-brewhouse-arden-2467080?pickup=true",
+      photos: [
+        ["petes-dining", "Wooden dining tables and pendant lights at Pete’s Arden", "https://www.bizjournals.com/sacramento/news/2021/10/20/petes-restaurant-brewhouse-howe-bout-arden.html"],
+        ["petes-mural", "The Sacramento mural next to the stairs at Pete’s Arden"],
+        ["petes-pizza", "A pizza being sliced at Pete’s"],
+      ],
+      photoSource: "https://petesarden.com/",
+    },
+    {
+      id: "thai-terrace",
+      name: "Thai Terrace",
+      type: "Thai dining room · Family-style plates",
+      address: "1596 Howe Ave",
+      toComedy: { mode: "walking", time: "6–10 min walk to Punch Line" },
+      note: "Vegetarian egg rolls, fresh tofu rolls, and crispy tofu are $10.95 each to share.",
+      theme: "Striped booths, pendant lights, and larger tables for sharing Thai dishes.",
+      website: "https://order.online/store/thai-terrace-sacramento-300749/?hideModal=true&pickup=true",
+      photos: [
+        ["thai-terrace-room", "The wood host stand and striped booths at Thai Terrace"],
+        ["thai-terrace-decor", "Thai statues and flowers on a carved table in the dining room", "https://monaghansrvc.com/post/best-of-21-thai-restaurants-in-sacramento.p5754"],
+        ["thai-terrace-rolls", "Thai Terrace egg rolls with dipping sauce", "https://sagemenu.com/sacramento/thai-terrace-sacramento/"],
+      ],
+      photoSource: "https://thaiterracesac.com/story",
+    },
+    {
       id: "wildwood",
       name: "Wildwood Kitchen & Bar",
-      type: "Whiskey bar · Small plates",
-      address: "556 Pavilions Ln · About 2 miles to Punch Line",
+      type: "Rustic dining room · Whiskey & small plates",
+      address: "556 Pavilions Ln",
+      toComedy: { mode: "driving", time: "5–10 min drive to Punch Line" },
       note: "$16 hummus and $18 mushroom bruschetta to share. $19 vegetarian Impossible burger.",
       theme: "Amber lighting, wood tables, and a wall of whiskey. The menu lists 20% group gratuity and 3% kitchen gratuity.",
       website: "https://wildwoodpavilions.com/dinner/",
@@ -76,19 +109,20 @@ const venues = {
       photoSource: "https://wildwoodpavilions.com/gallery/",
     },
     {
-      id: "pitch-and-fiddle",
-      name: "Pitch & Fiddle",
-      type: "Irish whiskey pub",
-      address: "8704 La Riviera Dr · About 4.4 miles to Punch Line",
-      note: "$14 Irish grilled cheese, $15 mac and cheese, or $16.50 fish and chips.",
-      theme: "A lively Irish pub with a tin ceiling, red bar stools, and Jameson and Redbreast cocktails.",
-      website: "https://www.fiddlelariv.com/menu",
+      id: "tapa-the-world",
+      name: "Tapa the World",
+      type: "Spanish tapas · Sit-down dining",
+      address: "2115 J St",
+      toComedy: { mode: "driving", time: "10–15 min drive to Punch Line" },
+      note: "Share vegetarian tapas like $8 patatas bravas, $12 eggplant, and $14 grilled vegetables.",
+      theme: "A warmly lit dining room and a covered, heated courtyard. A 20% service charge may apply for eight.",
+      website: "https://www.tapatheworld.com/tapas/",
       photos: [
-        ["pitch-fiddle-room", "Pitch & Fiddle’s Sacramento bar with a tin ceiling and red stools"],
-        ["pitch-fiddle-pub", "Pitch & Fiddle’s long bar during an Irish celebration"],
-        ["pitch-fiddle-whiskey", "A bottle of Irish whiskey at Pitch & Fiddle"],
+        ["tapa-the-world-room", "Warm lights and set tables at Tapa the World", "https://www.tapatheworld.com/"],
+        ["tapa-the-world-courtyard", "Tables set for dinner under the covered courtyard", "https://www.tripadvisor.com/Restaurant_Review-g32999-d339783-Reviews-Tapa_The_World-Sacramento_California.html"],
+        ["tapa-the-world-bravas", "Patatas bravas with red dipping sauce at Tapa the World", "https://www.tapatheworld.com/tapas/"],
       ],
-      photoSource: "https://www.fiddlelariv.com/",
+      photoSource: "https://www.tapatheworld.com/reservations",
     },
   ],
 };
@@ -245,10 +279,23 @@ function renderVenue() {
   const venue = deck[venueIndex];
   venueDialog.querySelector("[data-venue-type]").textContent = venue.type;
   venueDialog.querySelector("[data-venue-name]").textContent = venue.name;
-  venueDialog.querySelector("[data-venue-address]").textContent = venue.address;
+  venueDialog.querySelector("[data-venue-address]").textContent = venue.toComedy
+    ? `${venue.address} · ${venue.toComedy.time}`
+    : venue.address;
   venueDialog.querySelector("[data-venue-short]").textContent = venue.note;
   venueDialog.querySelector("[data-venue-theme]").textContent = venue.theme;
   venueDialog.querySelector("[data-venue-site]").href = venue.website;
+  const directions = venueDialog.querySelector("[data-venue-directions]");
+  directions.hidden = !venue.toComedy;
+  if (venue.toComedy) {
+    const route = new URLSearchParams({
+      api: "1",
+      origin: `${venue.name}, ${venue.address}, Sacramento, CA`,
+      destination: "Punch Line Sacramento, 2100 Arden Way #225, Sacramento, CA",
+      travelmode: venue.toComedy.mode,
+    });
+    directions.href = `https://www.google.com/maps/dir/?${route}`;
+  }
   const credit = venueDialog.querySelector("[data-venue-credit]");
   credit.textContent = "Photo sources ↗";
   credit.href = venue.photoSource || venue.website;
