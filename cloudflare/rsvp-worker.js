@@ -1,5 +1,14 @@
 const STORE_KEY = "bachelor-party-rsvp-responses";
 
+const voterIds = new Set([
+  "robbie-merchant", "max-voorhees", "thomas-correll", "jonno-christie",
+  "lane-carleson", "sean-fitzhenry", "andrew-kostolefsky", "cody-gardi",
+]);
+const driveChoices = new Set(["volunteer", "rider"]);
+const barChoices = new Set(["", "snug", "omallys", "cabin", "shady-lady", "finnegans", "bookstore", "trapcat"]);
+const dinnerChoices = new Set(["", "piatti", "petes-arden", "terraza", "delta-king"]);
+const ballotChoices = { drive: driveChoices, bar: barChoices, dinner: dinnerChoices };
+
 const defaultHeaders = {
   "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type",
@@ -86,28 +95,94 @@ async function handleUpsert(request, env, response) {
   return jsonResponse(request, { ok: true, responses });
 }
 
+export class CallingCards {
+  constructor(state) {
+    this.sql = state.storage.sql;
+    this.sql.exec(`
+      CREATE TABLE IF NOT EXISTS ballots (
+        inviteeId TEXT PRIMARY KEY,
+        drive TEXT NOT NULL,
+        bar TEXT NOT NULL,
+        dinner TEXT NOT NULL
+      )
+    `);
+  }
+
+  async fetch(request) {
+    if (request.method === "POST") {
+      const { inviteeId, drive, bar, dinner } = await request.json();
+      this.sql.exec(`
+        INSERT INTO ballots (inviteeId, drive, bar, dinner) VALUES (?, ?, ?, ?)
+        ON CONFLICT (inviteeId) DO UPDATE SET
+          drive = COALESCE(?, ballots.drive),
+          bar = COALESCE(?, ballots.bar),
+          dinner = COALESCE(?, ballots.dinner)
+      `, inviteeId, drive ?? "", bar ?? "", dinner ?? "", drive ?? null, bar ?? null, dinner ?? null);
+    }
+
+    const ballots = this.sql.exec("SELECT inviteeId, drive, bar, dinner FROM ballots").toArray();
+    return Response.json({ ballots });
+  }
+}
+
+async function handleBallots(request, env, card) {
+  if (request.method === "POST") {
+    if (!voterIds.has(card?.inviteeId)) {
+      return jsonResponse(request, { error: "Invalid calling card." }, 400);
+    }
+
+    const fields = Object.keys(card).filter((field) => field !== "inviteeId");
+    if (!fields.length || fields.some((field) =>
+      !Object.hasOwn(ballotChoices, field) || !ballotChoices[field].has(card[field])
+    )) {
+      return jsonResponse(request, { error: "Invalid calling card." }, 400);
+    }
+  }
+
+  if (!env.CALLING_CARDS) {
+    return jsonResponse(request, { error: "Shared calling cards are unavailable." }, 503);
+  }
+
+  const ballotBox = env.CALLING_CARDS.getByName("saturday-2027-01-16");
+  const result = await ballotBox.fetch("https://ballot-box.internal/", card && {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(card),
+  });
+  return jsonResponse(request, await result.json(), result.status);
+}
+
 export default {
   async fetch(request, env) {
     if (request.method === "OPTIONS") {
       return new Response(null, { headers: corsHeaders(request) });
     }
 
-    if (!env.RSVPS) {
-      return jsonResponse(request, { error: "Missing RSVPS KV binding." }, 500);
-    }
-
     if (request.method === "GET") {
-      return handleList(request, env);
+      const action = new URL(request.url).searchParams.get("action");
+      if (action === "ballots") return handleBallots(request, env);
+      return env.RSVPS ? handleList(request, env) : jsonResponse(request, { error: "Missing RSVPS KV binding." }, 500);
     }
 
     if (request.method !== "POST") {
       return jsonResponse(request, { error: "Method not allowed." }, 405);
     }
 
-    const body = await readJsonBody(request);
+    let body;
+    try {
+      body = await readJsonBody(request);
+    } catch {
+      return jsonResponse(request, { error: "Invalid JSON." }, 400);
+    }
 
-    if (body.action === "upsert") {
-      return handleUpsert(request, env, body.response);
+    if (body?.action === "save-ballot") {
+      return handleBallots(request, env, body.card);
+    }
+
+    if (body?.action === "upsert") {
+      return env.RSVPS
+        ? handleUpsert(request, env, body.response)
+        : jsonResponse(request, { error: "Missing RSVPS KV binding." }, 500);
     }
 
     return jsonResponse(request, { error: "Unknown action." }, 400);

@@ -1,73 +1,277 @@
 <!doctype html>
-<html lang="en" data-theme="light">
+<html lang="en">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta
-      name="description"
-      content="Shared RSVP page for Robbie Merchant's January 2027 bachelor party in Grass Valley, California."
-    >
+    <meta name="description" content="The roster, schedule, and calling cards for Robbie Merchant’s bachelor weekend.">
+    <title>Robbie’s Bachelor Quest</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Poppins:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    >
-    <link rel="stylesheet" href="bachelor-party.css?v=20260815c">
-    <title>Robbie's Bachelor Party RSVP</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="bachelor-party.css?v=20261113e">
+    <script src="bachelor-party-config.js" defer></script>
+    <script src="bachelor-party.js?v=20261113c" defer></script>
+    <script src="calling-cards.js?v=20261113d" defer></script>
   </head>
   <body>
-    <main class="page-shell">
-      <div class="rsvp-page" data-rsvp-page>
-        <section class="quest-notice" aria-labelledby="page-title">
-          <img
-            src="assets/quest-banner.png"
-            class="quest-banner"
-            alt="Parchment quest banner with a d20 and mountain trail"
-          >
-          <p class="eyebrow">Quest notice</p>
-          <h1 id="page-title">Robbie's Bachelor Party RSVP</h1>
-          <p class="hero-lead">
-            Review the final party roster, selected weekend, and complete quest itinerary below.
-          </p>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header shell">
+      <span class="brand"><span class="brand-die" aria-hidden="true">20</span> The Bachelor Quest</span>
+      <button class="quiet-button" type="button" data-open-dialog="games">Tavern games <span aria-hidden="true">↗</span></button>
+    </header>
+
+    <main class="shell dashboard" id="main" data-view="party">
+      <section class="hero" aria-labelledby="page-title">
+        <img class="hero-image" src="assets/tavern-hero.webp" width="1536" height="1024" alt="" fetchpriority="high">
+        <div class="hero-content">
+          <p class="eyebrow">January 15–16, 2027 · Grass Valley &amp; Sacramento</p>
+          <h1 id="page-title">Robbie’s <em>Bachelor Quest</em></h1>
+        </div>
+      </section>
+
+      <section class="party-section" id="party" aria-labelledby="party-title">
+        <div class="section-heading">
+          <h2 id="party-title">The Adventuring Party</h2>
+          <button class="quiet-button" type="button" data-open-dialog="rsvps" data-rsvp-summary>Guest RSVPs</button>
+        </div>
+        <ul class="party-roster" data-response-list></ul>
+
+        <section class="driver-ballot" id="calling-cards" aria-labelledby="driver-title">
+          <div class="driver-heading">
+            <h3 id="driver-title">Driver roll call</h3>
+            <p>Two sober drivers, three passengers each.</p>
+          </div>
+          <div class="driver-controls">
+            <label class="sr-only" for="ballot-guest">Your calling card</label>
+            <select id="ballot-guest" data-ballot-guest>
+              <option value="">Choose your name</option>
+            </select>
+            <div class="driver-choices" role="group" aria-label="Saturday transportation">
+              <button class="button button-choice" type="button" data-vote="drive" data-choice="volunteer" aria-pressed="false" aria-disabled="true">I can drive</button>
+              <button class="button button-choice" type="button" data-vote="drive" data-choice="rider" aria-pressed="false" aria-disabled="true">I need a ride</button>
+            </div>
+          </div>
+          <div class="driver-footer">
+            <p data-driver-count>Loading driver tally…</p>
+            <button class="quiet-button" type="button" data-open-dialog="drivers">View roll call <span aria-hidden="true">↗</span></button>
+            <p class="vote-message" role="status" data-ballot-status="drive"></p>
+            <button class="quiet-button" type="button" data-ballot-retry hidden>Retry connection</button>
+          </div>
         </section>
+      </section>
 
-        <section id="quest-details" class="details-page" data-details-page aria-label="Quest details dashboard">
-          <article class="details-card party-overview-card" aria-labelledby="party-overview-title">
-            <div class="panel-heading static-panel-heading">
-              <div>
-                <p class="eyebrow">Party log &amp; availability</p>
-                <h2 id="party-overview-title">The adventuring party</h2>
+      <section class="schedule" id="schedule" aria-label="Weekend schedule">
+        <div class="schedule-navigation">
+          <button class="party-tab" type="button" data-show-party aria-controls="party" aria-pressed="true">The Party</button>
+          <div class="schedule-tabs" role="tablist" aria-label="Weekend schedule">
+            <button id="friday-tab" type="button" role="tab" aria-selected="false" aria-controls="friday" tabindex="-1">Friday <span>Jan 15</span></button>
+            <button id="saturday-tab" type="button" role="tab" aria-selected="true" aria-controls="saturday">Saturday <span>Jan 16</span></button>
+          </div>
+        </div>
+
+        <div class="schedule-panel" id="friday" role="tabpanel" aria-labelledby="friday-tab" tabindex="0" hidden>
+          <div class="schedule-caption"><span>Grass Valley</span></div>
+          <ol class="timeline">
+            <li>
+              <span class="timeline-time">Afternoon</span>
+              <div class="timeline-stop"><h3>Arrive at base camp</h3><p>Fly into Sacramento International (SMF).</p></div>
+            </li>
+            <li>
+              <span class="timeline-time">Evening</span>
+              <div class="timeline-stop">
+                <h3>Grass Valley Brewing Co.</h3>
+                <a href="https://www.gvbrew.com/menus-1" target="_blank" rel="noopener">Brewery menu <span aria-hidden="true">↗</span></a>
               </div>
-              <span class="party-count" data-party-count></span>
-            </div>
-            <ul class="party-roster" data-response-list></ul>
-          </article>
-
-          <article class="details-card quest-details-card" aria-labelledby="quest-dashboard-title">
-            <div class="panel-heading static-panel-heading">
-              <div>
-                <p class="eyebrow">Quest details</p>
-                <h2 id="quest-dashboard-title">Weekend plan</h2>
+            </li>
+            <li>
+              <span class="timeline-time">After dinner</span>
+              <div class="timeline-stop">
+                <h3>D&amp;D at base camp</h3>
+                <button class="quiet-button" type="button" data-open-dialog="games">Tavern games <span aria-hidden="true">↗</span></button>
               </div>
-            </div>
+            </li>
+          </ol>
+        </div>
 
-            <div class="quest-weekend-block" aria-label="Weekend selection">
-              <div class="overlap-summary" data-overlap-summary></div>
-              <div class="overlap-list" data-overlap-list></div>
-            </div>
-
-            <div class="trip-list" data-trip-details></div>
-          </article>
-        </section>
-      </div>
+        <div class="schedule-panel" id="saturday" role="tabpanel" aria-labelledby="saturday-tab" tabindex="0">
+          <div class="schedule-caption">
+            <span>Grass Valley → Midtown → Arden</span>
+            <button class="quiet-button" type="button" data-open-dialog="route">Route details <span aria-hidden="true">↗</span></button>
+          </div>
+          <ol class="timeline">
+            <li>
+              <span class="timeline-time">Morning</span>
+              <div class="timeline-stop">
+                <h3>Breakfast at Bubba’s or on your own</h3>
+                <a href="https://bubbas-bagels.com/#menu" target="_blank" rel="noopener">860 Sutton Way <span aria-hidden="true">↗</span></a>
+              </div>
+            </li>
+            <li>
+              <time class="timeline-time" datetime="13:00">1:00 pm</time>
+              <div class="timeline-stop"><h3>Leave Grass Valley</h3><p>Meet at Bubba’s. Wheels rolling by 2 pm.</p></div>
+            </li>
+            <li>
+              <time class="timeline-time" datetime="16:00">4:00 pm</time>
+              <div class="timeline-stop">
+                <h3>Toast to Robbie</h3>
+                <button class="inline-vote" type="button" data-open-ballot="bar">Vote for a bar <span aria-hidden="true">↗</span></button>
+              </div>
+            </li>
+            <li>
+              <span class="timeline-time">5:30–5:45 pm</span>
+              <div class="timeline-stop">
+                <h3>Escape room</h3>
+                <p>Séance or Pirates of Tortuga</p>
+                <button class="quiet-button" type="button" data-open-dialog="escape-rooms" aria-haspopup="dialog">Compare rooms <span aria-hidden="true">↗</span></button>
+              </div>
+            </li>
+            <li>
+              <span class="timeline-time">7:00–7:20 pm</span>
+              <div class="timeline-stop">
+                <h3>Dinner near Punch Line</h3>
+                <button class="inline-vote" type="button" data-open-ballot="dinner">Vote for dinner <span aria-hidden="true">↗</span></button>
+              </div>
+            </li>
+            <li>
+              <time class="timeline-time" datetime="21:15">9:15 pm</time>
+              <div class="timeline-stop">
+                <h3>Leslie Liao at Punch Line</h3>
+                <p>Doors 8:45 pm · Two beverages per guest.</p>
+                <a href="https://www.ticketmaster.com/leslie-liao-sacramento-california-01-16-2027/event/1C006543E18B42C7" target="_blank" rel="noopener">Show tickets <span aria-hidden="true">↗</span></a>
+              </div>
+            </li>
+            <li>
+              <span class="timeline-time">After show</span>
+              <div class="timeline-stop"><h3>Back to Grass Valley</h3></div>
+            </li>
+          </ol>
+        </div>
+      </section>
     </main>
 
-    <footer class="page-footer">
-      <p>Celebrating Robbie Merchant in Grass Valley, CA.</p>
-    </footer>
+    <dialog id="venue-voting" class="venue-dialog" aria-labelledby="venue-ballot-title">
+      <div class="dialog-header">
+        <h2 id="venue-ballot-title" data-venue-ballot-title></h2>
+        <form method="dialog"><button class="close-button" aria-label="Close ballot">×</button></form>
+      </div>
+      <div class="venue-identity">
+        <label for="venue-guest">Your calling card</label>
+        <select id="venue-guest" data-ballot-guest>
+          <option value="">Choose your name</option>
+        </select>
+      </div>
+      <article class="venue-card" aria-labelledby="venue-name">
+        <div class="venue-heading">
+          <p class="eyebrow" data-venue-type></p>
+          <h3 id="venue-name" data-venue-name></h3>
+        </div>
+        <div class="venue-front" data-venue-front>
+          <p class="venue-address" data-venue-address></p>
+          <p class="venue-short" data-venue-short></p>
+        </div>
+        <div class="venue-snapshot" id="venue-snapshot" hidden>
+          <div class="venue-photos" data-venue-photos></div>
+          <p data-venue-theme></p>
+          <div class="venue-links">
+            <a data-venue-site target="_blank" rel="noopener">Venue details <span aria-hidden="true">↗</span></a>
+            <a data-venue-credit target="_blank" rel="noopener">Photo sources <span aria-hidden="true">↗</span></a>
+          </div>
+        </div>
+        <div class="venue-actions">
+          <button class="button button-outline" type="button" data-flip-card aria-expanded="false" aria-controls="venue-snapshot">Flip card <span aria-hidden="true">↻</span></button>
+          <button class="button button-choice" type="button" data-vote="bar" data-choice="" aria-pressed="false" aria-disabled="true" data-venue-vote>Vote</button>
+          <span class="venue-tally" data-venue-tally></span>
+        </div>
+      </article>
+      <div class="deck-navigation" aria-label="Venue cards">
+        <button class="button button-outline" type="button" data-deck-step="-1" aria-label="Previous venue">‹</button>
+        <p role="status" data-deck-position></p>
+        <button class="button button-outline" type="button" data-deck-step="1" aria-label="Next venue">›</button>
+      </div>
+      <div class="deck-footer">
+        <p class="vote-message" role="status" data-ballot-status="venue"></p>
+        <button class="quiet-button" type="button" data-vote="bar" data-choice="" data-clear-venue hidden>Clear my vote</button>
+        <button class="quiet-button" type="button" data-ballot-retry hidden>Retry connection</button>
+      </div>
+    </dialog>
 
-    <script src="bachelor-party-config.js?v=20260815c"></script>
-    <script src="bachelor-party.js?v=20260815c"></script>
+    <dialog id="escape-rooms" class="escape-dialog" aria-labelledby="escape-rooms-title">
+      <div class="dialog-header"><h2 id="escape-rooms-title">Escape rooms near The Snug</h2><form method="dialog"><button class="close-button" aria-label="Close escape room options">×</button></form></div>
+      <div class="dialog-copy">
+        <p>Saturday, Jan 16 · 60 minutes each · Suggested times</p>
+        <div class="escape-options">
+          <article class="escape-option" aria-labelledby="seance-title">
+            <h3 id="seance-title">Séance</h3>
+            <div class="escape-photos">
+              <a href="https://exitstrategygames.com/seance/" target="_blank" rel="noopener"><img src="assets/venues/seance-room.webp" width="750" height="500" loading="lazy" alt="Séance room with a patterned rug and boarded windows in red and blue light"></a>
+              <a href="https://worldofescapes.com/sacramento/quests/escape-sacramento-the-seance" target="_blank" rel="noopener"><img src="assets/venues/seance-props.webp" width="596" height="400" loading="lazy" alt="Crystal ball on purple velvet between two brass candlesticks"></a>
+            </div>
+            <p class="escape-location">Exit Strategy Games · 1831 I St · 20-minute walk</p>
+            <p>A haunted parlor with patterned rugs, brass candlesticks, and boarded windows.</p>
+            <p><strong>5:30 pm</strong> · Check in by 5:15 pm · $35 each for eight · Dinner at 7 pm</p>
+            <p class="dialog-links">
+              <a href="https://offthecouch.io/book/escapesac/seance" target="_blank" rel="noopener">Check Séance times <span aria-hidden="true">↗</span></a>
+              <a href="https://www.google.com/maps/dir/?api=1&amp;origin=The+Snug+1800+15th+St+Sacramento&amp;destination=Exit+Strategy+Games+1831+I+St+Sacramento&amp;travelmode=walking" target="_blank" rel="noopener">Walk from The Snug <span aria-hidden="true">↗</span></a>
+            </p>
+          </article>
+          <article class="escape-option" aria-labelledby="tortuga-title">
+            <h3 id="tortuga-title">Pirates of Tortuga</h3>
+            <div class="escape-photos">
+              <a href="https://morty.app/attraction/44491/pirates-of-tortuga" target="_blank" rel="noopener"><img class="tortuga-room-photo" src="assets/venues/tortuga-room.webp" width="520" height="690" loading="lazy" alt="Guest photo of the Tortuga room with timber trim, lanterns, a pirate flag and barrels"></a>
+              <a href="https://paniqescaperoom.com/sacramento/en/escape-rooms/pirates-of-tortuga" target="_blank" rel="noopener"><img src="assets/venues/tortuga-props.webp" width="840" height="357" loading="lazy" alt="PanIQ’s photo of a candle, coins and a ship in a bottle on a wooden table"></a>
+            </div>
+            <p class="escape-location">PanIQ Escape Room · 2642 5th St · 1.5-mile drive</p>
+            <p>Timber, barrels, and lanterns give the pirate storeroom more of an old tavern feel.</p>
+            <p><strong>5:45 pm</strong> · Check in by 5:30 pm · $40.95 each for eight · Dinner at 7:20 pm</p>
+            <p class="escape-capacity">Booking lists eight. PanIQ’s FAQ lists seven, so confirm before paying.</p>
+            <p class="dialog-links">
+              <a href="https://paniqescaperoom.com/sacramento/en/booking/escape-room/pirates-of-tortuga?date=2027-01-16&amp;limit=7#day-jump" target="_blank" rel="noopener">Check Tortuga times <span aria-hidden="true">↗</span></a>
+              <a href="https://www.google.com/maps/dir/?api=1&amp;origin=The+Snug+1800+15th+St+Sacramento&amp;destination=PanIQ+Escape+Room+2642+5th+St+Sacramento&amp;travelmode=driving" target="_blank" rel="noopener">Drive from The Snug <span aria-hidden="true">↗</span></a>
+            </p>
+          </article>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog id="route" aria-labelledby="route-title">
+      <div class="dialog-header"><h2 id="route-title">Saturday route</h2><form method="dialog"><button class="close-button" aria-label="Close route details">×</button></form></div>
+      <div class="dialog-copy">
+        <p><strong>1 pm departure.</strong> Meet at Bubba’s by 12:45. Allow 75–90 minutes for the drive and parking. Leave by 2 pm at the latest.</p>
+        <p><strong>Drinks and escape room.</strong> The Snug opens at 4 pm. Leave by 4:50 for Séance’s 5:15 check-in or by 5:10 for Tortuga’s 5:30 check-in. Take both cars to Tortuga. After Séance, allow time for the drivers to reach the cars.</p>
+        <p><strong>Arden.</strong> Aim for dinner at 7 pm after Séance if the cars are parked at the room, or at 7:20 pm after Tortuga. Pete’s shares Punch Line’s shopping center. Allow 5–10 minutes to drive from Piatti to the club.</p>
+        <p><strong>Show.</strong> Arrive together by 8:45 pm at 2100 Arden Way. Bring photo ID. Two beverages per guest, including alcohol-free options.</p>
+        <p><strong>Weekend cap.</strong> $250 per person before restaurant tips. Punch Line general admission lists $32.05 before tax, plus two drinks.</p>
+        <p class="dialog-links">
+          <a href="https://www.google.com/maps/dir/?api=1&amp;origin=Bubba%27s+Bagels+860+Sutton+Way+Grass+Valley&amp;destination=Punch+Line+Sacramento+2100+Arden+Way&amp;waypoints=The+Snug+1800+15th+St+Sacramento%7C1831+I+St+Sacramento%7CPiatti+571+Pavilions+Ln+Sacramento&amp;travelmode=driving" target="_blank" rel="noopener">Map the Séance route <span aria-hidden="true">↗</span></a>
+          <a href="https://www.google.com/maps/dir/?api=1&amp;origin=Bubba%27s+Bagels+860+Sutton+Way+Grass+Valley&amp;destination=Punch+Line+Sacramento+2100+Arden+Way&amp;waypoints=The+Snug+1800+15th+St+Sacramento%7C2642+5th+St+Sacramento%7CPiatti+571+Pavilions+Ln+Sacramento&amp;travelmode=driving" target="_blank" rel="noopener">Map the Tortuga route <span aria-hidden="true">↗</span></a>
+          <a href="https://www.punchlinesac.com/visit" target="_blank" rel="noopener">Club policy <span aria-hidden="true">↗</span></a>
+        </p>
+      </div>
+    </dialog>
+
+    <dialog id="drivers" aria-labelledby="drivers-title">
+      <div class="dialog-header"><h2 id="drivers-title">Driver roll call</h2><form method="dialog"><button class="close-button" aria-label="Close roll call">×</button></form></div>
+      <div class="dialog-copy">
+        <p>Two cars for eight. Each driver takes three passengers and stays alcohol-free for both legs.</p>
+        <dl class="roll-call"><dt>Can drive</dt><dd data-driver-names="volunteer"></dd><dt>Need a ride</dt><dd data-driver-names="rider"></dd></dl>
+      </div>
+    </dialog>
+
+    <dialog id="rsvps" aria-labelledby="rsvp-title">
+      <div class="dialog-header"><h2 id="rsvp-title">Guest RSVPs</h2><form method="dialog"><button class="close-button" aria-label="Close guest RSVPs">×</button></form></div>
+      <div class="dialog-copy" data-rsvp-details></div>
+    </dialog>
+
+    <dialog id="games" aria-labelledby="games-title">
+      <div class="dialog-header"><h2 id="games-title">Tavern games</h2><form method="dialog"><button class="close-button" aria-label="Close tavern games">×</button></form></div>
+      <div class="dialog-copy">
+        <p>Play with whatever’s in your glass. Sips are optional.</p>
+        <h3>Roll for a Toast</h3>
+        <p>Roll 1–9 to share a Robbie story, 10–19 to give a toast, or a natural 20 to pick who goes next.</p>
+        <div class="dice-tray"><button class="button button-outline" type="button" data-roll-die>Roll a d20</button><output class="dice-result" data-dice-result aria-live="polite"></output></div>
+        <h3>Two Truths &amp; a Side Quest</h3>
+        <p>Tell two true Robbie stories and one invented one. Everyone guesses the side quest, then Robbie settles the score.</p>
+      </div>
+    </dialog>
   </body>
 </html>
