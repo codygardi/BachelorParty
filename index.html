@@ -8,10 +8,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="bachelor-party.css?v=20261115f">
+    <link rel="stylesheet" href="bachelor-party.css?v=20261115g">
     <script src="bachelor-party-config.js" defer></script>
     <script src="bachelor-party.js?v=20261113c" defer></script>
-    <script src="calling-cards.js?v=20261115f" defer></script>
+    <script src="calling-cards.js?v=20261115g" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
@@ -111,25 +111,9 @@
             <li>
               <span class="timeline-time">Morning</span>
               <div class="timeline-stop">
-                <h3>Breakfast</h3><button class="quiet-button" type="button" data-open-dialog="breakfast">4 downtown ideas · Food under $20 <span aria-hidden="true">↗</span></button>
-                <template id="breakfast-options"><ul class="breakfast-spots" aria-label="Breakfast ideas">
-                  <li>
-                    <a href="https://order.online/store/south-pine-cafe-2481391" target="_blank" rel="noopener">South Pine Café <span aria-hidden="true">↗</span></a>
-                    <span>Buttermilk pancakes · $15.50</span><span>102 Richardson St</span>
-                  </li>
-                  <li>
-                    <a href="https://pepes-cafe.menustic.com/menu" target="_blank" rel="noopener">Pepe’s Café <span aria-hidden="true">↗</span></a>
-                    <span>Biscuits &amp; gravy · $13</span><span>110 Mill St</span>
-                  </li>
-                  <li>
-                    <a href="https://corvusbakery.com/menu" target="_blank" rel="noopener">Corvus Bakery <span aria-hidden="true">↗</span></a>
-                    <span>Vegetable frittata · $8.75</span><span>154 Mill St</span>
-                  </li>
-                  <li>
-                    <a href="https://www.menupix.com/menudirectory/menu.php?id=380280949" target="_blank" rel="noopener">Brew Bakers <span aria-hidden="true">↗</span></a>
-                    <span>Egg &amp; cheese bagel · $7.50</span><span>209 W Main St</span>
-                  </li>
-                </ul></template>
+                <h3>Breakfast</h3>
+                <button class="inline-vote" type="button" data-open-dialog="breakfast" aria-haspopup="dialog">Vote on Bubba’s Bagels <span aria-hidden="true">↗</span></button>
+                <p data-breakfast-summary></p>
               </div>
             </li>
             <li>
@@ -248,12 +232,12 @@
       </div>
       <div class="dialog-copy">
         <p>Leslie Liao · Saturday, Jan 16 at 9:15 pm · Prices include fees, before any tax</p>
-        <div class="seating-choices" role="group" aria-label="Seating choices">
-          <button class="button button-choice seating-choice" type="button" data-vote="seating" data-choice="general" aria-pressed="false" aria-disabled="true">
-            <strong>General Admission</strong><span class="seating-price">$256.40 for 8</span><span>$32.05 each</span><span class="seating-tally" data-seating-tally></span>
+        <div class="poll-options" role="group" aria-label="Seating choices">
+          <button class="button button-choice poll-option" type="button" data-vote="seating" data-choice="general" aria-pressed="false" aria-disabled="true">
+            <strong>General Admission</strong><span class="seating-price">$256.40 for 8</span><span>$32.05 each</span><span class="poll-tally" data-poll-tally></span>
           </button>
-          <button class="button button-choice seating-choice" type="button" data-vote="seating" data-choice="preferred" aria-pressed="false" aria-disabled="true">
-            <strong>Preferred Premium Seating</strong><span class="seating-price">$366.40 for 8</span><span>$45.80 each</span><span class="seating-tally" data-seating-tally></span>
+          <button class="button button-choice poll-option" type="button" data-vote="seating" data-choice="preferred" aria-pressed="false" aria-disabled="true">
+            <strong>Preferred Premium Seating</strong><span class="seating-price">$366.40 for 8</span><span>$45.80 each</span><span class="poll-tally" data-poll-tally></span>
           </button>
         </div>
         <p><strong>+$13.75 each ($110 total)</strong> for the section closest to the stage. Both sections seat guests first come, first served. Specific seats and sitting together depend on availability.</p>
@@ -292,9 +276,28 @@
       </div>
     </dialog>
 
-    <dialog id="breakfast" aria-labelledby="breakfast-title">
-      <div class="dialog-header"><h2 id="breakfast-title">Breakfast in Grass Valley</h2><form method="dialog"><button class="close-button" aria-label="Close breakfast ideas">×</button></form></div>
-      <div class="dialog-copy"><p>Four downtown ideas before meeting at Robbie’s. Food prices before tax, drinks, and tips; no vote needed.</p><div data-breakfast-options></div></div>
+    <dialog id="breakfast" aria-labelledby="breakfast-title" data-ballot-panel="breakfast">
+      <div class="dialog-header"><h2 id="breakfast-title">Breakfast poll</h2><form method="dialog"><button class="close-button" aria-label="Close breakfast poll">×</button></form></div>
+      <div class="venue-identity">
+        <label for="breakfast-guest">Your calling card</label>
+        <select id="breakfast-guest" data-ballot-guest><option value="">Choose your name</option></select>
+      </div>
+      <div class="dialog-copy">
+        <div class="poll-options" role="group" aria-label="Breakfast choices">
+          <button class="button button-choice poll-option" type="button" data-vote="breakfast" data-choice="bubbas" aria-pressed="false" aria-disabled="true">
+            <strong>Bubba’s Bagels</strong><span class="poll-tally" data-poll-tally></span>
+          </button>
+          <button class="button button-choice poll-option" type="button" data-vote="breakfast" data-choice="own" aria-pressed="false" aria-disabled="true">
+            <strong>I’ll get my own</strong><span class="poll-tally" data-poll-tally></span>
+          </button>
+        </div>
+        <p>860 Sutton Way, Grass Valley · Saturday from 7 am · <a href="https://bubbas-bagels.com/" target="_blank" rel="noopener">Menu &amp; hours <span aria-hidden="true">↗</span></a></p>
+      </div>
+      <div class="deck-footer">
+        <p class="vote-message" role="status" data-ballot-status="breakfast"></p>
+        <button class="quiet-button" type="button" data-vote="breakfast" data-choice="" data-clear-breakfast hidden>Clear my vote</button>
+        <button class="quiet-button" type="button" data-ballot-retry hidden>Retry connection</button>
+      </div>
     </dialog>
 
     <dialog id="drivers" aria-labelledby="drivers-title">

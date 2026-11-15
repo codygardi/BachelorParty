@@ -107,7 +107,7 @@ try {
   await choose("cody-gardi");
   assert.deepEqual(await read(), [], "Choosing a name must not vote");
   assert.equal(await submitDisabled(), true);
-  assert.match(await textAt("[data-plan-progress]"), /Ride or car.*Bar.*Escape room.*Dinner.*Comedy seating/);
+  assert.match(await textAt("[data-plan-progress]"), /Ride or car.*Breakfast.*Bar.*Escape room.*Dinner.*Comedy seating/);
   const expectedVenues = {
     bar: ["Maple Room Lounge", "The Snug", "Shady Lady Saloon"],
     room: ["Enchambered", "PanIQ"],
@@ -152,6 +152,14 @@ try {
   assert.equal(await submitDisabled(), true);
   assert.match(await textAt("[data-plan-progress]"), /Passenger seats/);
   await run(seats + '.value="3";' + seats + '.dispatchEvent(new Event("change",{bubbles:true}))'); await didSave("Passenger count saved.");
+  assert.equal(await submitDisabled(), true);
+  assert.equal(await textAt("[data-plan-progress]"), "Still needed · Breakfast");
+  await click('[data-open-dialog="breakfast"]');
+  assert.deepEqual(await run('return [...document.querySelectorAll("#breakfast .poll-option strong")].map(option => option.textContent)'), ["Bubba’s Bagels", "I’ll get my own"]);
+  await click('[data-vote=breakfast][data-choice=bubbas]');
+  await saveIn("breakfast");
+  await click("#breakfast .close-button");
+  assert.equal(await textAt("[data-breakfast-summary]"), "1 for Bubba’s · 0 getting their own");
   assert.equal(await submitDisabled(), false);
   await click("[data-plan-submit]");
   await until('return document.querySelector("[data-plan-submit]").hasAttribute("data-submitted")', "Plan vote did not submit.");
@@ -162,7 +170,7 @@ try {
   await until("return performance.timeOrigin !== " + beforeReload + " && " + enabled, "Reload failed");
   const [card] = await read();
   assert.deepEqual(card, {
-    inviteeId: "cody-gardi", drive: "volunteer", bar: "shady-lady", room: "paniq", dinner: "wildwood",
+    inviteeId: "cody-gardi", drive: "volunteer", breakfast: "bubbas", bar: "shady-lady", room: "paniq", dinner: "wildwood",
     seating: "general", car: "offer", passengerSeats: 3, planSubmitted: true, missingPlanChoices: [],
   });
   assert.equal(await run("return " + seats + ".value"), "3");
@@ -176,18 +184,20 @@ try {
   assert.match(map.searchParams.get("origin"), /Shady Lady/);
   assert.match(map.searchParams.get("waypoints"), /PanIQ.*Wildwood/);
   await click("#route .close-button");
-  await click('[data-open-dialog=breakfast]');
-  assert.equal(await run('return document.querySelectorAll("#breakfast .breakfast-spots li").length'), 4);
-  await click("#breakfast .close-button");
-
   const otherVote = await fetch(url + "api/calling-cards", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ action: "save-ballot", card: { inviteeId: "max-voorhees", bar: "shady-lady" } }),
+    body: JSON.stringify({ action: "save-ballot", card: { inviteeId: "max-voorhees", bar: "shady-lady", breakfast: "own" } }),
   });
   assert.equal(otherVote.status, 200);
   await run("await refreshCallingCards()");
   await choose("max-voorhees");
+  assert.equal(await textAt("[data-breakfast-summary]"), "1 for Bubba’s · 1 getting their own");
+  await click('[data-open-dialog="breakfast"]');
+  await click('[data-vote=breakfast][data-choice=bubbas]');
+  await saveIn("breakfast");
+  await click("#breakfast .close-button");
+  assert.equal(await textAt("[data-breakfast-summary]"), "2 for Bubba’s · 0 getting their own");
   await openDeck("bar");
   assert.equal(await textAt("[data-venue-tally]"), "2 votes");
   await next();
@@ -223,7 +233,7 @@ try {
     await writeFile(".venue-photo-review/saturday/" + width + ".png",Buffer.from(shot.data,"base64"));
   }
   assert.deepEqual(errors, []);
-  console.log("Verified car capacity, the required-vote gate, submission and reload, ballot changes, venue cards, and responsive layouts.");
+  console.log("Verified breakfast voting and tallies, the required-vote gate, submission and reload, venue cards, and responsive layouts.");
 
 } finally {
   socket?.close();

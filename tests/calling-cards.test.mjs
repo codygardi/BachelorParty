@@ -4,7 +4,7 @@ import { test } from "node:test";
 import worker, { CallingCards } from "../cloudflare/rsvp-worker.js";
 
 const endpoint = "https://test.example/?action=ballots";
-const existing = { inviteeId: "cody-gardi", drive: "volunteer", bar: "snug", dinner: "wildwood" };
+const existing = { inviteeId: "cody-gardi", drive: "volunteer", breakfast: "", bar: "snug", dinner: "wildwood" };
 
 function connect(db) {
   const box = new CallingCards({
@@ -120,7 +120,7 @@ test("the shared ballot carries forward eligible votes from both former plans", 
   const guest = { inviteeId: "robbie-merchant", bar: "maple-room", room: "paniq", dinner: "tapa-the-world" };
   assert.equal((await api.save(guest)).status, 200);
   const saved = (await connect(db).readVotes()).find((row) => row.inviteeId === guest.inviteeId);
-  assert.deepEqual(saved, { ...guest, drive: "", seating: "", car: "", passengerSeats: null });
+  assert.deepEqual(saved, { ...guest, drive: "", breakfast: "", seating: "", car: "", passengerSeats: null });
 });
 
 test("removed venues stay on existing ballots until the voter chooses again", async (t) => {
@@ -154,7 +154,7 @@ test("plan submission requires saved venue votes, transportation, and capacity f
   assert.deepEqual(await api.read(), []);
   assert.equal((await api.save({ ...submit, bar: "snug" })).status, 400);
 
-  const votes = { bar: "snug", room: "paniq", dinner: "wildwood", seating: "general" };
+  const votes = { breakfast: "bubbas", bar: "snug", room: "paniq", dinner: "wildwood", seating: "general" };
   for (const [field, choice] of Object.entries(votes)) {
     assert.equal((await api.save({ inviteeId, [field]: choice })).status, 200);
     assert.equal((await api.save(submit)).status, 409);
@@ -193,4 +193,22 @@ test("plan submission requires saved venue votes, transportation, and capacity f
   assert.equal((await api.save({ inviteeId, dinner: "" })).status, 200);
   assert.equal((await api.read())[0].planSubmitted, false);
   assert.equal((await api.save(submit)).status, 409);
+});
+
+test("an existing plan with no breakfast choice needs a poll response", async (t) => {
+  const db = new DatabaseSync(":memory:");
+  t.after(() => db.close());
+  const api = connect(db);
+  const inviteeId = existing.inviteeId;
+  const oldVotes = { ...existing, drive: "rider", room: "paniq", seating: "general" };
+  assert.equal((await api.save(oldVotes)).status, 200);
+  db.prepare("UPDATE ballots SET planSubmitted = 1 WHERE inviteeId = ?").run(inviteeId);
+  const [before] = await connect(db).read();
+  assert.equal(before.planSubmitted, false);
+  assert.deepEqual(before.missingPlanChoices, ["breakfast"]);
+  assert.equal((await api.save({ inviteeId, breakfast: "another-shop" })).status, 400);
+  assert.equal((await api.save({ inviteeId, breakfast: "own" })).status, 200);
+  assert.deepEqual(await api.readVotes(), [{ ...oldVotes, breakfast: "own", car: "", passengerSeats: null }]);
+  assert.equal((await api.save({ inviteeId, planSubmitted: true })).status, 200);
+  assert.equal((await connect(db).read())[0].planSubmitted, true);
 });

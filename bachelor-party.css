@@ -296,7 +296,6 @@ button[aria-disabled="true"], button:disabled { opacity: 0.58; cursor: default; 
 [data-plan-tally] { color: var(--green); }
 [data-plan-submit][data-submitted] { color: var(--green); }
 .route-note { font-size: 0.76rem; }
-#breakfast .breakfast-spots { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
 .venue-dialog .dialog-header h2 { font-size: clamp(1.5rem, 4vw, 1.9rem); }
 .timeline { list-style: none; margin: 0; padding: 0; }
 .timeline > li {
@@ -319,19 +318,7 @@ button[aria-disabled="true"], button:disabled { opacity: 0.58; cursor: default; 
 .timeline-stop p, .timeline-stop a { font-size: 0.76rem; }
 .timeline-stop p { color: var(--muted); }
 .timeline-stop .quiet-button { padding-block: 0.1rem; }
-.breakfast-spots {
-  display: grid;
-  flex-basis: 100%;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.45rem 0.65rem;
-  margin: 0.3rem 0 0.18rem;
-  padding: 0;
-  list-style: none;
-  color: var(--muted);
-  font-size: 0.74rem;
-}
-.breakfast-spots li { display: grid; align-content: start; }
-.breakfast-spots a { width: fit-content; font-weight: 700; }
+[data-breakfast-summary]:empty { display: none; }
 .inline-vote {
   width: fit-content;
   padding: 0.1rem 0;
@@ -374,8 +361,8 @@ dialog::backdrop { background: #0a0b08bd; }
 .dialog-copy { display: grid; gap: 0.65rem; color: var(--muted); }
 .dialog-copy strong, .dialog-copy h3 { color: var(--text); }
 .dialog-copy h3 { font-size: 1.5rem; }
-.seating-choices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.48rem; }
-.seating-choice {
+.poll-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.48rem; }
+.poll-option {
   display: grid;
   justify-content: stretch;
   align-content: start;
@@ -383,9 +370,9 @@ dialog::backdrop { background: #0a0b08bd; }
   padding: 0.7rem;
   text-align: start;
 }
-.seating-choice strong { color: inherit; }
+.poll-option strong { color: inherit; }
 .seating-price { font: 1.5rem/1.12 "Instrument Serif", Georgia, serif; }
-.seating-tally { margin-top: 0.18rem; font-size: 0.74rem; }
+.poll-tally { margin-top: 0.18rem; font-size: 0.74rem; }
 .seating-map summary { width: fit-content; cursor: pointer; color: var(--gold); font-size: 0.82rem; }
 .seating-map img {
   display: block;
@@ -471,7 +458,6 @@ dialog::backdrop { background: #0a0b08bd; }
   .schedule-caption .quiet-button { white-space: nowrap; }
   .driver-ballot { grid-template-columns: minmax(0, 1fr); gap: 0.4rem; }
   .driver-footer { grid-column: auto; }
-  .breakfast-spots { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 40rem) {

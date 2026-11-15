@@ -151,9 +151,9 @@ const punchLineAddress = "Punch Line Sacramento, 2100 Arden Way #225, Sacramento
 const ballotTitles = { bar: "Vote for a bar", dinner: "Vote for dinner", room: "Vote for an escape room location" };
 const planChoiceLabels = {
   transport: "Ride or car", passengerSeats: "Passenger seats",
-  bar: "Bar", room: "Escape room", dinner: "Dinner", seating: "Comedy seating",
+  breakfast: "Breakfast", bar: "Bar", room: "Escape room", dinner: "Dinner", seating: "Comedy seating",
 };
-const requiredPlanChoices = ["transport", "bar", "room", "dinner", "seating"];
+const requiredPlanChoices = ["transport", "breakfast", "bar", "room", "dinner", "seating"];
 const dashboard = document.querySelector("[data-view]");
 const scheduleTabs = Array.from(document.querySelectorAll('[role="tab"]'));
 const compactViews = window.matchMedia("(max-width: 48rem), (max-height: 40rem)");
@@ -172,9 +172,19 @@ const venueSnapshot = document.querySelector("#venue-snapshot");
 const voteButtons = Array.from(document.querySelectorAll("[data-vote]"));
 const retryButtons = Array.from(document.querySelectorAll("[data-ballot-retry]"));
 const deckOpeners = Array.from(document.querySelectorAll("[data-open-ballot]"));
-const seatingOpener = document.querySelector('[data-open-dialog="seating-voting"]');
-const seatingButtons = Array.from(document.querySelectorAll('[data-vote="seating"][aria-pressed]'));
-const clearSeating = document.querySelector("[data-clear-seating]");
+const polls = [
+  { field: "breakfast", dialogId: "breakfast", prompt: "Vote on Bubba’s Bagels" },
+  { field: "seating", dialogId: "seating-voting", prompt: "Vote on seating" },
+].map(({ field, dialogId, prompt }) => {
+  const dialog = document.getElementById(dialogId);
+  return {
+    field, prompt,
+    opener: document.querySelector(`[data-open-dialog="${dialogId}"]`),
+    buttons: Array.from(dialog.querySelectorAll(".poll-option")),
+    clear: dialog.querySelector('[data-choice=""]'),
+  };
+});
+const breakfastSummary = document.querySelector("[data-breakfast-summary]");
 const planSubmit = document.querySelector("[data-plan-submit]");
 const planPanel = planSubmit.closest("[data-ballot-panel]");
 const ballotStoreUrl = persistenceConfig.ballotEndpointUrl ?? remoteStoreUrl;
@@ -209,8 +219,6 @@ function renderRoute(selected) {
     route.slice(1).map(placeAddress),
   );
 }
-
-document.querySelector("[data-breakfast-options]").append(document.querySelector("#breakfast-options").content.cloneNode(true));
 
 function selectSchedule(tab) {
   dashboard.dataset.view = tab.getAttribute("aria-controls");
@@ -349,12 +357,18 @@ function renderVotingState() {
     const choice = venues[field].find(({ id }) => id === saved);
     button.firstChild.textContent = choice ? `Your vote · ${choice.name} ` : saved ? "Previous choice removed · vote again " : `${ballotTitles[field]} `;
   }
-  for (const button of seatingButtons) {
-    button.querySelector("[data-seating-tally]").textContent = voteTally("seating", button.dataset.choice);
+  for (const { field, prompt, opener, buttons, clear } of polls) {
+    const selection = buttons.find((button) => button.dataset.choice === selected?.[field]);
+    const label = selection ? `Your vote · ${selection.querySelector("strong").textContent}` : prompt;
+    opener.firstChild.textContent = `${label} `;
+    clear.hidden = !selected?.[field];
+    for (const button of buttons) {
+      button.querySelector("[data-poll-tally]").textContent = voteTally(field, button.dataset.choice);
+    }
   }
-  const seatingChoice = seatingButtons.find((button) => button.dataset.choice === selected?.seating);
-  seatingOpener.firstChild.textContent = seatingChoice ? `Your vote · ${seatingChoice.querySelector("strong").textContent} ` : "Vote on seating ";
-  clearSeating.hidden = !selected?.seating;
+  breakfastSummary.textContent = connected || callingCards.length
+    ? `${voteCount("breakfast", "bubbas")} for Bubba’s · ${voteCount("breakfast", "own")} getting their own`
+    : "";
   renderPlanSubmission(selected);
   renderRoute(selected);
 }

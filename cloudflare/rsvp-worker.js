@@ -7,17 +7,18 @@ const voterIds = new Set([
 const driveChoices = new Set(["volunteer", "rider"]);
 const carChoices = new Set(["", "offer"]);
 const passengerSeatChoices = new Set([0, 1, 2, 3, 4, 5, 6, 7]);
+const breakfastChoices = new Set(["", "bubbas", "own"]);
 const barChoices = new Set(["", "maple-room", "snug", "shady-lady"]);
 const dinnerChoices = new Set(["", "thai-terrace", "wildwood", "tapa-the-world"]);
 const roomChoices = new Set(["", "enchambered", "paniq"]);
 const seatingChoices = new Set(["", "general", "preferred"]);
 const ballotChoices = {
-  drive: driveChoices, car: carChoices, passengerSeats: passengerSeatChoices,
+  drive: driveChoices, car: carChoices, passengerSeats: passengerSeatChoices, breakfast: breakfastChoices,
   bar: barChoices, dinner: dinnerChoices, room: roomChoices, seating: seatingChoices,
   planSubmitted: new Set([true]),
 };
-const planVoteFields = ["bar", "room", "dinner", "seating"];
-const ballotColumns = "inviteeId, drive, bar, dinner, room, seating, car, passengerSeats, plan, walkBar, walkRoom, walkDinner, planSubmitted";
+const planVoteFields = ["breakfast", "bar", "room", "dinner", "seating"];
+const ballotColumns = "inviteeId, drive, breakfast, bar, dinner, room, seating, car, passengerSeats, plan, walkBar, walkRoom, walkDinner, planSubmitted";
 const roomLocations = new Map([
   ["skull-witch", "enchambered"],
   ["the-collection", "enchambered"],
@@ -147,6 +148,7 @@ export class CallingCards {
       CREATE TABLE IF NOT EXISTS ballots (
         inviteeId TEXT PRIMARY KEY,
         drive TEXT NOT NULL,
+        breakfast TEXT NOT NULL DEFAULT '',
         bar TEXT NOT NULL,
         dinner TEXT NOT NULL,
         room TEXT NOT NULL DEFAULT '',
@@ -157,7 +159,7 @@ export class CallingCards {
       )
     `);
     const columns = this.sql.exec("PRAGMA table_info(ballots)").toArray().map(({ name }) => name);
-    for (const name of ["room", "seating", "car", "plan", "walkBar", "walkRoom", "walkDinner"]) {
+    for (const name of ["breakfast", "room", "seating", "car", "plan", "walkBar", "walkRoom", "walkDinner"]) {
       if (!columns.includes(name)) this.sql.exec(`ALTER TABLE ballots ADD COLUMN ${name} TEXT NOT NULL DEFAULT ''`);
     }
     if (!columns.includes("passengerSeats")) this.sql.exec("ALTER TABLE ballots ADD COLUMN passengerSeats INTEGER");
@@ -182,20 +184,22 @@ export class CallingCards {
     const rows = this.sql.exec(`SELECT ${ballotColumns} FROM ballots`).toArray();
     const ballots = rows.map((row) => {
       const card = currentBallot(row);
-      return { ...card, missingPlanChoices: missingPlanChoices(card) };
+      const missing = missingPlanChoices(card);
+      return { ...card, missingPlanChoices: missing, planSubmitted: card.planSubmitted && missing.length === 0 };
     });
     return Response.json({ ballots });
   }
 
   saveChoices(inviteeId, choices, previous) {
-    const { drive, bar, dinner, room, seating, car, passengerSeats } = choices;
+    const { drive, breakfast, bar, dinner, room, seating, car, passengerSeats } = choices;
     const changed = previous?.planSubmitted && Object.entries(choices).some(([field, value]) => previous[field] !== value);
     // Clear the former walking vote when its venue is updated.
     this.sql.exec(`
-        INSERT INTO ballots (inviteeId, drive, bar, dinner, room, seating, car, passengerSeats)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO ballots (inviteeId, drive, breakfast, bar, dinner, room, seating, car, passengerSeats)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT (inviteeId) DO UPDATE SET
           drive = COALESCE(?, ballots.drive),
+          breakfast = COALESCE(?, ballots.breakfast),
           bar = COALESCE(?, ballots.bar),
           dinner = COALESCE(?, ballots.dinner),
           room = COALESCE(?, ballots.room),
@@ -206,8 +210,8 @@ export class CallingCards {
           walkDinner = CASE WHEN ? IS NULL THEN ballots.walkDinner ELSE '' END,
           passengerSeats = CASE WHEN ? = '' THEN NULL ELSE COALESCE(excluded.passengerSeats, ballots.passengerSeats) END,
           planSubmitted = CASE WHEN ? = 1 THEN 0 ELSE ballots.planSubmitted END
-    `, inviteeId, drive ?? "", bar ?? "", dinner ?? "", room ?? "", seating ?? "", car ?? "", passengerSeats ?? null,
-    drive ?? null, bar ?? null, dinner ?? null, room ?? null, seating ?? null, car ?? null,
+    `, inviteeId, drive ?? "", breakfast ?? "", bar ?? "", dinner ?? "", room ?? "", seating ?? "", car ?? "", passengerSeats ?? null,
+    drive ?? null, breakfast ?? null, bar ?? null, dinner ?? null, room ?? null, seating ?? null, car ?? null,
     bar ?? null, room ?? null, dinner ?? null, car ?? null, changed ? 1 : 0);
   }
 }
