@@ -173,6 +173,7 @@ const voteButtons = Array.from(document.querySelectorAll("[data-vote]"));
 const retryButtons = Array.from(document.querySelectorAll("[data-ballot-retry]"));
 const deckOpeners = Array.from(document.querySelectorAll("[data-open-ballot]"));
 const polls = [
+  { field: "dndHost", dialogId: "dnd-host", prompt: "Vote on hosting Friday’s D&D game" },
   { field: "breakfast", dialogId: "breakfast", prompt: "Vote on Bubba’s Bagels" },
   { field: "seating", dialogId: "seating-voting", prompt: "Vote on seating" },
 ].map(({ field, dialogId, prompt }) => {
@@ -599,7 +600,7 @@ async function saveChoices(panel, choices, successMessage) {
   saveVersion += 1;
   pendingChoices = choices;
   renderVotingState();
-  if (scope !== "submission" && !Object.hasOwn(choices, "breakfastOrder")) setStatus("submission");
+  if (scope !== "submission" && scope !== "dndHost" && !Object.hasOwn(choices, "breakfastOrder")) setStatus("submission");
   setStatus(scope, "Saving…");
   let refreshAfterFailure = false;
   try {

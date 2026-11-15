@@ -189,14 +189,7 @@ button { cursor: pointer; }
   grid-template-columns: minmax(12rem, 1fr) minmax(0, max-content);
   align-items: center;
   gap: 0.25rem 1rem;
-  margin-top: 0.45rem;
-  padding: 0.52rem 0.7rem 0.42rem;
-  border: 1px solid var(--line);
-  border-radius: 0.55rem;
-  background: var(--panel-dark);
 }
-.driver-heading h3 { font-size: 1.43rem; }
-.driver-heading p { color: var(--muted); font-size: 0.75rem; }
 .driver-controls, .driver-choices, .driver-footer, .venue-actions, .deck-footer, .venue-links, .dice-tray, .dialog-links {
   display: flex;
   align-items: center;

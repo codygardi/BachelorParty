@@ -4,6 +4,7 @@ const voterIds = new Set([
   "robbie-merchant", "max-voorhees", "thomas-correll", "jonno-christie",
   "lane-carleson", "sean-fitzhenry", "andrew-kostolefsky", "cody-gardi",
 ]);
+const dndHostChoices = new Set(["", "host", "cant-host"]);
 const driveChoices = new Set(["volunteer", "rider"]);
 const carChoices = new Set(["", "offer"]);
 const passengerSeatChoices = new Set([0, 1, 2, 3, 4, 5, 6, 7]);
@@ -14,12 +15,13 @@ const dinnerChoices = new Set(["", "thai-terrace", "wildwood", "tapa-the-world"]
 const roomChoices = new Set(["", "enchambered", "paniq"]);
 const seatingChoices = new Set(["", "general", "preferred"]);
 const ballotChoices = {
+  dndHost: dndHostChoices,
   drive: driveChoices, car: carChoices, passengerSeats: passengerSeatChoices, breakfast: breakfastChoices,
   bar: barChoices, dinner: dinnerChoices, room: roomChoices, seating: seatingChoices,
   planSubmitted: new Set([true]),
 };
 const planVoteFields = ["breakfast", "bar", "room", "dinner", "seating"];
-const ballotColumns = "inviteeId, drive, breakfast, breakfastOrder, bar, dinner, room, seating, car, passengerSeats, plan, walkBar, walkRoom, walkDinner, planSubmitted";
+const ballotColumns = "inviteeId, dndHost, drive, breakfast, breakfastOrder, bar, dinner, room, seating, car, passengerSeats, plan, walkBar, walkRoom, walkDinner, planSubmitted";
 const roomLocations = new Map([
   ["skull-witch", "enchambered"],
   ["the-collection", "enchambered"],
@@ -153,6 +155,7 @@ export class CallingCards {
     this.sql.exec(`
       CREATE TABLE IF NOT EXISTS ballots (
         inviteeId TEXT PRIMARY KEY,
+        dndHost TEXT NOT NULL DEFAULT '',
         drive TEXT NOT NULL,
         breakfast TEXT NOT NULL DEFAULT '',
         breakfastOrder TEXT NOT NULL DEFAULT '',
@@ -166,7 +169,7 @@ export class CallingCards {
       )
     `);
     const columns = this.sql.exec("PRAGMA table_info(ballots)").toArray().map(({ name }) => name);
-    for (const name of ["breakfast", "breakfastOrder", "room", "seating", "car", "plan", "walkBar", "walkRoom", "walkDinner"]) {
+    for (const name of ["dndHost", "breakfast", "breakfastOrder", "room", "seating", "car", "plan", "walkBar", "walkRoom", "walkDinner"]) {
       if (!columns.includes(name)) this.sql.exec(`ALTER TABLE ballots ADD COLUMN ${name} TEXT NOT NULL DEFAULT ''`);
     }
     if (!columns.includes("passengerSeats")) this.sql.exec("ALTER TABLE ballots ADD COLUMN passengerSeats INTEGER");
@@ -201,16 +204,17 @@ export class CallingCards {
   }
 
   saveChoices(inviteeId, choices, previous) {
-    const { drive, breakfast, bar, dinner, room, seating, car, passengerSeats } = choices;
+    const { dndHost, drive, breakfast, bar, dinner, room, seating, car, passengerSeats } = choices;
     const breakfastOrder = choices.breakfastOrder?.trim();
     const changed = previous?.planSubmitted && Object.entries(choices).some(([field, value]) =>
-      field !== "breakfastOrder" && previous[field] !== value
+      field !== "breakfastOrder" && field !== "dndHost" && previous[field] !== value
     );
     // Clear the former walking vote when its venue is updated.
     this.sql.exec(`
-        INSERT INTO ballots (inviteeId, drive, breakfast, breakfastOrder, bar, dinner, room, seating, car, passengerSeats)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO ballots (inviteeId, dndHost, drive, breakfast, breakfastOrder, bar, dinner, room, seating, car, passengerSeats)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT (inviteeId) DO UPDATE SET
+          dndHost = COALESCE(?, ballots.dndHost),
           drive = COALESCE(?, ballots.drive),
           breakfast = COALESCE(?, ballots.breakfast),
           breakfastOrder = CASE WHEN ? IN ('', 'own') THEN '' ELSE COALESCE(?, ballots.breakfastOrder) END,
@@ -224,8 +228,8 @@ export class CallingCards {
           walkDinner = CASE WHEN ? IS NULL THEN ballots.walkDinner ELSE '' END,
           passengerSeats = CASE WHEN ? = '' THEN NULL ELSE COALESCE(excluded.passengerSeats, ballots.passengerSeats) END,
           planSubmitted = CASE WHEN ? = 1 THEN 0 ELSE ballots.planSubmitted END
-    `, inviteeId, drive ?? "", breakfast ?? "", breakfastOrder ?? "", bar ?? "", dinner ?? "", room ?? "", seating ?? "", car ?? "", passengerSeats ?? null,
-    drive ?? null, breakfast ?? null, breakfast ?? null, breakfastOrder ?? null,
+    `, inviteeId, dndHost ?? "", drive ?? "", breakfast ?? "", breakfastOrder ?? "", bar ?? "", dinner ?? "", room ?? "", seating ?? "", car ?? "", passengerSeats ?? null,
+    dndHost ?? null, drive ?? null, breakfast ?? null, breakfast ?? null, breakfastOrder ?? null,
     bar ?? null, dinner ?? null, room ?? null, seating ?? null, car ?? null,
     bar ?? null, room ?? null, dinner ?? null, car ?? null, changed ? 1 : 0);
   }

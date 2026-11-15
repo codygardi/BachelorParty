@@ -8,10 +8,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="bachelor-party.css?v=20261115k">
+    <link rel="stylesheet" href="bachelor-party.css?v=20261115l">
     <script src="bachelor-party-config.js" defer></script>
     <script src="bachelor-party.js?v=20261113c" defer></script>
-    <script src="calling-cards.js?v=20261115k" defer></script>
+    <script src="calling-cards.js?v=20261115l" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
@@ -34,39 +34,6 @@
           <button class="quiet-button" type="button" data-open-dialog="rsvps" data-rsvp-summary>Guest RSVPs</button>
         </div>
         <ul class="party-roster" data-response-list></ul>
-
-        <section class="driver-ballot" id="calling-cards" aria-labelledby="driver-title" data-ballot-panel="drive">
-          <div class="driver-heading">
-            <h3 id="driver-title">Driver roll call</h3>
-            <p>Two sober drivers and two cars for eight.</p>
-          </div>
-          <div class="driver-controls">
-            <label class="sr-only" for="ballot-guest">Your calling card</label>
-            <select id="ballot-guest" data-ballot-guest>
-              <option value="">Choose your name</option>
-            </select>
-            <div class="driver-choices" role="group" aria-label="Saturday transportation">
-              <button class="button button-choice" type="button" data-vote="drive" data-choice="volunteer" data-car-offer aria-controls="car-passengers" aria-pressed="false" aria-disabled="true">We can take my car</button>
-              <button class="button button-choice" type="button" data-vote="drive" data-choice="rider" aria-pressed="false" aria-disabled="true">I need a ride</button>
-            </div>
-            <label class="car-passengers" id="car-passengers" hidden>
-              Passenger seats
-              <select aria-label="Passenger seats, excluding the driver" disabled>
-                <option value="" disabled selected>Choose</option>
-                <option value="0">0</option><option value="1">1</option>
-                <option value="2">2</option><option value="3">3</option>
-                <option value="4">4</option><option value="5">5</option>
-                <option value="6">6</option><option value="7">7</option>
-              </select>
-            </label>
-          </div>
-          <div class="driver-footer">
-            <p data-driver-count>Loading driver tally…</p>
-            <button class="quiet-button" type="button" data-open-dialog="drivers">View roll call <span aria-hidden="true">↗</span></button>
-            <p class="vote-message" role="status" data-ballot-status="drive"></p>
-            <button class="quiet-button" type="button" data-ballot-retry hidden>Retry connection</button>
-          </div>
-        </section>
       </section>
 
       <section class="schedule" id="schedule" aria-label="Weekend schedule">
@@ -96,8 +63,10 @@
               <time class="timeline-time" datetime="18:00">6:00 pm</time>
               <div class="timeline-stop">
                 <h3>D&amp;D at base camp</h3>
+                <p class="vote-summary" data-vote-summary="dndHost"></p>
                 <button class="quiet-button" type="button" data-open-dialog="games">Tavern games <span aria-hidden="true">↗</span></button>
               </div>
+              <button class="button button-outline timeline-vote" type="button" data-open-dialog="dnd-host" aria-label="Vote on hosting Friday’s D&amp;D game" aria-haspopup="dialog">Vote</button>
             </li>
           </ol>
         </div>
@@ -119,6 +88,41 @@
             <li>
               <time class="timeline-time" datetime="12:30">12:30 pm</time>
               <div class="timeline-stop"><h3>Meet at ___ (pending)</h3><p>Leave no later than 1 pm.</p></div>
+            </li>
+            <li>
+              <time class="timeline-time" datetime="13:00">1:00 pm</time>
+              <section class="driver-ballot" id="calling-cards" aria-labelledby="departure-title" data-ballot-panel="drive">
+                <div class="timeline-stop">
+                  <h3 id="departure-title">Leave for Sacramento</h3>
+                  <p>Two sober drivers and two cars for eight.</p>
+                </div>
+                <div class="driver-controls">
+                  <label class="sr-only" for="ballot-guest">Your calling card</label>
+                  <select id="ballot-guest" data-ballot-guest>
+                    <option value="">Choose your name</option>
+                  </select>
+                  <div class="driver-choices" role="group" aria-label="Saturday transportation">
+                    <button class="button button-choice" type="button" data-vote="drive" data-choice="volunteer" data-car-offer aria-controls="car-passengers" aria-pressed="false" aria-disabled="true">We can take my car</button>
+                    <button class="button button-choice" type="button" data-vote="drive" data-choice="rider" aria-pressed="false" aria-disabled="true">I need a ride</button>
+                  </div>
+                  <label class="car-passengers" id="car-passengers" hidden>
+                    Passenger seats
+                    <select aria-label="Passenger seats, excluding the driver" disabled>
+                      <option value="" disabled selected>Choose</option>
+                      <option value="0">0</option><option value="1">1</option>
+                      <option value="2">2</option><option value="3">3</option>
+                      <option value="4">4</option><option value="5">5</option>
+                      <option value="6">6</option><option value="7">7</option>
+                    </select>
+                  </label>
+                </div>
+                <div class="driver-footer">
+                  <p data-driver-count>Loading driver tally…</p>
+                  <button class="quiet-button" type="button" data-open-dialog="drivers">Driver roll call <span aria-hidden="true">↗</span></button>
+                  <p class="vote-message" role="status" data-ballot-status="drive"></p>
+                  <button class="quiet-button" type="button" data-ballot-retry hidden>Retry connection</button>
+                </div>
+              </section>
             </li>
             <li>
               <span class="timeline-time">Pending</span>
@@ -145,7 +149,7 @@
               <button class="button button-outline timeline-vote" type="button" data-open-ballot="dinner" aria-label="Vote for dinner" aria-haspopup="dialog">Vote</button>
             </li>
             <li>
-              <span class="timeline-time"><time datetime="20:45">8:45 pm</time> · Pending</span>
+              <time class="timeline-time" datetime="20:45">8:45 pm</time>
               <div class="timeline-stop">
                 <h3>Leslie Liao at Punch Line</h3>
                 <p class="vote-summary" data-vote-summary="seating"></p>
@@ -268,7 +272,7 @@
         <p><strong>Toast pending.</strong> Maple Room is a 20–25 minute walk to Enchambered. Take both cars from The Snug or Shady Lady to Enchambered, or from any bar to PanIQ.</p>
         <p><strong>Escape room pending.</strong> Confirm a slot for eight. Allow for travel, parking, and check-in 15 minutes before the room.</p>
         <p><strong>Dinner pending.</strong> Thai Terrace is next to Enchambered and a short walk from Punch Line. From PanIQ, drive to dinner. Allow time to reach Punch Line after dinner.</p>
-        <p><strong>Comedy pending.</strong> Target 8:45 pm at 2100 Arden Way. Bring photo ID. Two beverages per guest, including alcohol-free options.</p>
+        <p><strong>8:45 pm at Punch Line.</strong> 2100 Arden Way. Bring photo ID. Two beverages per guest, including alcohol-free options.</p>
         <p><strong>Weekend cap.</strong> $250 per person before restaurant tips. The seating ballot lists $32.05 general or $45.80 preferred per guest, plus two drinks.</p>
         <p class="route-note">The map uses your votes or the first option for each stop. The escape room cards have walking or driving directions from each bar.</p>
         <p class="dialog-links">
@@ -311,6 +315,33 @@
         <p data-pickup-empty>No Bubba’s votes yet.</p>
         <dl data-pickup-orders></dl>
       </section>
+    </dialog>
+
+    <dialog id="dnd-host" aria-labelledby="dnd-host-title" data-ballot-panel="dndHost">
+      <div class="dialog-header"><h2 id="dnd-host-title">Who can host D&amp;D?</h2><form method="dialog"><button class="close-button" aria-label="Close D&amp;D host poll">×</button></form></div>
+      <div class="venue-identity">
+        <label for="dnd-host-guest">Your calling card</label>
+        <select id="dnd-host-guest" data-ballot-guest><option value="">Choose your name</option></select>
+      </div>
+      <div class="dialog-copy">
+        <div class="poll-options" role="group" aria-label="Friday D&amp;D hosting availability">
+          <button class="button button-choice poll-option" type="button" data-vote="dndHost" data-choice="host" data-summary-label="Can host" aria-pressed="false" aria-disabled="true">
+            <strong>I can host</strong><span class="poll-tally" data-poll-tally></span>
+          </button>
+          <button class="button button-choice poll-option" type="button" data-vote="dndHost" data-choice="cant-host" data-summary-label="Can’t host" aria-pressed="false" aria-disabled="true">
+            <strong>I can’t host</strong><span class="poll-tally" data-poll-tally></span>
+          </button>
+        </div>
+        <dl class="roll-call">
+          <dt>Can host</dt><dd data-roll-call="dndHost" data-choice="host"></dd>
+          <dt>Can’t host</dt><dd data-roll-call="dndHost" data-choice="cant-host"></dd>
+        </dl>
+      </div>
+      <div class="deck-footer">
+        <p class="vote-message" role="status" data-ballot-status="dndHost"></p>
+        <button class="quiet-button" type="button" data-vote="dndHost" data-choice="" hidden>Clear my vote</button>
+        <button class="quiet-button" type="button" data-ballot-retry hidden>Retry connection</button>
+      </div>
     </dialog>
 
     <dialog id="drivers" aria-labelledby="drivers-title">

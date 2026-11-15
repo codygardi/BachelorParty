@@ -12,6 +12,8 @@ The GitHub Pages site uses the shared ballot endpoint on the [Cloudflare Worker]
 
 Saturday has one set of venue ballots for the bar, escape room location, and dinner. Both Enchambered rooms are listed on its location card.
 
+Friday’s D&D host poll shows who can run the game. Guests can respond independently of their Saturday plan vote.
+
 The final plan vote requires a ride request or car offer, plus votes for breakfast, the bar, escape room location, dinner, and comedy seating. Car offers require a passenger count excluding the driver. The Worker checks completion when a plan vote is submitted. Changing or clearing a choice reopens that vote for submission.
 
 Saturday shows the vote count for every option in each activity poll. Guests who vote for Bubba’s can add an optional order to the pickup list. Adding or editing the order keeps the submitted plan vote, and withdrawing the Bubba’s choice removes the order.

@@ -112,6 +112,7 @@ try {
   assert.equal(await textAt("#friday .timeline > li:first-child .timeline-stop"), "Arrive at base camp");
   assert.equal(await textAt('#friday time[datetime="16:00"]'), "4:00 pm");
   assert.equal(await textAt('#friday time[datetime="18:00"]'), "6:00 pm");
+  assert.equal(await summary("dndHost"), "Can host · 0 votes / Can’t host · 0 votes");
   await click("#saturday-tab");
   await choose("cody-gardi");
   assert.deepEqual(await read(), [], "Choosing a name must not vote");
@@ -119,6 +120,10 @@ try {
   assert.equal(await textAt("[data-plan-submit]"), "Submit Votes");
   assert.equal(await textAt('#saturday time[datetime="12:30"]'), "12:30 pm");
   assert.match(await textAt("#saturday .timeline > li:nth-child(2) .timeline-stop"), /Meet at ___ \(pending\).*Leave no later than 1 pm/);
+  assert.equal(await textAt('#saturday time[datetime="13:00"]'), "1:00 pm");
+  assert.equal(await textAt('#saturday time[datetime="13:00"] + #calling-cards h3'), "Leave for Sacramento");
+  assert.equal(await run('return Boolean(document.querySelector("#calling-cards").closest("li").nextElementSibling.querySelector("[data-open-ballot=bar]"))'), true);
+  assert.equal(await textAt('#saturday .timeline > li:has([data-vote-summary="seating"]) > .timeline-time'), "8:45 pm");
   assert.doesNotMatch(await textAt("#saturday .timeline"), /Doors 8:45 pm|Two beverages per guest/);
   assert.match(await textAt("[data-plan-progress]"), /Ride or car.*Breakfast.*Bar.*Escape room.*Dinner.*Comedy seating/);
   const expectedVenues = {
@@ -201,18 +206,31 @@ try {
   await saveIn("breakfast", "Order saved.");
   assert.deepEqual(await pickup(), ["Cody Gardi", orderText]);
   await click("#breakfast .close-button");
+  await click("#friday-tab");
+  await click('[data-open-dialog="dnd-host"]');
+  await click('[data-vote=dndHost][data-choice=host]');
+  await saveIn("dndHost");
+  assert.equal(await textAt('[data-roll-call=dndHost][data-choice=host]'), "Cody Gardi");
+  await click("#dnd-host .close-button");
+  assert.equal(await summary("dndHost"), "Can host · 1 vote / Can’t host · 0 votes");
+  await click("#saturday-tab");
   assert.equal(await textAt("[data-plan-submit]"), "Votes submitted");
   const beforeReload = await run("return performance.timeOrigin");
   await cdp("Page.reload");
   await until("return performance.timeOrigin !== " + beforeReload + " && " + enabled, "Reload failed");
   const [card] = await read();
   assert.deepEqual(card, {
-    inviteeId: "cody-gardi", drive: "volunteer", breakfast: "bubbas", breakfastOrder: orderText,
+    inviteeId: "cody-gardi", dndHost: "host", drive: "volunteer", breakfast: "bubbas", breakfastOrder: orderText,
     bar: "shady-lady", room: "paniq", dinner: "wildwood",
     seating: "general", car: "offer", passengerSeats: 3, planSubmitted: true, missingPlanChoices: [],
   });
   assert.equal(await run("return " + seats + ".value"), "3");
   assert.equal(await textAt("[data-plan-submit]"), "Votes submitted");
+  await click("#friday-tab");
+  await click('[data-open-dialog="dnd-host"]');
+  assert.equal(await run('return document.querySelector("[data-vote=dndHost][data-choice=host]").getAttribute("aria-pressed")'), "true");
+  await click("#dnd-host .close-button");
+  await click("#saturday-tab");
   await click('[data-open-dialog="breakfast"]');
   assert.equal(await run('return document.querySelector("#breakfast-order").value'), orderText);
   assert.deepEqual(await pickup(), ["Cody Gardi", orderText]);
@@ -229,11 +247,12 @@ try {
   const otherVote = await fetch(url + "api/calling-cards", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ action: "save-ballot", card: { inviteeId: "max-voorhees", bar: "shady-lady", breakfast: "own", seating: "preferred" } }),
+    body: JSON.stringify({ action: "save-ballot", card: { inviteeId: "max-voorhees", dndHost: "cant-host", bar: "shady-lady", breakfast: "own", seating: "preferred" } }),
   });
   assert.equal(otherVote.status, 200);
   await run("await refreshCallingCards()");
   await choose("max-voorhees");
+  assert.equal(await summary("dndHost"), "Can host · 1 vote / Can’t host · 1 vote");
   assert.equal(await summary("breakfast"), "Bubba’s Bagels · 1 vote / I’ll get my own · 1 vote");
   assert.equal(await summary("seating"), "General Seating · 1 vote / Premium Seating · 1 vote");
   await click('[data-open-dialog="breakfast"]');
@@ -291,7 +310,7 @@ try {
     await writeFile(".venue-photo-review/saturday/" + width + ".png",Buffer.from(shot.data,"base64"));
   }
   assert.deepEqual(errors, []);
-  console.log("Verified Friday schedule, per-option tallies, breakfast pickup orders and reload, preserved plan submissions, venue cards, and responsive layouts.");
+  console.log("Verified Friday host voting and reload, Saturday departure and ride controls, per-option tallies, breakfast pickup orders, plan submissions, venue cards, and responsive layouts.");
 
 } finally {
   socket?.close();

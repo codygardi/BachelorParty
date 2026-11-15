@@ -4,7 +4,7 @@ import { test } from "node:test";
 import worker, { CallingCards } from "../cloudflare/rsvp-worker.js";
 
 const endpoint = "https://test.example/?action=ballots";
-const existing = { inviteeId: "cody-gardi", drive: "volunteer", breakfast: "", bar: "snug", dinner: "wildwood" };
+const existing = { inviteeId: "cody-gardi", dndHost: "", drive: "volunteer", breakfast: "", bar: "snug", dinner: "wildwood" };
 
 function connect(db) {
   const box = new CallingCards({
@@ -47,7 +47,7 @@ test("the existing ballots table keeps all votes when adding ballot columns", as
 
   const api = connect(db);
   assert.deepEqual(await api.readVotes(), [{ ...existing, room: "", seating: "", car: "", passengerSeats: null }]);
-  const newVotes = { room: "enchambered", seating: "preferred", car: "offer", passengerSeats: 3 };
+  const newVotes = { dndHost: "host", room: "enchambered", seating: "preferred", car: "offer", passengerSeats: 3 };
   assert.equal((await api.save({ inviteeId: existing.inviteeId, ...newVotes })).status, 200);
   assert.deepEqual(await connect(db).readVotes(), [{ ...existing, ...newVotes }]);
 });
@@ -120,7 +120,7 @@ test("the shared ballot carries forward eligible votes from both former plans", 
   const guest = { inviteeId: "robbie-merchant", bar: "maple-room", room: "paniq", dinner: "tapa-the-world" };
   assert.equal((await api.save(guest)).status, 200);
   const saved = (await connect(db).readVotes()).find((row) => row.inviteeId === guest.inviteeId);
-  assert.deepEqual(saved, { ...guest, drive: "", breakfast: "", seating: "", car: "", passengerSeats: null });
+  assert.deepEqual(saved, { ...guest, dndHost: "", drive: "", breakfast: "", seating: "", car: "", passengerSeats: null });
 });
 
 test("removed venues stay on existing ballots until the voter chooses again", async (t) => {
@@ -236,4 +236,26 @@ test("Bubba’s orders are per guest and editing an order preserves the plan vot
   assert.equal((await api.save({ inviteeId, breakfast: "own" })).status, 200);
   assert.equal((await api.save({ inviteeId, breakfastOrder })).status, 409);
   assert.deepEqual(await connect(db).read(), [{ ...submitted, breakfast: "own", breakfastOrder: "", planSubmitted: false }]);
+});
+
+test("Friday hosting votes save, change, and clear independently of Saturday votes", async (t) => {
+  const db = new DatabaseSync(":memory:");
+  t.after(() => db.close());
+  const api = connect(db);
+  const { inviteeId } = existing;
+  assert.equal((await api.save({ inviteeId, dndHost: "maybe" })).status, 400);
+  assert.deepEqual(await api.read(), []);
+  assert.equal((await api.save({ inviteeId, dndHost: "host" })).status, 200);
+  assert.equal((await connect(db).read())[0].dndHost, "host");
+
+  const saturday = { inviteeId, drive: "rider", breakfast: "own", bar: "snug", room: "paniq", dinner: "wildwood", seating: "general" };
+  assert.equal((await api.save(saturday)).status, 200);
+  assert.equal((await api.save({ inviteeId, planSubmitted: true })).status, 200);
+  const [submitted] = await api.read();
+  assert.equal(submitted.dndHost, "host");
+  assert.equal(submitted.planSubmitted, true);
+  for (const dndHost of ["cant-host", ""]) {
+    assert.equal((await api.save({ inviteeId, dndHost })).status, 200);
+    assert.deepEqual(await connect(db).read(), [{ ...submitted, dndHost }]);
+  }
 });
