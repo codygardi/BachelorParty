@@ -94,8 +94,8 @@ try {
     if (message.method === "Runtime.exceptionThrown") errors.push(message.params.exceptionDetails.text);
   });
   const read = async () => (await (await fetch(url + "api/calling-cards?action=ballots")).json()).ballots;
-  const choose = async (id) => run('const s=document.querySelector("#ballot-guest");s.value=' + JSON.stringify(id) + ';s.dispatchEvent(new Event("change",{bubbles:true}))');
   const click = async (selector) => run('document.querySelector(' + JSON.stringify(selector) + ').click()');
+  const choose = (id) => click(`[data-calling-card="${id}"]`);
   const textAt = async (selector) => run('return document.querySelector(' + JSON.stringify(selector) + ').textContent');
   const saveIn = async (scope, msg="Vote saved.") => until('return document.querySelector("[data-ballot-status=' + scope + ']").textContent === ' + JSON.stringify(msg), scope + " save failed");
   const openDeck = async (deck) => click('[data-open-ballot=' + deck + ']');
@@ -114,8 +114,19 @@ try {
   assert.equal(await textAt('#friday time[datetime="18:00"]'), "6:00 pm");
   assert.equal(await summary("dndHost"), "Can host · 0 votes / Can’t host · 0 votes");
   await click("#saturday-tab");
+  assert.equal(await run('return document.querySelector("#calling-cards [data-ballot-guest]") === null'), true);
+  await click("[data-car-offer]");
+  assert.equal(await textAt("[data-ballot-status=drive]"), "Choose your name from the party roster.");
+  assert.equal(await run('return document.activeElement.matches("#party [data-calling-card]")'), true);
+
+  await viewport(390, 844);
+  await click('[data-vote=drive][data-choice=rider]');
+  assert.equal(await run('return document.activeElement.matches("[data-show-party]")'), true);
+  await click("[data-show-party]");
   await choose("cody-gardi");
-  assert.deepEqual(await read(), [], "Choosing a name must not vote");
+  await click("#saturday-tab");
+  await viewport(1304, 883);
+  assert.deepEqual(await read(), [], "Ride controls require a selected guest, and selecting a guest does not vote");
   assert.equal(await submitDisabled(), true);
   assert.equal(await textAt("[data-plan-submit]"), "Submit Votes");
   assert.equal(await textAt('#saturday time[datetime="12:30"]'), "12:30 pm");

@@ -591,8 +591,10 @@ async function saveChoices(panel, choices, successMessage) {
   const scope = panel.dataset.ballotPanel;
   if (!activeGuest) {
     renderVotingState();
-    setStatus(scope, "Choose your name to vote.");
-    panel.querySelector("[data-ballot-guest]").focus();
+    const selector = panel.querySelector("[data-ballot-guest]");
+    setStatus(scope, selector ? "Choose your name to vote." : "Choose your name from the party roster.");
+    const nameControl = selector ?? (compactViews.matches ? showParty : roster.querySelector("[data-calling-card]"));
+    nameControl?.focus();
     return;
   }
 
