@@ -5,11 +5,12 @@ const voterIds = new Set([
   "lane-carleson", "sean-fitzhenry", "andrew-kostolefsky", "cody-gardi",
 ]);
 const driveChoices = new Set(["volunteer", "rider"]);
+const carChoices = new Set(["", "offer"]);
 const barChoices = new Set(["", "snug", "omallys", "cabin", "shady-lady", "finnegans", "bookstore", "trapcat"]);
 const dinnerChoices = new Set(["", "petes-arden", "thai-terrace", "wildwood", "tapa-the-world"]);
 const roomChoices = new Set(["", "seance", "pirates-of-tortuga", "fortunes-favor", "skull-witch", "the-collection"]);
 const seatingChoices = new Set(["", "general", "preferred"]);
-const ballotChoices = { drive: driveChoices, bar: barChoices, dinner: dinnerChoices, room: roomChoices, seating: seatingChoices };
+const ballotChoices = { drive: driveChoices, car: carChoices, bar: barChoices, dinner: dinnerChoices, room: roomChoices, seating: seatingChoices };
 
 const defaultHeaders = {
   "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
@@ -107,31 +108,33 @@ export class CallingCards {
         bar TEXT NOT NULL,
         dinner TEXT NOT NULL,
         room TEXT NOT NULL DEFAULT '',
-        seating TEXT NOT NULL DEFAULT ''
+        seating TEXT NOT NULL DEFAULT '',
+        car TEXT NOT NULL DEFAULT ''
       )
     `);
     const columns = this.sql.exec("PRAGMA table_info(ballots)").toArray().map(({ name }) => name);
-    for (const name of ["room", "seating"]) {
+    for (const name of ["room", "seating", "car"]) {
       if (!columns.includes(name)) this.sql.exec(`ALTER TABLE ballots ADD COLUMN ${name} TEXT NOT NULL DEFAULT ''`);
     }
   }
 
   async fetch(request) {
     if (request.method === "POST") {
-      const { inviteeId, drive, bar, dinner, room, seating } = await request.json();
+      const { inviteeId, drive, bar, dinner, room, seating, car } = await request.json();
       this.sql.exec(`
-        INSERT INTO ballots (inviteeId, drive, bar, dinner, room, seating) VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO ballots (inviteeId, drive, bar, dinner, room, seating, car) VALUES (?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT (inviteeId) DO UPDATE SET
           drive = COALESCE(?, ballots.drive),
           bar = COALESCE(?, ballots.bar),
           dinner = COALESCE(?, ballots.dinner),
           room = COALESCE(?, ballots.room),
-          seating = COALESCE(?, ballots.seating)
-      `, inviteeId, drive ?? "", bar ?? "", dinner ?? "", room ?? "", seating ?? "",
-      drive ?? null, bar ?? null, dinner ?? null, room ?? null, seating ?? null);
+          seating = COALESCE(?, ballots.seating),
+          car = COALESCE(?, ballots.car)
+      `, inviteeId, drive ?? "", bar ?? "", dinner ?? "", room ?? "", seating ?? "", car ?? "",
+      drive ?? null, bar ?? null, dinner ?? null, room ?? null, seating ?? null, car ?? null);
     }
 
-    const ballots = this.sql.exec("SELECT inviteeId, drive, bar, dinner, room, seating FROM ballots").toArray();
+    const ballots = this.sql.exec("SELECT inviteeId, drive, bar, dinner, room, seating, car FROM ballots").toArray();
     return Response.json({ ballots });
   }
 }

@@ -8,10 +8,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="bachelor-party.css?v=20261114a">
+    <link rel="stylesheet" href="bachelor-party.css?v=20261114b">
     <script src="bachelor-party-config.js" defer></script>
     <script src="bachelor-party.js?v=20261113c" defer></script>
-    <script src="calling-cards.js?v=20261114a" defer></script>
+    <script src="calling-cards.js?v=20261114b" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
@@ -39,7 +39,7 @@
         <section class="driver-ballot" id="calling-cards" aria-labelledby="driver-title" data-ballot-panel="drive">
           <div class="driver-heading">
             <h3 id="driver-title">Driver roll call</h3>
-            <p>Two sober drivers, three passengers each.</p>
+            <p>Two sober drivers and two cars for eight.</p>
           </div>
           <div class="driver-controls">
             <label class="sr-only" for="ballot-guest">Your calling card</label>
@@ -49,6 +49,7 @@
             <div class="driver-choices" role="group" aria-label="Saturday transportation">
               <button class="button button-choice" type="button" data-vote="drive" data-choice="volunteer" aria-pressed="false" aria-disabled="true">I can drive</button>
               <button class="button button-choice" type="button" data-vote="drive" data-choice="rider" aria-pressed="false" aria-disabled="true">I need a ride</button>
+              <button class="button button-choice" type="button" data-vote="car" data-choice="offer" aria-pressed="false" aria-disabled="true">I can offer a car</button>
             </div>
           </div>
           <div class="driver-footer">
@@ -102,33 +103,50 @@
             <li>
               <span class="timeline-time">Morning</span>
               <div class="timeline-stop">
-                <h3>Breakfast at Bubba’s or on your own</h3>
-                <a href="https://bubbas-bagels.com/#menu" target="_blank" rel="noopener">860 Sutton Way <span aria-hidden="true">↗</span></a>
+                <h3>Breakfast on your own</h3><p>Downtown Grass Valley · Food under $20</p>
+                <ul class="breakfast-spots" aria-label="Breakfast ideas">
+                  <li>
+                    <a href="https://order.online/store/south-pine-cafe-2481391" target="_blank" rel="noopener">South Pine Café <span aria-hidden="true">↗</span></a>
+                    <span>Buttermilk pancakes · $15.50</span><span>102 Richardson St</span>
+                  </li>
+                  <li>
+                    <a href="https://pepes-cafe.menustic.com/menu" target="_blank" rel="noopener">Pepe’s Café <span aria-hidden="true">↗</span></a>
+                    <span>Biscuits &amp; gravy · $13</span><span>110 Mill St</span>
+                  </li>
+                  <li>
+                    <a href="https://corvusbakery.com/menu" target="_blank" rel="noopener">Corvus Bakery <span aria-hidden="true">↗</span></a>
+                    <span>Vegetable frittata · $8.75</span><span>154 Mill St</span>
+                  </li>
+                  <li>
+                    <a href="https://www.menupix.com/menudirectory/menu.php?id=380280949" target="_blank" rel="noopener">Brew Bakers <span aria-hidden="true">↗</span></a>
+                    <span>Egg &amp; cheese bagel · $7.50</span><span>209 W Main St</span>
+                  </li>
+                </ul>
               </div>
             </li>
             <li>
-              <time class="timeline-time" datetime="13:00">1:00 pm</time>
-              <div class="timeline-stop"><h3>Leave Grass Valley</h3><p>Meet at Bubba’s. Wheels rolling by 2 pm.</p></div>
+              <time class="timeline-time" datetime="12:45">12:45 pm</time>
+              <div class="timeline-stop"><h3>Meet at Robbie’s</h3><p>Leave at 1 pm, by 2 pm at the latest.</p></div>
             </li>
             <li>
               <time class="timeline-time" datetime="16:00">4:00 pm</time>
               <div class="timeline-stop">
                 <h3>Toast to Robbie</h3>
-                <button class="inline-vote" type="button" data-open-ballot="bar">Vote for a bar <span aria-hidden="true">↗</span></button>
+                <button class="inline-vote" type="button" data-open-ballot="bar" aria-haspopup="dialog">Vote for a bar <span aria-hidden="true">↗</span></button>
               </div>
             </li>
             <li>
               <span class="timeline-time">5:30–5:45 pm</span>
               <div class="timeline-stop">
                 <h3>Escape room</h3>
-                <button class="inline-vote inline-vote-compact" type="button" data-open-ballot="room" aria-haspopup="dialog">Vote for an escape room <span aria-hidden="true">↗</span></button>
+                <button class="inline-vote" type="button" data-open-ballot="room" aria-haspopup="dialog">Vote for an escape room <span aria-hidden="true">↗</span></button>
               </div>
             </li>
             <li>
               <span class="timeline-time">7:00–7:20 pm</span>
               <div class="timeline-stop">
                 <h3>Dinner near Punch Line</h3>
-                <button class="inline-vote" type="button" data-open-ballot="dinner">Vote for dinner <span aria-hidden="true">↗</span></button>
+                <button class="inline-vote" type="button" data-open-ballot="dinner" aria-haspopup="dialog">Vote for dinner <span aria-hidden="true">↗</span></button>
               </div>
             </li>
             <li>
@@ -136,7 +154,7 @@
               <div class="timeline-stop">
                 <h3>Leslie Liao at Punch Line</h3>
                 <p>Doors 8:45 pm · Two beverages per guest.</p>
-                <button class="inline-vote inline-vote-compact" type="button" data-open-dialog="seating-voting" aria-haspopup="dialog">Vote on seating <span aria-hidden="true">↗</span></button>
+                <button class="inline-vote" type="button" data-open-dialog="seating-voting" aria-haspopup="dialog">Vote on seating <span aria-hidden="true">↗</span></button>
                 <a href="https://www.ticketmaster.com/leslie-liao-sacramento-california-01-16-2027/event/1C006543E18B42C7" target="_blank" rel="noopener">Show tickets <span aria-hidden="true">↗</span></a>
               </div>
             </li>
@@ -237,15 +255,15 @@
     <dialog id="route" aria-labelledby="route-title">
       <div class="dialog-header"><h2 id="route-title">Saturday route</h2><form method="dialog"><button class="close-button" aria-label="Close route details">×</button></form></div>
       <div class="dialog-copy">
-        <p><strong>1 pm departure.</strong> Meet at Bubba’s by 12:45. Allow 75–90 minutes for the drive and parking. Leave by 2 pm at the latest.</p>
+        <p><strong>1 pm departure.</strong> Meet at Robbie’s by 12:45 pm. Allow 75–90 minutes for the drive and parking. Leave by 2 pm at the latest.</p>
         <p><strong>Drinks and escape room.</strong> Target a room at 5:30–5:45 pm and check in 15 minutes early. From The Snug, leave by 4:50 for a 5:30 pm Midtown room or 5:05 for 5:45 pm in Arden. For Tortuga or Enchambered, take both cars from the bar.</p>
         <p><strong>Dinner.</strong> Aim for 7 pm near Punch Line, or 7:20 after Tortuga. Leave Tapa the World by 8 pm, Wildwood by 8:10, or Pete’s or Thai Terrace by 8:20 to walk over.</p>
         <p><strong>Show.</strong> Line up together by 8:30 pm at 2100 Arden Way. Doors open at 8:45 pm. Bring photo ID. Two beverages per guest, including alcohol-free options.</p>
         <p><strong>Weekend cap.</strong> $250 per person before restaurant tips. The seating ballot lists $32.05 general or $45.80 preferred per guest, plus two drinks.</p>
         <p class="dialog-links">
-          <a href="https://www.google.com/maps/dir/?api=1&amp;origin=Bubba%27s+Bagels+860+Sutton+Way+Grass+Valley&amp;destination=Punch+Line+Sacramento+2100+Arden+Way&amp;waypoints=The+Snug+1800+15th+St+Sacramento%7C1831+I+St+Sacramento&amp;travelmode=driving" target="_blank" rel="noopener">Via Exit Strategy <span aria-hidden="true">↗</span></a>
-          <a href="https://www.google.com/maps/dir/?api=1&amp;origin=Bubba%27s+Bagels+860+Sutton+Way+Grass+Valley&amp;destination=Punch+Line+Sacramento+2100+Arden+Way&amp;waypoints=The+Snug+1800+15th+St+Sacramento%7C2642+5th+St+Sacramento&amp;travelmode=driving" target="_blank" rel="noopener">Via Tortuga <span aria-hidden="true">↗</span></a>
-          <a href="https://www.google.com/maps/dir/?api=1&amp;origin=Bubba%27s+Bagels+860+Sutton+Way+Grass+Valley&amp;destination=Punch+Line+Sacramento+2100+Arden+Way&amp;waypoints=The+Snug+1800+15th+St+Sacramento%7C2230+Arden+Way+Sacramento&amp;travelmode=driving" target="_blank" rel="noopener">Via Enchambered <span aria-hidden="true">↗</span></a>
+          <a href="https://www.google.com/maps/dir/?api=1&amp;origin=Grass+Valley%2C+CA&amp;destination=Punch+Line+Sacramento+2100+Arden+Way&amp;waypoints=The+Snug+1800+15th+St+Sacramento%7C1831+I+St+Sacramento&amp;travelmode=driving" target="_blank" rel="noopener">Via Exit Strategy <span aria-hidden="true">↗</span></a>
+          <a href="https://www.google.com/maps/dir/?api=1&amp;origin=Grass+Valley%2C+CA&amp;destination=Punch+Line+Sacramento+2100+Arden+Way&amp;waypoints=The+Snug+1800+15th+St+Sacramento%7C2642+5th+St+Sacramento&amp;travelmode=driving" target="_blank" rel="noopener">Via Tortuga <span aria-hidden="true">↗</span></a>
+          <a href="https://www.google.com/maps/dir/?api=1&amp;origin=Grass+Valley%2C+CA&amp;destination=Punch+Line+Sacramento+2100+Arden+Way&amp;waypoints=The+Snug+1800+15th+St+Sacramento%7C2230+Arden+Way+Sacramento&amp;travelmode=driving" target="_blank" rel="noopener">Via Enchambered <span aria-hidden="true">↗</span></a>
           <a href="https://www.punchlinesac.com/visit" target="_blank" rel="noopener">Club policy <span aria-hidden="true">↗</span></a>
         </p>
       </div>
@@ -255,7 +273,11 @@
       <div class="dialog-header"><h2 id="drivers-title">Driver roll call</h2><form method="dialog"><button class="close-button" aria-label="Close roll call">×</button></form></div>
       <div class="dialog-copy">
         <p>Two cars for eight. Each driver takes three passengers and stays alcohol-free for both legs.</p>
-        <dl class="roll-call"><dt>Can drive</dt><dd data-driver-names="volunteer"></dd><dt>Need a ride</dt><dd data-driver-names="rider"></dd></dl>
+        <dl class="roll-call">
+          <dt>Can drive</dt><dd data-roll-call="drive" data-choice="volunteer"></dd>
+          <dt>Need a ride</dt><dd data-roll-call="drive" data-choice="rider"></dd>
+          <dt>Car offers</dt><dd data-roll-call="car" data-choice="offer"></dd>
+        </dl>
       </div>
     </dialog>
 

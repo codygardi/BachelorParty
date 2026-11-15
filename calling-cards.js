@@ -329,13 +329,16 @@ function renderVotingState() {
 
   const drivers = voteCount("drive", "volunteer");
   const riders = voteCount("drive", "rider");
+  const cars = voteCount("car", "offer");
   const driverTally = drivers > 2 ? `${drivers} volunteers for 2 cars` : `${drivers}/2 drivers`;
+  const carTally = cars > 2 ? `${cars} cars offered` : `${cars}/2 cars offered`;
   document.querySelector("[data-driver-count]").textContent = connected || callingCards.length
-    ? `${driverTally} · ${riders} ${riders === 1 ? "rider" : "riders"}`
+    ? `${driverTally} · ${riders} ${riders === 1 ? "rider" : "riders"} · ${carTally}`
     : refreshing ? "Loading driver tally…" : "Driver tally unavailable";
-  for (const entry of document.querySelectorAll("[data-driver-names]")) {
+  for (const entry of document.querySelectorAll("[data-roll-call]")) {
+    const { rollCall, choice } = entry.dataset;
     const names = party.filter((member) => callingCards.some(
-      (card) => card.inviteeId === member.id && card.drive === entry.dataset.driverNames,
+      (card) => card.inviteeId === member.id && card[rollCall] === choice,
     ));
     entry.textContent = names.map(({ name }) => name).join(", ") || (connected ? "None yet" : "Tally unavailable");
   }
@@ -510,15 +513,18 @@ async function saveVote({ currentTarget }) {
     panel.querySelector("[data-ballot-guest]").focus();
     return;
   }
-  if (selectedCard()?.[vote] === choice) return;
+  const currentChoice = selectedCard()?.[vote];
+  const nextChoice = vote === "car" && currentChoice === choice ? "" : choice;
+  if (currentChoice === nextChoice) return;
 
   saveVersion += 1;
   saving = true;
   renderVotingState();
   setStatus(scope, "Saving…");
   try {
-    callingCards = await requestCallingCards({ inviteeId: activeGuest, [vote]: choice });
-    if (scope !== "venue" || vote === activeDeck) setStatus(scope, choice ? "Vote saved." : "Vote cleared.");
+    callingCards = await requestCallingCards({ inviteeId: activeGuest, [vote]: nextChoice });
+    if (vote === "car") setStatus(scope, nextChoice ? "Car offer saved." : "Car offer withdrawn.");
+    else if (scope !== "venue" || vote === activeDeck) setStatus(scope, nextChoice ? "Vote saved." : "Vote cleared.");
   } catch {
     if (scope !== "venue" || vote === activeDeck) setStatus(scope, "Vote could not be saved. Try again.");
   } finally {
