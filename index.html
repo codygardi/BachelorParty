@@ -8,10 +8,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="bachelor-party.css?v=20261115l">
+    <link rel="stylesheet" href="bachelor-party.css?v=20261115n">
     <script src="bachelor-party-config.js" defer></script>
     <script src="bachelor-party.js?v=20261113c" defer></script>
-    <script src="calling-cards.js?v=20261115m" defer></script>
+    <script src="calling-cards.js?v=20261115n" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
@@ -97,6 +97,7 @@
                   <p>Two sober drivers and two cars for eight.</p>
                 </div>
                 <div class="driver-controls">
+                  <p data-driver-count>Loading driver tally…</p>
                   <div class="driver-choices" role="group" aria-label="Saturday transportation">
                     <button class="button button-choice" type="button" data-vote="drive" data-choice="volunteer" data-car-offer aria-controls="car-passengers" aria-pressed="false" aria-disabled="true">We can take my car</button>
                     <button class="button button-choice" type="button" data-vote="drive" data-choice="rider" aria-pressed="false" aria-disabled="true">I need a ride</button>
@@ -113,8 +114,6 @@
                   </label>
                 </div>
                 <div class="driver-footer">
-                  <p data-driver-count>Loading driver tally…</p>
-                  <button class="quiet-button" type="button" data-open-dialog="drivers">Driver roll call <span aria-hidden="true">↗</span></button>
                   <p class="vote-message" role="status" data-ballot-status="drive"></p>
                   <button class="quiet-button" type="button" data-ballot-retry hidden>Retry connection</button>
                 </div>
@@ -337,18 +336,6 @@
         <p class="vote-message" role="status" data-ballot-status="dndHost"></p>
         <button class="quiet-button" type="button" data-vote="dndHost" data-choice="" hidden>Clear my vote</button>
         <button class="quiet-button" type="button" data-ballot-retry hidden>Retry connection</button>
-      </div>
-    </dialog>
-
-    <dialog id="drivers" aria-labelledby="drivers-title">
-      <div class="dialog-header"><h2 id="drivers-title">Driver roll call</h2><form method="dialog"><button class="close-button" aria-label="Close roll call">×</button></form></div>
-      <div class="dialog-copy">
-        <p>Two cars need room for six passengers. Drivers stay alcohol-free for both legs.</p>
-        <dl class="roll-call">
-          <dt>Drivers</dt><dd data-roll-call="drive" data-choice="volunteer"></dd>
-          <dt>Need a ride</dt><dd data-roll-call="drive" data-choice="rider"></dd>
-          <dt>Car offers</dt><dd data-roll-call="car" data-choice="offer"></dd>
-        </dl>
       </div>
     </dialog>
 

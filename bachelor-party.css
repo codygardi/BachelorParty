@@ -235,13 +235,9 @@ select {
 .button-choice[aria-pressed="true"] { background: var(--gold); border-color: var(--gold); color: #21180e; }
 button[aria-disabled="true"], button:disabled { opacity: 0.58; cursor: default; }
 .button[aria-disabled="true"]:hover, .button:disabled:hover { border-color: #68563c; }
-.driver-footer {
-  grid-column: 1 / -1;
-  min-height: 1.35rem;
-  font-size: 0.75rem;
-  color: var(--muted);
-}
-[data-driver-count] { color: var(--green); font-weight: 650; }
+.driver-footer { grid-column: 1 / -1; }
+.driver-footer:not(:has(.vote-message:not(:empty), button:not([hidden]))) { display: none; }
+[data-driver-count] { color: var(--green); font-size: 0.75rem; font-weight: 650; }
 .vote-message { color: var(--muted); font-size: 0.76rem; }
 .vote-message:empty { display: none; }
 

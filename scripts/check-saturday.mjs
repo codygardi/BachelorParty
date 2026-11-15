@@ -115,6 +115,7 @@ try {
   assert.equal(await summary("dndHost"), "Can host · 0 votes / Can’t host · 0 votes");
   await click("#saturday-tab");
   assert.equal(await run('return document.querySelector("#calling-cards [data-ballot-guest]") === null'), true);
+  assert.equal(await run('return document.querySelector("#calling-cards [data-open-dialog=drivers]") === null'), true);
   await click("[data-car-offer]");
   assert.equal(await textAt("[data-ballot-status=drive]"), "Choose your name from the party roster.");
   assert.equal(await run('return document.activeElement.matches("#party [data-calling-card]")'), true);
@@ -287,6 +288,7 @@ try {
   await choose("cody-gardi");
   await click('[data-vote=drive][data-choice=rider]');
   await didSave("Ride request saved.");
+  assert.equal(await textAt("[data-driver-count]"), "0/2 drivers · 1 rider · 0/2 cars offered");
   assert.equal(await run("return " + field + ".hidden"), true);
   assert.equal(await submitDisabled(), false);
   await openDeck("bar");
@@ -306,6 +308,12 @@ try {
     assert.equal(await run("return document.documentElement.scrollWidth <= innerWidth"), true, "Horizontal overflow at " + width);
     if(width===1304) assert.equal(await run("return document.documentElement.scrollHeight <= innerHeight"),true,"Desktop must fit without scrolling");
     if (width === 1304) {
+      const driverTallyAligned = await run(`
+        const tally = document.querySelector("[data-driver-count]").getBoundingClientRect();
+        const offer = document.querySelector("[data-car-offer]").getBoundingClientRect();
+        return tally.right < offer.left && tally.top >= offer.top && tally.bottom <= offer.bottom;
+      `);
+      assert.equal(driverTallyAligned, true, "The drive tally must sit to the left of the car offer button.");
       const positions = await run(`
         const right = document.querySelector("[data-open-dialog=route]").getBoundingClientRect().right;
         return [...document.querySelectorAll("#saturday .timeline-vote")].map(button => {

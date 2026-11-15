@@ -398,11 +398,7 @@ function renderVotingState() {
     const { rollCall, choice } = entry.dataset;
     const names = party.flatMap(({ id, name }) => {
       const card = callingCards.find(({ inviteeId }) => inviteeId === id);
-      if (card?.[rollCall] !== choice) return [];
-      if (rollCall !== "car") return [name];
-      const seats = card.passengerSeats;
-      const capacity = seats == null ? "passenger count pending" : `${seats} ${seats === 1 ? "passenger" : "passengers"}`;
-      return [`${name} (${capacity})`];
+      return card?.[rollCall] === choice ? [name] : [];
     });
     entry.textContent = names.join(", ") || (connected ? "None yet" : "Tally unavailable");
   }
