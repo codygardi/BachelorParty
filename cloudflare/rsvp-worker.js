@@ -11,9 +11,14 @@ const barChoices = new Set(["", "snug", "omallys", "cabin", "shady-lady", "finne
 const dinnerChoices = new Set(["", "petes-arden", "thai-terrace", "wildwood", "tapa-the-world"]);
 const roomChoices = new Set(["", "seance", "pirates-of-tortuga", "fortunes-favor", "skull-witch", "the-collection"]);
 const seatingChoices = new Set(["", "general", "preferred"]);
+const planChoices = new Set(["", "drive", "walk"]);
+const walkBarChoices = new Set(["", "petes-bar", "bjs-arden", "maple-room", "applebees-arden"]);
+const walkRoomChoices = new Set(["", "skull-witch", "the-collection"]);
+const walkDinnerChoices = new Set(["", "petes-arden", "thai-terrace"]);
 const ballotChoices = {
   drive: driveChoices, car: carChoices, passengerSeats: passengerSeatChoices,
   bar: barChoices, dinner: dinnerChoices, room: roomChoices, seating: seatingChoices,
+  plan: planChoices, walkBar: walkBarChoices, walkRoom: walkRoomChoices, walkDinner: walkDinnerChoices,
 };
 
 const defaultHeaders = {
@@ -118,7 +123,7 @@ export class CallingCards {
       )
     `);
     const columns = this.sql.exec("PRAGMA table_info(ballots)").toArray().map(({ name }) => name);
-    for (const name of ["room", "seating", "car"]) {
+    for (const name of ["room", "seating", "car", "plan", "walkBar", "walkRoom", "walkDinner"]) {
       if (!columns.includes(name)) this.sql.exec(`ALTER TABLE ballots ADD COLUMN ${name} TEXT NOT NULL DEFAULT ''`);
     }
     if (!columns.includes("passengerSeats")) this.sql.exec("ALTER TABLE ballots ADD COLUMN passengerSeats INTEGER");
@@ -126,10 +131,10 @@ export class CallingCards {
 
   async fetch(request) {
     if (request.method === "POST") {
-      const { inviteeId, drive, bar, dinner, room, seating, car, passengerSeats } = await request.json();
+      const { inviteeId, drive, bar, dinner, room, seating, car, passengerSeats, plan, walkBar, walkRoom, walkDinner } = await request.json();
       this.sql.exec(`
-        INSERT INTO ballots (inviteeId, drive, bar, dinner, room, seating, car, passengerSeats)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO ballots (inviteeId, drive, bar, dinner, room, seating, car, passengerSeats, plan, walkBar, walkRoom, walkDinner)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT (inviteeId) DO UPDATE SET
           drive = COALESCE(?, ballots.drive),
           bar = COALESCE(?, ballots.bar),
@@ -137,12 +142,18 @@ export class CallingCards {
           room = COALESCE(?, ballots.room),
           seating = COALESCE(?, ballots.seating),
           car = COALESCE(?, ballots.car),
+          plan = COALESCE(?, ballots.plan),
+          walkBar = COALESCE(?, ballots.walkBar),
+          walkRoom = COALESCE(?, ballots.walkRoom),
+          walkDinner = COALESCE(?, ballots.walkDinner),
           passengerSeats = CASE WHEN ? = '' THEN NULL ELSE COALESCE(excluded.passengerSeats, ballots.passengerSeats) END
       `, inviteeId, drive ?? "", bar ?? "", dinner ?? "", room ?? "", seating ?? "", car ?? "", passengerSeats ?? null,
-      drive ?? null, bar ?? null, dinner ?? null, room ?? null, seating ?? null, car ?? null, car ?? null);
+      plan ?? "", walkBar ?? "", walkRoom ?? "", walkDinner ?? "",
+      drive ?? null, bar ?? null, dinner ?? null, room ?? null, seating ?? null, car ?? null,
+      plan ?? null, walkBar ?? null, walkRoom ?? null, walkDinner ?? null, car ?? null);
     }
 
-    const ballots = this.sql.exec("SELECT inviteeId, drive, bar, dinner, room, seating, car, passengerSeats FROM ballots").toArray();
+    const ballots = this.sql.exec("SELECT inviteeId, drive, bar, dinner, room, seating, car, passengerSeats, plan, walkBar, walkRoom, walkDinner FROM ballots").toArray();
     return Response.json({ ballots });
   }
 }

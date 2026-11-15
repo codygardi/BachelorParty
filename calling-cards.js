@@ -217,6 +217,64 @@ const venues = {
   ],
 };
 
+const walkingBars = [
+  {
+    id: "petes-bar", name: "Pete’s Arden", type: "Local brewhouse · Best route fit",
+    address: "2100 Arden Way #123", walkToRoom: "5–8 min", walkToShow: "2–5 min",
+    note: "An upstairs full bar in Punch Line’s plaza. Saturday from 11 am.",
+    theme: "Warm wood tables, an upstairs bar, and local brewhouse character. The closest tavern-like compromise for an all-walking route; choose a different dinner if you want a change of scene.",
+    website: "https://petesarden.com/",
+    photos: venues.dinner.find(({ id }) => id === "petes-arden").photos,
+  },
+  {
+    id: "bjs-arden", name: "BJ’s Arden Fair", type: "Brewhouse · Beer & cocktails",
+    address: "1689 Arden Way #1058", walkToRoom: "25–30 min", walkToShow: "20–25 min",
+    note: "A lively sit-down brewhouse at the mall’s main entrance. Saturday from 11 am.",
+    theme: "Brick, wood, booths, and a full bar with craft beer and cocktails. A conventional brewhouse setting rather than a fantasy tavern; allow the full 30 minutes to Enchambered.",
+    website: "https://www.bjsrestaurants.com/locations/ca/arden-fair",
+    photos: [["bjs-front", "The Arden Fair BJ’s brick storefront"], ["bjs-room", "Inside BJ’s Restaurant and Brewhouse at Arden Fair"], ["bjs-bar", "Brick-framed bottle display at BJ’s Arden Fair"]],
+    photoSource: "https://www.restaurantji.com/ca/sacramento/bjs-restaurant-and-brewhouse-/gallery/",
+  },
+  {
+    id: "maple-room", name: "Maple Room Lounge", type: "Neighborhood lounge · Casual pub feel",
+    address: "2740 Arden Way #1", walkToRoom: "20–25 min", walkToShow: "25–30 min",
+    note: "An independent, relaxed neighborhood bar. Saturday from 11 am.",
+    theme: "A long bar, bottle shelves, colored lighting, and a local hangout atmosphere. More casual dive lounge than polished Irish pub; karaoke and TVs can make it lively.",
+    website: "https://www.restaurantji.com/ca/sacramento/maple-room-lounge-/",
+    photos: [["maple-bar", "Maple Room’s back bar with bottles and colorful lighting"], ["maple-room", "Seating along the bar at Maple Room Lounge"], ["maple-drinks", "Drinks on Maple Room’s dark bar counter"]],
+    photoSource: "https://www.restaurantji.com/ca/sacramento/maple-room-lounge-/gallery/",
+  },
+  {
+    id: "applebees-arden", name: "Applebee’s Arden", type: "Grill & bar · Budget fallback",
+    address: "2024 Arden Way", walkToRoom: "8–12 min", walkToShow: "5–8 min",
+    note: "A nearby full bar with seated booths. Saturday from 11 am; happy hour 3–6 pm.",
+    theme: "A straightforward neighborhood grill with wood booths, a long bar, and TVs. Convenient and casual, with the weakest D&D theme of the four.",
+    website: "https://restaurants.applebees.com/en-us/ca/sacramento/2024-arden-way-76065",
+    photos: [["applebees-bar", "The wood bar and stools at Applebee’s on Arden Way"], ["applebees-room", "Seating inside Applebee’s on Arden Way"], ["applebees-drinks", "Cocktails on a table at Applebee’s Arden Way"]],
+    photoSource: "https://www.restaurantji.com/ca/sacramento/applebees-2/gallery/",
+  },
+];
+
+const plans = {
+  drive: { name: "Taverns + drive", summary: "Bar → escape room → drive to dinner → Punch Line", decks: venues },
+  walk: {
+    name: "Walk in Arden", summary: "Bar → Enchambered → dinner → Punch Line · Walk each leg",
+    decks: {
+      bar: walkingBars,
+      room: venues.room.filter(({ id }) => ["skull-witch", "the-collection"].includes(id)).map((venue) => ({
+        ...venue, fromSnug: undefined, fromBars: undefined,
+        toComedy: { mode: "walking", time: "5–8 min walk to Punch Line" },
+        note: venue.note.split("\n")[0] + "\n5–8 min to Pete’s · 2–5 min to Thai Terrace · Walk from all four bars",
+        theme: venue.id === "skull-witch" ? "A candlelit swamp cabin full of wooden totems and witchcraft. A dark fantasy setting for all eight guests." : venue.theme,
+      })),
+      dinner: venues.dinner.filter(({ id }) => ["petes-arden", "thai-terrace"].includes(id)),
+    },
+  },
+};
+const walkingFields = { bar: "walkBar", room: "walkRoom", dinner: "walkDinner" };
+const punchLineAddress = "Punch Line Sacramento, 2100 Arden Way #225, Sacramento, CA";
+const enchamberedAddress = "Enchambered, 2230 Arden Way #C, Sacramento, CA";
+const planGuestKey = "bachelor-party-saturday-plan-view";
 const ballotTitles = { bar: "Vote for a bar", dinner: "Vote for dinner", room: "Vote for an escape room" };
 const dashboard = document.querySelector("[data-view]");
 const scheduleTabs = Array.from(document.querySelectorAll('[role="tab"]'));
@@ -243,6 +301,7 @@ const ballotStoreUrl = persistenceConfig.ballotEndpointUrl ?? remoteStoreUrl;
 const ballotGuestKey = "bachelor-party-calling-card-guest";
 
 let activeGuest = "";
+let activePlan = "walk";
 let activeDeck = "bar";
 let venueIndex = 0;
 let callingCards = [];
@@ -250,6 +309,64 @@ let connected = false;
 let refreshing = false;
 let pendingChoices = null;
 let saveVersion = 0;
+
+function ballotField(deck = activeDeck) {
+  return activePlan === "walk" ? walkingFields[deck] : deck;
+}
+
+function currentDeck(deck = activeDeck) {
+  return plans[activePlan].decks[deck];
+}
+
+function mapLink(origin, destination, mode, waypoints) {
+  const params = new URLSearchParams({ api: "1", origin, destination, travelmode: mode });
+  if (waypoints) params.set("waypoints", waypoints.join("|"));
+  return `https://www.google.com/maps/dir/?${params}`;
+}
+
+function placeAddress(venue) {
+  return `${venue.name}, ${venue.address.split(" · ")[0]}, Sacramento, CA`;
+}
+
+function renderPlan() {
+  const selected = selectedCard();
+  for (const button of document.querySelectorAll("[data-plan]")) {
+    button.setAttribute("aria-pressed", String(button.dataset.plan === activePlan));
+  }
+  for (const tally of document.querySelectorAll("[data-plan-tally]")) {
+    tally.textContent = voteTally("plan", tally.dataset.planTally) + (selected?.plan === tally.dataset.planTally ? " · Your vote" : "");
+  }
+  const vote = document.querySelector("[data-plan-vote]");
+  vote.dataset.choice = activePlan;
+  vote.setAttribute("aria-pressed", String(selected?.plan === activePlan));
+  vote.textContent = selected?.plan === activePlan ? "Voted for this plan" : "Vote for this plan";
+  document.querySelector("[data-clear-plan]").hidden = !selected?.plan;
+  document.querySelector("[data-plan-summary]").textContent = plans[activePlan].summary;
+  document.querySelector("[data-room-heading]").textContent = activePlan === "walk" ? "Escape at Enchambered" : "Escape room";
+  document.querySelector("[data-dinner-time]").textContent = activePlan === "walk" ? "7:00 pm" : "7:00–7:20 pm";
+  document.querySelector("#route-title").textContent = plans[activePlan].name;
+  for (const section of document.querySelectorAll("[data-route-plan]")) section.hidden = section.dataset.routePlan !== activePlan;
+  const route = ["bar", "room", "dinner"].map((deck) => {
+    const options = currentDeck(deck);
+    return options.find(({ id }) => id === selected?.[ballotField(deck)]) || options[0];
+  });
+  document.querySelector("[data-plan-directions]").href = mapLink(
+    placeAddress(route[0]), punchLineAddress, activePlan === "walk" ? "walking" : "driving",
+    route.slice(1).map(placeAddress),
+  );
+}
+
+for (const button of document.querySelectorAll("[data-plan]")) {
+  button.addEventListener("click", () => {
+    if (pendingChoices) return;
+    activePlan = button.dataset.plan;
+    venueIndex = 0;
+    try { window.localStorage.setItem(planGuestKey, activePlan); } catch { /* Browsing still works. */ }
+    if (connected) setStatus("plan");
+    renderVotingState();
+  });
+}
+document.querySelector("[data-breakfast-options]").append(document.querySelector("#breakfast-options").content.cloneNode(true));
 
 function selectSchedule(tab) {
   dashboard.dataset.view = tab.getAttribute("aria-controls");
@@ -359,14 +476,15 @@ function renderVotingState() {
     entry.textContent = names.join(", ") || (connected ? "None yet" : "Tally unavailable");
   }
 
-  const venue = venues[activeDeck][venueIndex];
-  venueVote.textContent = selected?.[activeDeck] === venue.id ? "Voted" : "Vote";
-  venueDialog.querySelector("[data-venue-tally]").textContent = voteTally(activeDeck, venue.id);
-  clearVenue.hidden = !selected?.[activeDeck];
+  const field = ballotField();
+  const venue = currentDeck()[venueIndex];
+  venueVote.textContent = selected?.[field] === venue.id ? "Voted" : "Vote";
+  venueDialog.querySelector("[data-venue-tally]").textContent = voteTally(field, venue.id);
+  clearVenue.hidden = !selected?.[field];
 
   for (const button of deckOpeners) {
     const field = button.dataset.openBallot;
-    const choice = venues[field].find(({ id }) => id === selected?.[field]);
+    const choice = currentDeck(field).find(({ id }) => id === selected?.[ballotField(field)]);
     button.firstChild.textContent = choice ? `Your vote · ${choice.name} ` : `${ballotTitles[field]} `;
   }
   for (const button of seatingButtons) {
@@ -375,6 +493,7 @@ function renderVotingState() {
   const seatingChoice = seatingButtons.find((button) => button.dataset.choice === selected?.seating);
   seatingOpener.firstChild.textContent = seatingChoice ? `Your vote · ${seatingChoice.querySelector("strong").textContent} ` : "Vote on seating ";
   clearSeating.hidden = !selected?.seating;
+  renderPlan();
 }
 
 function selectGuest(id) {
@@ -396,13 +515,14 @@ function flipCard(showPhotos) {
 }
 
 function renderVenue() {
-  const deck = venues[activeDeck];
+  const deck = currentDeck();
   const venue = deck[venueIndex];
-  const trip = venue.toComedy || venue.fromSnug;
+  const trip = venue.walkToShow ? { mode: "walking", time: `${venue.walkToShow} walk to Punch Line` } : venue.toComedy || venue.fromSnug;
+  venueDialog.querySelector("[data-venue-ballot-title]").textContent = `${plans[activePlan].name} · ${ballotTitles[activeDeck]}`;
   venueDialog.querySelector("[data-venue-type]").textContent = venue.type;
   venueDialog.querySelector("[data-venue-name]").textContent = venue.name;
   venueDialog.querySelector("[data-venue-address]").textContent = trip ? `${venue.address} · ${trip.time}` : venue.address;
-  venueDialog.querySelector("[data-venue-short]").textContent = venue.note;
+  venueDialog.querySelector("[data-venue-short]").textContent = venue.walkToRoom ? `${venue.walkToRoom} walk to Enchambered\n${venue.note}` : venue.note;
   venueDialog.querySelector("[data-venue-theme]").textContent = venue.theme;
   const site = venueDialog.querySelector("[data-venue-site]");
   site.href = venue.website;
@@ -416,13 +536,16 @@ function renderVenue() {
     const address = `${venue.address}, Sacramento, CA`;
     const route = new URLSearchParams({
       api: "1",
-      origin: venue.toComedy ? `${venue.name}, ${address}` : "The Snug, 1800 15th St, Sacramento, CA",
-      destination: venue.toComedy ? "Punch Line Sacramento, 2100 Arden Way #225, Sacramento, CA" : address,
+      origin: venue.toComedy || venue.walkToShow ? `${venue.name}, ${address}` : "The Snug, 1800 15th St, Sacramento, CA",
+      destination: venue.toComedy || venue.walkToShow ? punchLineAddress : address,
       travelmode: trip.mode,
     });
-    directions.firstChild.textContent = venue.toComedy ? "Route to Punch Line " : "Route from The Snug ";
+    directions.firstChild.textContent = venue.toComedy || venue.walkToShow ? "Route to Punch Line " : "Route from The Snug ";
     directions.href = `https://www.google.com/maps/dir/?${route}`;
   }
+  const roomDirections = venueDialog.querySelector("[data-venue-escape-directions]");
+  roomDirections.hidden = !venue.walkToRoom;
+  if (venue.walkToRoom) roomDirections.href = mapLink(placeAddress(venue), enchamberedAddress, "walking");
   const barRoutes = venueDialog.querySelector("[data-bar-routes]");
   barRoutes.hidden = !venue.fromBars;
   barRoutes.replaceChildren(...(venue.fromBars ?? []).flatMap(([name, distance]) => {
@@ -451,10 +574,10 @@ function renderVenue() {
   });
   venueDialog.querySelector("[data-venue-photos]").replaceChildren(...photoLinks);
   venueDialog.querySelector("[data-deck-position]").textContent = `${venueIndex + 1} of ${deck.length}`;
-  venueVote.dataset.vote = activeDeck;
+  venueVote.dataset.vote = ballotField();
   venueVote.dataset.choice = venue.id;
   venueVote.setAttribute("aria-label", `Vote for ${venue.name}`);
-  clearVenue.dataset.vote = activeDeck;
+  clearVenue.dataset.vote = ballotField();
   flipCard(false);
   renderVotingState();
 }
@@ -462,8 +585,8 @@ function renderVenue() {
 for (const button of deckOpeners) {
   button.addEventListener("click", () => {
     activeDeck = button.dataset.openBallot;
-    const currentChoice = selectedCard()?.[activeDeck];
-    const currentIndex = venues[activeDeck].findIndex(({ id }) => id === currentChoice);
+    const currentChoice = selectedCard()?.[ballotField()];
+    const currentIndex = currentDeck().findIndex(({ id }) => id === currentChoice);
     venueIndex = Math.max(currentIndex, 0);
     venueDialog.querySelector("[data-venue-ballot-title]").textContent = ballotTitles[activeDeck];
     if (connected) setStatus("venue", currentChoice && currentIndex < 0 ? "Choose again from the updated venues." : "");
@@ -474,7 +597,7 @@ for (const button of deckOpeners) {
 
 for (const button of venueDialog.querySelectorAll("[data-deck-step]")) {
   button.addEventListener("click", () => {
-    const length = venues[activeDeck].length;
+    const length = currentDeck().length;
     venueIndex = (venueIndex + Number(button.dataset.deckStep) + length) % length;
     renderVenue();
   });
@@ -532,16 +655,16 @@ async function saveChoices(panel, choices, successMessage) {
     return;
   }
 
-  const deckAtSave = activeDeck;
+  const deckAtSave = ballotField();
   saveVersion += 1;
   pendingChoices = choices;
   renderVotingState();
   setStatus(scope, "Saving…");
   try {
     callingCards = await requestCallingCards({ inviteeId: activeGuest, ...choices });
-    if (scope !== "venue" || deckAtSave === activeDeck) setStatus(scope, successMessage);
+    if (scope !== "venue" || deckAtSave === ballotField()) setStatus(scope, successMessage);
   } catch {
-    if (scope !== "venue" || deckAtSave === activeDeck) setStatus(scope, "Vote could not be saved. Try again.");
+    if (scope !== "venue" || deckAtSave === ballotField()) setStatus(scope, "Vote could not be saved. Try again.");
   } finally {
     pendingChoices = null;
     renderVotingState();
@@ -577,6 +700,8 @@ for (const selector of guestSelectors) {
 try {
   const previousGuest = window.localStorage.getItem(ballotGuestKey);
   if (party.some(({ id }) => id === previousGuest)) activeGuest = previousGuest;
+  const previousPlan = window.localStorage.getItem(planGuestKey);
+  if (Object.hasOwn(plans, previousPlan)) activePlan = previousPlan;
 } catch {
   // The roster remains available when storage is disabled.
 }

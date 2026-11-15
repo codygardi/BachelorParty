@@ -1,16 +1,16 @@
 import { createServer } from "node:http";
 import { mkdirSync } from "node:fs";
 import { readFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
+import { dirname } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import worker, { CallingCards } from "./cloudflare/rsvp-worker.js";
 
 const port = Number(process.argv[2] ?? 8000);
-const dbPath = process.env.BACHELOR_PARTY_PREVIEW_DB || join(tmpdir(), "bachelor-party-preview", "calling-cards.sqlite");
-mkdirSync(dirname(dbPath), { recursive: true });
-const db = new DatabaseSync(dbPath);
-const ballotBox = new CallingCards({
+// Ordinary previews use the published ballot. Explicit DB paths isolate tests.
+const dbPath = process.env.BACHELOR_PARTY_PREVIEW_DB;
+if (dbPath) mkdirSync(dirname(dbPath), { recursive: true });
+const db = dbPath ? new DatabaseSync(dbPath) : null;
+const ballotBox = db && new CallingCards({
   storage: {
     sql: {
       exec(statement, ...params) {
@@ -54,8 +54,15 @@ const server = createServer(async (request, response) => {
         headers: request.headers,
         ...(request.method === "POST" && { body: request, duplex: "half" }),
       });
-      const result = await worker.fetch(incoming, bindings);
-      response.writeHead(result.status, Object.fromEntries(result.headers));
+      const result = db
+        ? await worker.fetch(incoming, bindings)
+        : await fetch(new Request(new URL(url.search, "https://bachelor-party-rsvp.codygardi22.workers.dev/"), incoming), {
+          signal: AbortSignal.timeout(10000),
+        });
+      const headers = new Headers(result.headers);
+      // fetch decodes the upstream body; let this server frame the plain text.
+      for (const name of ["content-encoding", "content-length", "transfer-encoding"]) headers.delete(name);
+      response.writeHead(result.status, Object.fromEntries(headers));
       response.end(await result.text());
       return;
     }

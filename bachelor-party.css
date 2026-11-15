@@ -284,6 +284,35 @@ button[aria-disabled="true"] { opacity: 0.58; cursor: default; }
   background: var(--panel-dark);
 }
 .schedule-caption { min-height: 1.4rem; color: var(--muted); font-size: 0.74rem; }
+.plan-controls, .plan-choice { display: flex; align-items: center; flex-wrap: wrap; gap: 0.35rem 0.6rem; }
+.plan-controls { justify-content: space-between; padding: 0.25rem 0 0.4rem; }
+.plan-tabs { display: flex; gap: 0.3rem; }
+.plan-tabs button {
+  display: grid;
+  gap: 0.1rem;
+  min-width: 10rem;
+  padding: 0.35rem 0.65rem;
+  border: 1px solid var(--line);
+  border-radius: 0.4rem;
+  background: var(--panel);
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-align: left;
+}
+.plan-tabs button[aria-pressed="true"] { background: #2b271c; border-color: #856d46; color: var(--gold-light); }
+.plan-tabs button:hover { border-color: var(--gold); }
+.plan-tabs span { color: var(--green); font-size: 0.68rem; font-weight: 500; }
+.plan-controls > .vote-message { flex-basis: 100%; }
+.plan-choice select { max-width: 10.5rem; }
+.route-plan { display: grid; gap: 0.65rem; }
+.route-note { font-size: 0.76rem; }
+.walk-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+.walk-table caption { text-align: left; color: var(--gold); margin-bottom: 0.3rem; }
+.walk-table th, .walk-table td { border-bottom: 1px solid var(--line); padding: 0.35rem 0.25rem; text-align: left; }
+.walk-table th { font-weight: 600; }
+#breakfast .breakfast-spots { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.venue-dialog .dialog-header h2 { font-size: clamp(1.5rem, 4vw, 1.9rem); }
 .timeline { list-style: none; margin: 0; padding: 0; }
 .timeline > li {
   display: grid;
@@ -453,6 +482,12 @@ dialog::backdrop { background: #0a0b08bd; }
 }
 
 @media (max-width: 48rem) {
+  .plan-controls { gap: 0.5rem; }
+  .plan-tabs { width: 100%; }
+  .plan-tabs button { flex: 1; min-width: 0; }
+  .plan-choice { width: 100%; }
+  .schedule-caption { align-items: start; padding-bottom: 0.3rem; }
+  .schedule-caption .quiet-button { white-space: nowrap; }
   .driver-ballot { grid-template-columns: minmax(0, 1fr); gap: 0.4rem; }
   .driver-footer { grid-column: auto; }
   .breakfast-spots { grid-template-columns: repeat(2, minmax(0, 1fr)); }

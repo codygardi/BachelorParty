@@ -4,7 +4,8 @@ import { test } from "node:test";
 import worker, { CallingCards } from "../cloudflare/rsvp-worker.js";
 
 const endpoint = "https://test.example/?action=ballots";
-const existing = { inviteeId: "cody-gardi", drive: "volunteer", bar: "snug", dinner: "wildwood" };
+const planDefaults = { plan: "", walkBar: "", walkRoom: "", walkDinner: "" };
+const existing = { ...planDefaults, inviteeId: "cody-gardi", drive: "volunteer", bar: "snug", dinner: "wildwood" };
 
 function connect(db) {
   const box = new CallingCards({
@@ -89,4 +90,37 @@ test("a rider can save or withdraw a car and its passenger seats independently o
   assert.deepEqual(await api.read(), [{ ...rider, room: "skull-witch", seating: "", car: "", passengerSeats: null }]);
   assert.equal((await api.save({ inviteeId, room: "" })).status, 200);
   assert.deepEqual(await api.read(), [{ ...rider, room: "", seating: "", car: "", passengerSeats: null }]);
+});
+
+test("Saturday plans keep independent venue votes across updates, reloads, and clears", async (t) => {
+  const db = new DatabaseSync(":memory:");
+  t.after(() => db.close());
+  const api = connect(db);
+  const inviteeId = existing.inviteeId;
+  const card = {
+    ...existing, room: "seance", seating: "preferred", car: "offer", passengerSeats: 3,
+    plan: "drive", walkBar: "petes-bar", walkRoom: "skull-witch", walkDinner: "thai-terrace",
+  };
+  assert.equal((await api.save(card)).status, 200);
+  assert.deepEqual(await connect(db).read(), [card]);
+  for (const walkBar of ["bjs-arden", "maple-room", "applebees-arden", "petes-bar"]) {
+    assert.equal((await api.save({ inviteeId, walkBar })).status, 200);
+    assert.deepEqual(await api.read(), [{ ...card, walkBar }]);
+  }
+  const changed = { plan: "walk", walkRoom: "the-collection", walkDinner: "petes-arden", bar: "cabin" };
+  for (const [field, value] of Object.entries(changed)) {
+    assert.equal((await api.save({ inviteeId, [field]: value })).status, 200);
+  }
+  assert.deepEqual(await connect(db).read(), [{ ...card, ...changed }]);
+  for (const invalid of [{ plan: "other" }, { walkBar: "snug" }, { walkRoom: "seance" }, { walkDinner: "wildwood" }]) {
+    assert.equal((await api.save({ inviteeId, ...invalid, seating: "general" })).status, 400);
+  }
+  assert.deepEqual(await api.read(), [{ ...card, ...changed }]);
+  assert.equal((await api.save({ inviteeId, plan: "", walkBar: "" })).status, 200);
+  assert.deepEqual(await connect(db).read(), [{ ...card, ...changed, plan: "", walkBar: "" }]);
+  assert.equal((await api.save({ inviteeId: "robbie-merchant", plan: "walk", walkBar: "maple-room" })).status, 200);
+  const ballots = await connect(db).read();
+  assert.equal(ballots.length, 2);
+  assert.equal(ballots.find((row) => row.inviteeId === inviteeId).walkBar, "");
+  assert.equal(ballots.find((row) => row.inviteeId === "robbie-merchant").walkBar, "maple-room");
 });

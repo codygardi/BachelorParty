@@ -8,10 +8,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="bachelor-party.css?v=20261115a">
+    <link rel="stylesheet" href="bachelor-party.css?v=20261115b">
     <script src="bachelor-party-config.js" defer></script>
     <script src="bachelor-party.js?v=20261113c" defer></script>
-    <script src="calling-cards.js?v=20261115a" defer></script>
+    <script src="calling-cards.js?v=20261115b" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
@@ -108,16 +108,30 @@
         </div>
 
         <div class="schedule-panel" id="saturday" role="tabpanel" aria-labelledby="saturday-tab" tabindex="0">
+          <div class="plan-controls" data-ballot-panel="plan">
+            <div class="plan-tabs" role="group" aria-label="Browse Saturday plans">
+              <button type="button" data-plan="drive" aria-pressed="false">1 · Taverns + drive <span data-plan-tally="drive">Loading…</span></button>
+              <button type="button" data-plan="walk" aria-pressed="true">2 · Walk in Arden <span data-plan-tally="walk">Loading…</span></button>
+            </div>
+            <div class="plan-choice">
+              <label class="sr-only" for="plan-guest">Your calling card</label>
+              <select id="plan-guest" data-ballot-guest><option value="">Choose your name</option></select>
+              <button class="button button-choice" type="button" data-vote="plan" data-choice="walk" aria-pressed="false" aria-disabled="true" data-plan-vote>Vote for this plan</button>
+              <button class="quiet-button" type="button" data-vote="plan" data-choice="" aria-label="Clear my preferred plan vote" data-clear-plan hidden>Clear vote</button>
+            </div>
+            <p class="vote-message" role="status" data-ballot-status="plan"></p>
+            <button class="quiet-button" type="button" data-ballot-retry hidden>Retry connection</button>
+          </div>
           <div class="schedule-caption">
-            <span>Grass Valley → Midtown → Arden</span>
+            <span data-plan-summary>Bar → Enchambered → dinner → Punch Line · Walk each leg</span>
             <button class="quiet-button" type="button" data-open-dialog="route">Route details <span aria-hidden="true">↗</span></button>
           </div>
           <ol class="timeline">
             <li>
               <span class="timeline-time">Morning</span>
               <div class="timeline-stop">
-                <h3>Breakfast on your own</h3><p>Downtown Grass Valley · Food under $20</p>
-                <ul class="breakfast-spots" aria-label="Breakfast ideas">
+                <h3>Breakfast on your own</h3><button class="quiet-button" type="button" data-open-dialog="breakfast">4 downtown ideas · Food under $20 <span aria-hidden="true">↗</span></button>
+                <template id="breakfast-options"><ul class="breakfast-spots" aria-label="Breakfast ideas">
                   <li>
                     <a href="https://order.online/store/south-pine-cafe-2481391" target="_blank" rel="noopener">South Pine Café <span aria-hidden="true">↗</span></a>
                     <span>Buttermilk pancakes · $15.50</span><span>102 Richardson St</span>
@@ -134,7 +148,7 @@
                     <a href="https://www.menupix.com/menudirectory/menu.php?id=380280949" target="_blank" rel="noopener">Brew Bakers <span aria-hidden="true">↗</span></a>
                     <span>Egg &amp; cheese bagel · $7.50</span><span>209 W Main St</span>
                   </li>
-                </ul>
+                </ul></template>
               </div>
             </li>
             <li>
@@ -151,12 +165,12 @@
             <li>
               <span class="timeline-time">5:30–5:45 pm</span>
               <div class="timeline-stop">
-                <h3>Escape room</h3>
+                <h3 data-room-heading>Escape at Enchambered</h3>
                 <button class="inline-vote" type="button" data-open-ballot="room" aria-haspopup="dialog">Vote for an escape room <span aria-hidden="true">↗</span></button>
               </div>
             </li>
             <li>
-              <span class="timeline-time">7:00–7:20 pm</span>
+              <span class="timeline-time" data-dinner-time>7:00 pm</span>
               <div class="timeline-stop">
                 <h3>Dinner near Punch Line</h3>
                 <button class="inline-vote" type="button" data-open-ballot="dinner" aria-haspopup="dialog">Vote for dinner <span aria-hidden="true">↗</span></button>
@@ -203,12 +217,13 @@
         <div class="venue-snapshot" id="venue-snapshot" hidden>
           <div class="venue-photos" data-venue-photos></div>
           <p data-venue-theme></p>
-          <dl class="bar-routes" aria-label="Estimated drives to Enchambered" data-bar-routes hidden></dl>
+          <dl class="bar-routes" aria-label="Estimated travel times" data-bar-routes hidden></dl>
           <div class="venue-links">
             <a data-venue-site target="_blank" rel="noopener">Venue details <span aria-hidden="true">↗</span></a>
             <a data-venue-booking target="_blank" rel="noopener" hidden>Check times <span aria-hidden="true">↗</span></a>
             <a data-venue-credit target="_blank" rel="noopener">Photo sources <span aria-hidden="true">↗</span></a>
             <a data-venue-directions target="_blank" rel="noopener" hidden>Route to Punch Line <span aria-hidden="true">↗</span></a>
+            <a data-venue-escape-directions target="_blank" rel="noopener" hidden>Walk to Enchambered <span aria-hidden="true">↗</span></a>
           </div>
         </div>
         <div class="venue-actions">
@@ -269,17 +284,35 @@
       <div class="dialog-header"><h2 id="route-title">Saturday route</h2><form method="dialog"><button class="close-button" aria-label="Close route details">×</button></form></div>
       <div class="dialog-copy">
         <p><strong>1 pm departure.</strong> Meet at Robbie’s by 12:45 pm. Allow 75–90 minutes for the drive and parking. Leave by 2 pm at the latest.</p>
-        <p><strong>Drinks and escape room.</strong> Target a room at 5:30–5:45 pm and check in 15 minutes early. From The Snug, leave by 4:50 for a 5:30 pm Midtown room or 5:05 for 5:45 pm in Arden. For Tortuga or Enchambered, take both cars from the bar.</p>
-        <p><strong>Dinner.</strong> Aim for 7 pm near Punch Line, or 7:20 after Tortuga. Leave Tapa the World by 8 pm, Wildwood by 8:10, or Pete’s or Thai Terrace by 8:20 to walk over.</p>
+        <div class="route-plan" data-route-plan="drive" hidden>
+          <p><strong>Taverns + drive.</strong> Toast at 4 pm. The Cabin → Séance or Fortune’s Favor is the shortest pairing (10–12 min walk); The Snug or Shady Lady → Exit Strategy is about 20–25 min. Use both cars for O’Mally’s, Tortuga, or Enchambered. Keep both drivers alcohol-free.</p>
+          <p><strong>Escape → drive → dinner.</strong> Target a 5:30–5:45 pm room, check in 15 minutes early, then allow 15–25 minutes to drive and park for dinner at 7–7:20 pm. Pete’s and Thai Terrace finish near the show. Wildwood and Tapa the World require another drive to Punch Line; leave by 8:10 and 8 pm respectively.</p>
+        </div>
+        <div class="route-plan" data-route-plan="walk">
+          <p><strong>Park in Arden; walk between stops.</strong> Start at a nearby bar at 4 pm. Leave by 4:45 for Enchambered, arrive by 5:15, and target a 5:30 pm room. Both Skull Witch and The Collection fit all eight. Confirm a room slot and permission for evening parking before booking.</p>
+          <p><strong>Dinner → comedy.</strong> After the 60-minute room, walk to Pete’s or Thai Terrace for 7 pm dinner. Both have vegetarian options and a short walk to the show. Finish dinner by 8:20 pm.</p>
+          <table class="walk-table"><caption>Approximate walks from each bar</caption><thead><tr><th scope="col">Bar</th><th scope="col">Enchambered</th><th scope="col">Punch Line</th></tr></thead><tbody>
+            <tr><th scope="row">Pete’s Arden</th><td>5–8 min</td><td>2–5 min</td></tr>
+            <tr><th scope="row">BJ’s Arden Fair</th><td>25–30 min</td><td>20–25 min</td></tr>
+            <tr><th scope="row">Maple Room</th><td>20–25 min</td><td>25–30 min</td></tr>
+            <tr><th scope="row">Applebee’s Arden</th><td>8–12 min</td><td>5–8 min</td></tr>
+          </tbody></table>
+          <p>Pete’s is the best route fit. These are brewhouse, lounge, and casual bar alternatives; none is a dedicated Irish or rustic whiskey pub. Walks use Arden/Howe crossings, not an Old Sacramento pedestrian district. Each leg is under about 30 minutes, not the entire day’s walking.</p>
+        </div>
         <p><strong>Show.</strong> Line up together by 8:30 pm at 2100 Arden Way. Doors open at 8:45 pm. Bring photo ID. Two beverages per guest, including alcohol-free options.</p>
         <p><strong>Weekend cap.</strong> $250 per person before restaurant tips. The seating ballot lists $32.05 general or $45.80 preferred per guest, plus two drinks.</p>
+        <p class="route-note">Browse both plans, vote for your preferred plan, and choose venues in either. Each plan saves its own venue votes. Routes use your choices, with suggested venues for any blank votes. Walking estimates checked Nov 15, 2026 with OpenStreetMap; allow for signals and weather. January hours and room availability still need confirmation.</p>
         <p class="dialog-links">
-          <a href="https://www.google.com/maps/dir/?api=1&amp;origin=Grass+Valley%2C+CA&amp;destination=Punch+Line+Sacramento+2100+Arden+Way&amp;waypoints=The+Snug+1800+15th+St+Sacramento%7C1831+I+St+Sacramento&amp;travelmode=driving" target="_blank" rel="noopener">Via Exit Strategy <span aria-hidden="true">↗</span></a>
-          <a href="https://www.google.com/maps/dir/?api=1&amp;origin=Grass+Valley%2C+CA&amp;destination=Punch+Line+Sacramento+2100+Arden+Way&amp;waypoints=The+Snug+1800+15th+St+Sacramento%7C2642+5th+St+Sacramento&amp;travelmode=driving" target="_blank" rel="noopener">Via Tortuga <span aria-hidden="true">↗</span></a>
-          <a href="https://www.google.com/maps/dir/?api=1&amp;origin=Grass+Valley%2C+CA&amp;destination=Punch+Line+Sacramento+2100+Arden+Way&amp;waypoints=The+Snug+1800+15th+St+Sacramento%7C2230+Arden+Way+Sacramento&amp;travelmode=driving" target="_blank" rel="noopener">Via Enchambered <span aria-hidden="true">↗</span></a>
+          <a data-plan-directions target="_blank" rel="noopener">Map this plan <span aria-hidden="true">↗</span></a>
           <a href="https://www.punchlinesac.com/visit" target="_blank" rel="noopener">Club policy <span aria-hidden="true">↗</span></a>
+          <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap contributors <span aria-hidden="true">↗</span></a>
         </p>
       </div>
+    </dialog>
+
+    <dialog id="breakfast" aria-labelledby="breakfast-title">
+      <div class="dialog-header"><h2 id="breakfast-title">Breakfast in Grass Valley</h2><form method="dialog"><button class="close-button" aria-label="Close breakfast ideas">×</button></form></div>
+      <div class="dialog-copy"><p>Four downtown ideas before meeting at Robbie’s. Food prices before tax, drinks, and tips; no vote needed.</p><div data-breakfast-options></div></div>
     </dialog>
 
     <dialog id="drivers" aria-labelledby="drivers-title">
