@@ -113,7 +113,7 @@ try {
   assert.equal(await submitDisabled(), true);
   assert.equal(await textAt("[data-plan-submit]"), "Submit Votes");
   assert.equal(await textAt('#saturday time[datetime="12:30"]'), "12:30 pm");
-  assert.match(await textAt("#saturday .timeline > li:nth-child(2) .timeline-stop"), /Meet at ___ \(pending\).*Leave by 1 pm/);
+  assert.match(await textAt("#saturday .timeline > li:nth-child(2) .timeline-stop"), /Meet at ___ \(pending\).*Leave no later than 1 pm/);
   assert.doesNotMatch(await textAt("#saturday .timeline"), /Doors 8:45 pm|Two beverages per guest/);
   assert.match(await textAt("[data-plan-progress]"), /Ride or car.*Breakfast.*Bar.*Escape room.*Dinner.*Comedy seating/);
   for (const field of ["breakfast", "bar", "room", "dinner", "seating"]) {
@@ -177,7 +177,7 @@ try {
   assert.equal(await leader("bar"), "Leading · Shady Lady Saloon · 1 vote");
   assert.equal(await leader("room"), "Leading · PanIQ · 1 vote");
   assert.equal(await leader("dinner"), "Leading · Wildwood Kitchen & Bar · 1 vote");
-  assert.equal(await leader("seating"), "Leading · General Admission · 1 vote");
+  assert.equal(await leader("seating"), "Leading · General Seating · 1 vote");
   assert.equal(await submitDisabled(), false);
   await click("[data-plan-submit]");
   await until('return document.querySelector("[data-plan-submit]").hasAttribute("data-submitted")', "Plan vote did not submit.");
@@ -225,7 +225,7 @@ try {
   await run("await refreshCallingCards()");
   await choose("max-voorhees");
   assert.equal(await leader("breakfast"), "Tie · Bubba’s Bagels / I’ll get my own · 1 vote each");
-  assert.equal(await leader("seating"), "Tie · General Admission / Preferred Premium Seating · 1 vote each");
+  assert.equal(await leader("seating"), "Tie · General / Premium Seating · 1 vote each");
   await click('[data-open-dialog="breakfast"]');
   assert.equal(await run('return document.querySelector("[data-breakfast-order]").hidden'), true);
   assert.deepEqual(await pickup(), ["Cody Gardi", orderText]);

@@ -188,7 +188,7 @@ const voteLeaders = Array.from(document.querySelectorAll("[data-vote-leader]"), 
   const field = display.dataset.voteLeader;
   const options = venues[field] ?? polls.find((poll) => poll.field === field).buttons.map((button) => ({
     id: button.dataset.choice,
-    name: button.querySelector("strong").textContent,
+    name: button.dataset.leaderLabel ?? button.querySelector("strong").textContent,
   }));
   return { display, field, options };
 });
@@ -313,8 +313,9 @@ function renderVoteLeaders() {
     }
     const leaders = totals.filter(({ count }) => count === highest).map(({ name }) => name);
     const tied = leaders.length > 1;
+    const tieLabel = tied && leaders.length === options.length ? display.dataset.tieLabel : undefined;
     const tally = `${highest} ${highest === 1 ? "vote" : "votes"}${tied ? " each" : ""}`;
-    display.textContent = `${tied ? "Tie" : "Leading"} · ${leaders.join(" / ")} · ${tally}`;
+    display.textContent = `${tied ? "Tie" : "Leading"} · ${tieLabel ?? leaders.join(" / ")} · ${tally}`;
   }
 }
 

@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="bachelor-party.css?v=20261115i">
     <script src="bachelor-party-config.js" defer></script>
     <script src="bachelor-party.js?v=20261113c" defer></script>
-    <script src="calling-cards.js?v=20261115i" defer></script>
+    <script src="calling-cards.js?v=20261115j" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
@@ -118,10 +118,10 @@
             </li>
             <li>
               <time class="timeline-time" datetime="12:30">12:30 pm</time>
-              <div class="timeline-stop"><h3>Meet at ___ (pending)</h3><p>Leave by 1 pm.</p></div>
+              <div class="timeline-stop"><h3>Meet at ___ (pending)</h3><p>Leave no later than 1 pm.</p></div>
             </li>
             <li>
-              <time class="timeline-time" datetime="16:00">4:00 pm</time>
+              <span class="timeline-time">Pending</span>
               <div class="timeline-stop">
                 <h3>Toast to Robbie</h3>
                 <p class="vote-leader" data-vote-leader="bar"></p>
@@ -129,7 +129,7 @@
               <button class="button button-outline timeline-vote" type="button" data-open-ballot="bar" aria-label="Vote for a bar" aria-haspopup="dialog">Vote</button>
             </li>
             <li>
-              <span class="timeline-time">5:30–5:45 pm</span>
+              <span class="timeline-time">Pending</span>
               <div class="timeline-stop">
                 <h3>Escape room</h3>
                 <p class="vote-leader" data-vote-leader="room"></p>
@@ -137,7 +137,7 @@
               <button class="button button-outline timeline-vote" type="button" data-open-ballot="room" aria-label="Vote for an escape room location" aria-haspopup="dialog">Vote</button>
             </li>
             <li>
-              <span class="timeline-time">7:00–7:20 pm</span>
+              <span class="timeline-time">Pending</span>
               <div class="timeline-stop">
                 <h3>Dinner</h3>
                 <p class="vote-leader" data-vote-leader="dinner"></p>
@@ -145,10 +145,10 @@
               <button class="button button-outline timeline-vote" type="button" data-open-ballot="dinner" aria-label="Vote for dinner" aria-haspopup="dialog">Vote</button>
             </li>
             <li>
-              <time class="timeline-time" datetime="21:15">9:15 pm</time>
+              <span class="timeline-time"><time datetime="20:45">8:45 pm</time> · Pending</span>
               <div class="timeline-stop">
                 <h3>Leslie Liao at Punch Line</h3>
-                <p class="vote-leader" data-vote-leader="seating"></p>
+                <p class="vote-leader" data-vote-leader="seating" data-tie-label="General / Premium Seating"></p>
                 <a href="https://www.ticketmaster.com/leslie-liao-sacramento-california-01-16-2027/event/1C006543E18B42C7" target="_blank" rel="noopener">Show tickets <span aria-hidden="true">↗</span></a>
               </div>
               <button class="button button-outline timeline-vote" type="button" data-open-dialog="seating-voting" aria-label="Vote on seating" aria-haspopup="dialog">Vote</button>
@@ -234,17 +234,17 @@
         </select>
       </div>
       <div class="dialog-copy">
-        <p>Leslie Liao · Saturday, Jan 16 at 9:15 pm · Prices include fees, before any tax</p>
+        <p>Leslie Liao · Saturday, Jan 16 · Booking pending. Prices include fees, before any tax.</p>
         <div class="poll-options" role="group" aria-label="Seating choices">
-          <button class="button button-choice poll-option" type="button" data-vote="seating" data-choice="general" aria-pressed="false" aria-disabled="true">
+          <button class="button button-choice poll-option" type="button" data-vote="seating" data-choice="general" data-leader-label="General Seating" aria-pressed="false" aria-disabled="true">
             <strong>General Admission</strong><span class="seating-price">$256.40 for 8</span><span>$32.05 each</span><span class="poll-tally" data-poll-tally></span>
           </button>
-          <button class="button button-choice poll-option" type="button" data-vote="seating" data-choice="preferred" aria-pressed="false" aria-disabled="true">
+          <button class="button button-choice poll-option" type="button" data-vote="seating" data-choice="preferred" data-leader-label="Premium Seating" aria-pressed="false" aria-disabled="true">
             <strong>Preferred Premium Seating</strong><span class="seating-price">$366.40 for 8</span><span>$45.80 each</span><span class="poll-tally" data-poll-tally></span>
           </button>
         </div>
         <p><strong>+$13.75 each ($110 total)</strong> for the section closest to the stage. Both sections seat guests first come, first served. Specific seats and sitting together depend on availability.</p>
-        <p>Line up together by <strong>8:30 pm</strong> for the best chance of sitting together. Doors open at 8:45 pm.</p>
+        <p>Line up together for the best chance of sitting together.</p>
         <details class="seating-map">
           <summary>View seating map</summary>
           <img src="assets/venues/punch-line-seating.webp" width="783" height="572" loading="lazy" alt="Punch Line seating map with the preferred section directly in front of the stage and general seating around it">
@@ -264,11 +264,11 @@
     <dialog id="route" aria-labelledby="route-title">
       <div class="dialog-header"><h2 id="route-title">Saturday route</h2><form method="dialog"><button class="close-button" aria-label="Close route details">×</button></form></div>
       <div class="dialog-copy">
-        <p><strong>12:30 pm meetup.</strong> Location pending. Leave by 1 pm and allow 75–90 minutes for the drive and parking.</p>
-        <p><strong>4 pm toast.</strong> Maple Room is a 20–25 minute walk to Enchambered. Take both cars from The Snug or Shady Lady to Enchambered, or from any bar to PanIQ.</p>
-        <p><strong>5:30–5:45 pm escape room.</strong> Leave the bar by 4:45 pm to allow for travel, parking, and check-in 15 minutes before the room. Confirm a slot for eight.</p>
-        <p><strong>7–7:20 pm dinner.</strong> Thai Terrace is next to Enchambered and a short walk from Punch Line. From PanIQ, drive to dinner. To reach the show by 8:30 pm, leave Tapa the World by 8 pm, Wildwood by 8:10 pm, or Thai Terrace by 8:20 pm.</p>
-        <p><strong>Show.</strong> Line up together by 8:30 pm at 2100 Arden Way. Doors open at 8:45 pm. Bring photo ID. Two beverages per guest, including alcohol-free options.</p>
+        <p><strong>12:30 pm meetup.</strong> Location pending. Leave no later than 1 pm. Allow 75–90 minutes for the drive and parking.</p>
+        <p><strong>Toast pending.</strong> Maple Room is a 20–25 minute walk to Enchambered. Take both cars from The Snug or Shady Lady to Enchambered, or from any bar to PanIQ.</p>
+        <p><strong>Escape room pending.</strong> Confirm a slot for eight. Allow for travel, parking, and check-in 15 minutes before the room.</p>
+        <p><strong>Dinner pending.</strong> Thai Terrace is next to Enchambered and a short walk from Punch Line. From PanIQ, drive to dinner. Allow time to reach Punch Line after dinner.</p>
+        <p><strong>Comedy pending.</strong> Target 8:45 pm at 2100 Arden Way. Bring photo ID. Two beverages per guest, including alcohol-free options.</p>
         <p><strong>Weekend cap.</strong> $250 per person before restaurant tips. The seating ballot lists $32.05 general or $45.80 preferred per guest, plus two drinks.</p>
         <p class="route-note">The map uses your votes or the first option for each stop. The escape room cards have walking or driving directions from each bar.</p>
         <p class="dialog-links">
