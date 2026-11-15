@@ -56,7 +56,10 @@ const server = createServer(async (request, response) => {
       });
       const result = db
         ? await worker.fetch(incoming, bindings)
-        : await fetch(new Request(new URL(url.search, "https://bachelor-party-rsvp.codygardi22.workers.dev/"), incoming), {
+        : await fetch(new URL(url.search, "https://bachelor-party-rsvp.codygardi22.workers.dev/"), {
+          method: request.method,
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          ...(request.method === "POST" && { body: await incoming.text() }),
           signal: AbortSignal.timeout(10000),
         });
       const headers = new Headers(result.headers);
