@@ -21,7 +21,7 @@ const ballotChoices = {
   bar: barChoices, dinner: dinnerChoices, room: roomChoices, seating: seatingChoices,
   planSubmitted: new Set([true]),
 };
-const planVoteFields = ["breakfast", "bar", "room", "dinner", "seating"];
+const planVoteFields = ["dndHost", "breakfast", "bar", "room", "dinner", "seating"];
 const ballotColumns = "inviteeId, dndHost, drive, designatedDriver, breakfast, breakfastOrder, bar, dinner, room, seating, car, passengerSeats, plan, walkBar, walkRoom, walkDinner, planSubmitted";
 const roomLocations = new Map([
   ["skull-witch", "enchambered"],

@@ -150,10 +150,10 @@ const venues = {
 const punchLineAddress = "Punch Line Sacramento, 2100 Arden Way #225, Sacramento, CA";
 const ballotTitles = { bar: "Vote for a bar", dinner: "Vote for dinner", room: "Vote for an escape room location" };
 const planChoiceLabels = {
-  transport: "Ride or car",
+  transport: "Ride or car", dndHost: "Friday D&D host",
   breakfast: "Breakfast", bar: "Bar", room: "Escape room", dinner: "Dinner", seating: "Comedy seating",
 };
-const requiredPlanChoices = ["transport", "breakfast", "bar", "room", "dinner", "seating"];
+const requiredPlanChoices = Object.keys(planChoiceLabels);
 const dashboard = document.querySelector("[data-view]");
 const scheduleTabs = Array.from(document.querySelectorAll('[role="tab"]'));
 const compactViews = window.matchMedia("(max-width: 48rem), (max-height: 40rem)");
@@ -597,7 +597,7 @@ async function saveChoices(panel, choices, successMessage) {
   saveVersion += 1;
   pendingChoices = choices;
   renderVotingState();
-  const updatesPlanChoices = scope !== "submission" && scope !== "dndHost"
+  const updatesPlanChoices = scope !== "submission"
     && !Object.hasOwn(choices, "breakfastOrder") && !Object.hasOwn(choices, "designatedDriver");
   if (updatesPlanChoices) setStatus("submission");
   setStatus(scope, "Saving…");

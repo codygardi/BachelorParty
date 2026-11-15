@@ -154,7 +154,7 @@ test("plan submission requires saved activity votes and a car offer or ride requ
   assert.deepEqual(await api.read(), []);
   assert.equal((await api.save({ ...submit, bar: "snug" })).status, 400);
 
-  const votes = { breakfast: "bubbas", bar: "snug", room: "paniq", dinner: "wildwood", seating: "general" };
+  const votes = { dndHost: "host", breakfast: "bubbas", bar: "snug", room: "paniq", dinner: "wildwood", seating: "general" };
   for (const [field, choice] of Object.entries(votes)) {
     assert.equal((await api.save({ inviteeId, [field]: choice })).status, 200);
     assert.equal((await api.save(submit)).status, 409);
@@ -204,7 +204,7 @@ test("an existing plan with no breakfast choice needs a poll response", async (t
   t.after(() => db.close());
   const api = connect(db);
   const inviteeId = existing.inviteeId;
-  const oldVotes = { ...existing, drive: "rider", room: "paniq", seating: "general" };
+  const oldVotes = { ...existing, dndHost: "cant-host", drive: "rider", room: "paniq", seating: "general" };
   assert.equal((await api.save(oldVotes)).status, 200);
   db.prepare("UPDATE ballots SET planSubmitted = 1 WHERE inviteeId = ?").run(inviteeId);
   const [before] = await connect(db).read();
@@ -226,7 +226,7 @@ test("Bubba’s orders are per guest and editing an order preserves the plan vot
   assert.equal((await api.save({ inviteeId, breakfastOrder })).status, 409);
   assert.deepEqual(await api.read(), []);
 
-  const votes = { ...existing, drive: "rider", breakfast: "bubbas", room: "paniq", seating: "general" };
+  const votes = { ...existing, dndHost: "cant-host", drive: "rider", breakfast: "bubbas", room: "paniq", seating: "general" };
   assert.equal((await api.save(votes)).status, 200);
   assert.equal((await api.save({ inviteeId, planSubmitted: true })).status, 200);
   const [submitted] = await api.read();
@@ -242,26 +242,31 @@ test("Bubba’s orders are per guest and editing an order preserves the plan vot
   assert.deepEqual(await connect(db).read(), [{ ...submitted, breakfast: "own", breakfastOrder: "", planSubmitted: false }]);
 });
 
-test("Friday hosting votes save, change, and clear independently of Saturday votes", async (t) => {
+test("Friday hosting must be answered before submitting and a change reopens the ballot", async (t) => {
   const db = new DatabaseSync(":memory:");
   t.after(() => db.close());
   const api = connect(db);
   const { inviteeId } = existing;
+  const submit = { inviteeId, planSubmitted: true };
   assert.equal((await api.save({ inviteeId, dndHost: "maybe" })).status, 400);
   assert.deepEqual(await api.read(), []);
-  assert.equal((await api.save({ inviteeId, dndHost: "host" })).status, 200);
-  assert.equal((await connect(db).read())[0].dndHost, "host");
 
   const saturday = { inviteeId, drive: "rider", breakfast: "own", bar: "snug", room: "paniq", dinner: "wildwood", seating: "general" };
   assert.equal((await api.save(saturday)).status, 200);
-  assert.equal((await api.save({ inviteeId, planSubmitted: true })).status, 200);
+  assert.deepEqual((await api.read())[0].missingPlanChoices, ["dndHost"]);
+  assert.equal((await api.save(submit)).status, 409);
+  assert.equal((await api.save({ inviteeId, dndHost: "host" })).status, 200);
+  assert.equal((await api.save(submit)).status, 200);
   const [submitted] = await api.read();
   assert.equal(submitted.dndHost, "host");
   assert.equal(submitted.planSubmitted, true);
-  for (const dndHost of ["cant-host", ""]) {
-    assert.equal((await api.save({ inviteeId, dndHost })).status, 200);
-    assert.deepEqual(await connect(db).read(), [{ ...submitted, dndHost }]);
-  }
+
+  assert.equal((await api.save({ inviteeId, dndHost: "cant-host" })).status, 200);
+  assert.deepEqual(await connect(db).read(), [{ ...submitted, dndHost: "cant-host", planSubmitted: false }]);
+  assert.equal((await api.save(submit)).status, 200);
+  assert.equal((await api.save({ inviteeId, dndHost: "" })).status, 200);
+  assert.equal((await api.save(submit)).status, 409);
+  assert.deepEqual(await connect(db).read(), [{ ...submitted, dndHost: "", planSubmitted: false, missingPlanChoices: ["dndHost"] }]);
 });
 
 test("guests can check and uncheck designated driver independently of their ride choice", async (t) => {
@@ -280,8 +285,8 @@ test("guests can check and uncheck designated driver independently of their ride
   assert.equal(driver.drive, "");
   assert.equal(driver.car, "");
 
-  const saturday = { inviteeId, drive: "volunteer", car: "offer", passengerSeats: 3, breakfast: "own", bar: "snug", room: "paniq", dinner: "wildwood", seating: "general" };
-  assert.equal((await api.save(saturday)).status, 200);
+  const votes = { inviteeId, dndHost: "host", drive: "volunteer", car: "offer", passengerSeats: 3, breakfast: "own", bar: "snug", room: "paniq", dinner: "wildwood", seating: "general" };
+  assert.equal((await api.save(votes)).status, 200);
   assert.equal((await api.save({ inviteeId, planSubmitted: true })).status, 200);
   const [submitted] = await api.read();
   assert.equal(submitted.designatedDriver, true);

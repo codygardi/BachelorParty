@@ -137,7 +137,7 @@ try {
   assert.equal(await run('return Boolean(document.querySelector("#calling-cards").closest("li").nextElementSibling.querySelector("[data-open-ballot=bar]"))'), true);
   assert.equal(await textAt('#saturday .timeline > li:has([data-vote-summary="seating"]) > .timeline-time'), "8:45 pm");
   assert.doesNotMatch(await textAt("#saturday .timeline"), /Doors 8:45 pm|Two beverages per guest/);
-  assert.match(await textAt("[data-plan-progress]"), /Ride or car.*Breakfast.*Bar.*Escape room.*Dinner.*Comedy seating/);
+  assert.match(await textAt("[data-plan-progress]"), /Ride or car.*Friday D&D host.*Breakfast.*Bar.*Escape room.*Dinner.*Comedy seating/);
   const expectedVenues = {
     bar: ["Maple Room Lounge", "The Snug", "Shady Lady Saloon"],
     room: ["Enchambered", "PanIQ"],
@@ -184,13 +184,13 @@ try {
   assert.equal(await textAt("[data-driver-count]"), "0/2 designated drivers · 0 riders · 1/2 cars");
   assert.equal(await run('return document.querySelector("#calling-cards select") === null'), true);
   assert.equal(await submitDisabled(), true);
-  assert.equal(await textAt("[data-plan-progress]"), "Still needed · Breakfast · Comedy seating");
+  assert.equal(await textAt("[data-plan-progress]"), "Still needed · Friday D&D host · Breakfast · Comedy seating");
   await click('[data-open-dialog="seating-voting"]');
   await click('[data-vote=seating][data-choice=general]');
   await saveIn("seating");
   await click("#seating-voting .close-button");
   assert.equal(await submitDisabled(), true);
-  assert.equal(await textAt("[data-plan-progress]"), "Still needed · Breakfast");
+  assert.equal(await textAt("[data-plan-progress]"), "Still needed · Friday D&D host · Breakfast");
   await click('[data-open-dialog="breakfast"]');
   assert.deepEqual(await run('return [...document.querySelectorAll("#breakfast .poll-option strong")].map(option => option.textContent)'), ["Bubba’s Bagels", "I’ll get my own"]);
   assert.equal(await run('return document.querySelector("[data-breakfast-order]").hidden'), true);
@@ -204,6 +204,16 @@ try {
   assert.equal(await summary("room"), "Enchambered · 0 votes / PanIQ · 1 vote");
   assert.equal(await summary("dinner"), "Thai Terrace · 0 votes / Wildwood Kitchen & Bar · 1 vote / Tapa the World · 0 votes");
   assert.equal(await summary("seating"), "General Seating · 1 vote / Premium Seating · 0 votes");
+  assert.equal(await submitDisabled(), true);
+  assert.equal(await textAt("[data-plan-progress]"), "Still needed · Friday D&D host");
+  await click("#friday-tab");
+  await click('[data-open-dialog="dnd-host"]');
+  await click('[data-vote=dndHost][data-choice=host]');
+  await saveIn("dndHost");
+  assert.equal(await textAt('[data-roll-call=dndHost][data-choice=host]'), "Cody Gardi");
+  await click("#dnd-host .close-button");
+  assert.equal(await summary("dndHost"), "Can host · 1 vote / Can’t host · 0 votes");
+  await click("#saturday-tab");
   assert.equal(await submitDisabled(), false);
   await click("[data-plan-submit]");
   await until('return document.querySelector("[data-plan-submit]").hasAttribute("data-submitted")', "Plan vote did not submit.");
@@ -217,14 +227,6 @@ try {
   await saveIn("breakfast", "Order saved.");
   assert.deepEqual(await pickup(), ["Cody Gardi", orderText]);
   await click("#breakfast .close-button");
-  await click("#friday-tab");
-  await click('[data-open-dialog="dnd-host"]');
-  await click('[data-vote=dndHost][data-choice=host]');
-  await saveIn("dndHost");
-  assert.equal(await textAt('[data-roll-call=dndHost][data-choice=host]'), "Cody Gardi");
-  await click("#dnd-host .close-button");
-  assert.equal(await summary("dndHost"), "Can host · 1 vote / Can’t host · 0 votes");
-  await click("#saturday-tab");
   assert.equal(await textAt("[data-plan-submit]"), "Votes submitted");
   await click("[data-designated-driver]");
   await didSave("Designated driver saved.");
