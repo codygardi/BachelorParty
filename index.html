@@ -8,10 +8,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="bachelor-party.css?v=20261115b">
+    <link rel="stylesheet" href="bachelor-party.css?v=20261115e">
     <script src="bachelor-party-config.js" defer></script>
     <script src="bachelor-party.js?v=20261113c" defer></script>
-    <script src="calling-cards.js?v=20261115d" defer></script>
+    <script src="calling-cards.js?v=20261115e" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
@@ -108,22 +108,8 @@
         </div>
 
         <div class="schedule-panel" id="saturday" role="tabpanel" aria-labelledby="saturday-tab" tabindex="0">
-          <div class="plan-controls" data-ballot-panel="plan">
-            <div class="plan-tabs" role="group" aria-label="Browse Saturday plans">
-              <button type="button" data-plan="drive" aria-pressed="false">2 drive 2 <span data-plan-tally="drive">Loading…</span></button>
-              <button type="button" data-plan="walk" aria-pressed="true">everything walkable <span data-plan-tally="walk">Loading…</span></button>
-            </div>
-            <div class="plan-choice">
-              <label class="sr-only" for="plan-guest">Your calling card</label>
-              <select id="plan-guest" data-ballot-guest><option value="">Choose your name</option></select>
-              <button class="button button-choice" type="button" data-vote="plan" data-choice="walk" aria-pressed="false" aria-disabled="true" data-plan-vote>Vote for this plan</button>
-              <button class="quiet-button" type="button" data-vote="plan" data-choice="" aria-label="Clear my preferred plan vote" data-clear-plan hidden>Clear vote</button>
-            </div>
-            <p class="vote-message" role="status" data-ballot-status="plan"></p>
-            <button class="quiet-button" type="button" data-ballot-retry hidden>Retry connection</button>
-          </div>
           <div class="schedule-caption">
-            <span data-plan-summary>Bar → Enchambered → dinner → Punch Line · Walk each leg</span>
+            <span>Bar → escape room → dinner → Punch Line</span>
             <button class="quiet-button" type="button" data-open-dialog="route">Route details <span aria-hidden="true">↗</span></button>
           </div>
           <ol class="timeline">
@@ -165,14 +151,14 @@
             <li>
               <span class="timeline-time">5:30–5:45 pm</span>
               <div class="timeline-stop">
-                <h3 data-room-heading>Escape at Enchambered</h3>
-                <button class="inline-vote" type="button" data-open-ballot="room" aria-haspopup="dialog">Vote for an escape room <span aria-hidden="true">↗</span></button>
+                <h3>Escape room</h3>
+                <button class="inline-vote" type="button" data-open-ballot="room" aria-haspopup="dialog">Vote for an escape room location <span aria-hidden="true">↗</span></button>
               </div>
             </li>
             <li>
-              <span class="timeline-time" data-dinner-time>7:00 pm</span>
+              <span class="timeline-time">7:00–7:20 pm</span>
               <div class="timeline-stop">
-                <h3>Dinner near Punch Line</h3>
+                <h3>Dinner</h3>
                 <button class="inline-vote" type="button" data-open-ballot="dinner" aria-haspopup="dialog">Vote for dinner <span aria-hidden="true">↗</span></button>
               </div>
             </li>
@@ -217,13 +203,13 @@
         <div class="venue-snapshot" id="venue-snapshot" hidden>
           <div class="venue-photos" data-venue-photos></div>
           <p data-venue-theme></p>
-          <dl class="bar-routes" aria-label="Estimated travel times" data-bar-routes hidden></dl>
+          <div class="venue-links" data-room-links hidden></div>
+          <dl class="bar-routes" aria-label="Travel times from the bars" data-bar-routes hidden></dl>
           <div class="venue-links">
             <a data-venue-site target="_blank" rel="noopener">Venue details <span aria-hidden="true">↗</span></a>
             <a data-venue-booking target="_blank" rel="noopener" hidden>Check times <span aria-hidden="true">↗</span></a>
             <a data-venue-credit target="_blank" rel="noopener">Photo sources <span aria-hidden="true">↗</span></a>
             <a data-venue-directions target="_blank" rel="noopener" hidden>Route to Punch Line <span aria-hidden="true">↗</span></a>
-            <a data-venue-escape-directions target="_blank" rel="noopener" hidden>Walk to Enchambered <span aria-hidden="true">↗</span></a>
           </div>
         </div>
         <div class="venue-actions">
@@ -284,25 +270,14 @@
       <div class="dialog-header"><h2 id="route-title">Saturday route</h2><form method="dialog"><button class="close-button" aria-label="Close route details">×</button></form></div>
       <div class="dialog-copy">
         <p><strong>1 pm departure.</strong> Meet at Robbie’s by 12:45 pm. Allow 75–90 minutes for the drive and parking. Leave by 2 pm at the latest.</p>
-        <div class="route-plan" data-route-plan="drive" hidden>
-          <p><strong>Toast at 4 pm.</strong> The Cabin → Séance or Fortune’s Favor is the shortest pairing (10–12 min walk); The Snug or Shady Lady → Exit Strategy is about 20–25 min. Use both cars for O’Mally’s, Tortuga, or Enchambered. Keep both drivers alcohol-free.</p>
-          <p><strong>Escape → drive → dinner.</strong> Target a 5:30–5:45 pm room, check in 15 minutes early, then allow 15–25 minutes to drive and park for dinner at 7–7:20 pm. Pete’s and Thai Terrace finish near the show. Wildwood and Tapa the World require another drive to Punch Line; leave by 8:10 and 8 pm respectively.</p>
-        </div>
-        <div class="route-plan" data-route-plan="walk">
-          <p><strong>Park in Arden; walk between stops.</strong> Start at a nearby bar at 4 pm. Leave by 4:45 for Enchambered, arrive by 5:15, and target a 5:30 pm room. Both Skull Witch and The Collection fit all eight. Confirm a room slot and permission for evening parking before booking.</p>
-          <p><strong>Dinner → comedy.</strong> After the 60-minute room, walk to Pete’s or Thai Terrace for 7 pm dinner. Both have vegetarian options and a short walk to the show. Finish dinner by 8:20 pm.</p>
-          <table class="walk-table"><caption>Approximate walks from each bar</caption><thead><tr><th scope="col">Bar</th><th scope="col">Enchambered</th><th scope="col">Punch Line</th></tr></thead><tbody>
-            <tr><th scope="row">Pete’s Arden</th><td>5–8 min</td><td>2–5 min</td></tr>
-            <tr><th scope="row">Fieldhouse</th><td>21–25 min</td><td>25–30 min</td></tr>
-            <tr><th scope="row">Maple Room</th><td>20–25 min</td><td>25–30 min</td></tr>
-          </tbody></table>
-          <p>Three local choices within the 30-minute walking limit. Pete’s is the shortest route; Fieldhouse has wooden bar tops, whiskey, and a sports-pub atmosphere. None is a dedicated Irish tavern. Walks use Arden/Howe crossings. Allow up to 30 minutes per leg, plus any signal or weather delays.</p>
-        </div>
+        <p><strong>4 pm toast.</strong> Maple Room is a 20–25 minute walk to Enchambered. Take both cars from The Snug or Shady Lady to Enchambered, or from any bar to PanIQ.</p>
+        <p><strong>5:30–5:45 pm escape room.</strong> Leave the bar by 4:45 pm to allow for travel, parking, and check-in 15 minutes before the room. Confirm a slot for eight.</p>
+        <p><strong>7–7:20 pm dinner.</strong> Thai Terrace is next to Enchambered and a short walk from Punch Line. From PanIQ, drive to dinner. To reach the show by 8:30 pm, leave Tapa the World by 8 pm, Wildwood by 8:10 pm, or Thai Terrace by 8:20 pm.</p>
         <p><strong>Show.</strong> Line up together by 8:30 pm at 2100 Arden Way. Doors open at 8:45 pm. Bring photo ID. Two beverages per guest, including alcohol-free options.</p>
         <p><strong>Weekend cap.</strong> $250 per person before restaurant tips. The seating ballot lists $32.05 general or $45.80 preferred per guest, plus two drinks.</p>
-        <p class="route-note">Browse both plans, vote for your preferred plan, and choose venues in either. Each plan saves its own venue votes. Routes use your choices, with suggested venues for any blank votes. Walking estimates checked Nov 15, 2026 with OpenStreetMap; allow for signals and weather. January hours and room availability still need confirmation.</p>
+        <p class="route-note">The map uses your votes or the first option for each stop. The escape room cards have walking or driving directions from each bar.</p>
         <p class="dialog-links">
-          <a data-plan-directions target="_blank" rel="noopener">Map this plan <span aria-hidden="true">↗</span></a>
+          <a data-saturday-directions target="_blank" rel="noopener">Map the drive <span aria-hidden="true">↗</span></a>
           <a href="https://www.punchlinesac.com/visit" target="_blank" rel="noopener">Club policy <span aria-hidden="true">↗</span></a>
           <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap contributors <span aria-hidden="true">↗</span></a>
         </p>

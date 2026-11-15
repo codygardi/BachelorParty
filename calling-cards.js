@@ -1,22 +1,26 @@
-const enchambered = {
-  address: "2230 Arden Way #C",
-  fromSnug: { mode: "driving", time: "6.7 mi from The Snug" },
-  fromBars: [
-    ["The Cabin", "4.7 mi · 10–15 min"],
-    ["The Snug", "6.7 mi · 12–20 min"],
-    ["Shady Lady Saloon", "6.7 mi · 12–20 min"],
-    ["O’Mally’s Pub", "7.3 mi · 15–20 min"],
-  ],
-};
-
 const venues = {
   bar: [
+    {
+      id: "maple-room",
+      name: "Maple Room Lounge",
+      type: "Arden · Neighborhood lounge",
+      address: "2740 Arden Way #1",
+      note: "Saturday from 11 am. 20–25 min walk to Enchambered.",
+      theme: "A long bar, bottle shelves, and colored lighting give this neighborhood hangout its character. Karaoke and TVs can make it lively.",
+      website: "https://www.restaurantji.com/ca/sacramento/maple-room-lounge-/",
+      photos: [
+        ["maple-bar", "Maple Room’s back bar with bottles and colorful lighting"],
+        ["maple-room", "Seating along the bar at Maple Room Lounge"],
+        ["maple-drinks", "Drinks on Maple Room’s dark bar counter"],
+      ],
+      photoSource: "https://www.restaurantji.com/ca/sacramento/maple-room-lounge-/gallery/",
+    },
     {
       id: "snug",
       name: "The Snug",
       type: "Irish cocktail bar",
-      address: "1800 15th St · Opens at 4 pm",
-      note: "The first pick for a tavern toast.",
+      address: "1800 15th St",
+      note: "Midtown · Opens at 4 pm.",
       theme: "An Irish-built bar with dark timber, red leather booths, and low lighting.",
       website: "https://www.irishhospitalitygroup.com/ro-sham-beaux-1",
       photos: [
@@ -26,40 +30,11 @@ const venues = {
       ],
     },
     {
-      id: "omallys",
-      name: "O’Mally’s Pub",
-      type: "Irish pub",
-      address: "1109 2nd St · Old Sacramento",
-      note: "Allow time to drive from the waterfront to the room.",
-      theme: "A lively Irish pub with wooden booths, a long timber bar, and oversized pub games.",
-      website: "https://www.oldsacramento.com/business_directory/omallys-pub/",
-      photos: [
-        ["omallys-bar", "O’Mally’s rustic wooden bar"],
-        ["omallys-front", "Pub sign and Irish flag along the Old Sacramento boardwalk"],
-        ["omallys-room", "O’Mally’s open seating area with wooden booths"],
-      ],
-    },
-    {
-      id: "cabin",
-      name: "The Cabin",
-      type: "Lodge bar · Whiskey cocktails",
-      address: "1207 21st St · 10–12 min walk to Exit Strategy Games",
-      note: "The shortest walk to Séance and Fortune’s Favor.",
-      theme: "Log walls, a stone fireplace, and campfire cocktails give it the feel of a mountain lodge.",
-      website: "https://thecab.in/menu/",
-      photos: [
-        ["cabin-fire", "The Cabin’s log walls, tables, and stone fireplace", "https://www.visitsacramento.com/listing/the-cabin/8325/"],
-        ["cabin-bear", "A carved wooden bear inside The Cabin"],
-        ["cabin-toast", "Two dessert cocktails raised in a toast"],
-      ],
-      photoSource: "https://thecab.in/gallery/",
-    },
-    {
       id: "shady-lady",
       name: "Shady Lady Saloon",
       type: "Vintage saloon · Whiskey cocktails",
-      address: "1409 R St · Next to The Snug",
-      note: "Around the corner from The Snug for the same Midtown route.",
+      address: "1409 R St",
+      note: "Midtown · Saturday from 11 am.",
       theme: "Red wallpaper, low-lit booths, and classic bourbon or rye drinks in a 1920s saloon.",
       website: "https://www.shadyladybar.com/menu/house-cocktails",
       photos: [
@@ -71,22 +46,6 @@ const venues = {
     },
   ],
   dinner: [
-    {
-      id: "petes-arden",
-      name: "Pete’s Arden",
-      type: "Brewhouse dining room · Flatbreads",
-      address: "2100 Arden Way #123",
-      toComedy: { mode: "walking", time: "Same plaza as Punch Line" },
-      note: "Share $14.49 vegetarian garden flatbreads and $16.49 fried artichoke hearts.",
-      theme: "Wood tables, warm lighting, and a downstairs dining room. Ask for a table for eight downstairs.",
-      website: "https://order.online/store/pete-s-restaurant-brewhouse-arden-2467080?pickup=true",
-      photos: [
-        ["petes-dining", "Wooden dining tables and pendant lights at Pete’s Arden", "https://www.bizjournals.com/sacramento/news/2021/10/20/petes-restaurant-brewhouse-howe-bout-arden.html"],
-        ["petes-mural", "The Sacramento mural next to the stairs at Pete’s Arden"],
-        ["petes-pizza", "A pizza being sliced at Pete’s"],
-      ],
-      photoSource: "https://petesarden.com/",
-    },
     {
       id: "thai-terrace",
       name: "Thai Terrace",
@@ -138,30 +97,46 @@ const venues = {
   ],
   room: [
     {
-      id: "seance",
-      name: "Séance",
-      type: "Exit Strategy Games · Haunted parlor",
-      address: "1831 I St",
-      fromSnug: { mode: "walking", time: "20 min walk from The Snug" },
-      note: "$35 each for eight · 60 min · 2–8 players",
-      theme: "A mystic’s candlelit parlor with patterned rugs and wards. Find the charms to send a spirit back through its portal.",
-      website: "https://exitstrategygames.com/seance/",
-      booking: "https://offthecouch.io/book/escapesac/seance",
-      photos: [
-        ["seance-room", "Séance’s boarded windows and patterned rug under red and blue light"],
-        ["seance-props", "Crystal ball on purple velvet between brass candlesticks", "https://worldofescapes.com/sacramento/quests/escape-sacramento-the-seance"],
-        ["seance-board", "Séance symbols painted on a wood tabletop"],
+      id: "enchambered",
+      name: "Enchambered",
+      type: "Arden · Dark fantasy",
+      address: "2230 Arden Way #C",
+      toComedy: { mode: "walking", time: "5–8 min walk to Punch Line" },
+      fromBars: [
+        ["maple-room", "walking", "20–25 min walk"],
+        ["snug", "driving", "12–20 min drive"],
+        ["shady-lady", "driving", "12–20 min drive"],
       ],
+      note: "Skull Witch or The Collection · 60 min · Both fit all 8",
+      theme: "Search a candlelit bayou cabin in Skull Witch or break a curse in The Collection’s lighthouse. The cabin photos show Skull Witch. The lighthouse image is The Collection’s artwork.",
+      website: "https://www.enchambered.com/booking/",
+      websiteLabel: "Rooms & booking",
+      roomLinks: [
+        ["Skull Witch", "https://www.enchambered.com/booking/skull-witch/"],
+        ["The Collection", "https://www.enchambered.com/booking/the-collection/"],
+      ],
+      photos: [
+        ["skull-witch-cabin", "Skull Witch’s cabin shelves with bottles and candlelight"],
+        ["skull-witch-totems", "Skull Witch’s wooden masks and totems along a purple-lit wall"],
+        ["the-collection", "Enchambered’s official artwork for The Collection with a lighthouse above a dark sea", "https://www.enchambered.com/booking/the-collection/"],
+      ],
+      photoSource: "https://roomescapeartist.com/2019/04/09/enchambered-the-legend-of-the-skull-witch-review/",
     },
     {
-      id: "pirates-of-tortuga",
-      name: "Pirates of Tortuga",
-      type: "PanIQ · Pirate storeroom",
+      id: "paniq",
+      name: "PanIQ",
+      type: "Upper Land Park · Pirates of Tortuga",
       address: "2642 5th St",
-      fromSnug: { mode: "driving", time: "1.5 mi from The Snug" },
+      toComedy: { mode: "driving", time: "15–20 min drive to Punch Line" },
+      fromBars: [
+        ["maple-room", "driving", "15–25 min drive"],
+        ["snug", "driving", "5–10 min drive"],
+        ["shady-lady", "driving", "5–10 min drive"],
+      ],
       note: "$40.95 each · 60 min · 2–8 players",
-      theme: "Lanterns, timber, and barrels give the pirates’ storeroom an old-tavern feel. The Jan 16 booking form allows eight players.",
+      theme: "Lanterns, timber, and barrels give the pirates’ storeroom an old-tavern feel.",
       website: "https://paniqescaperoom.com/sacramento/en/escape-rooms/pirates-of-tortuga",
+      websiteLabel: "Pirates of Tortuga",
       booking: "https://paniqescaperoom.com/sacramento/en/booking/escape-room/pirates-of-tortuga?date=2027-01-16&limit=7#day-jump",
       photos: [
         ["tortuga-room", "Guest photo of the pirate room with timber trim, lanterns, a flag, and barrels", "https://morty.app/attraction/44491/pirates-of-tortuga"],
@@ -169,104 +144,11 @@ const venues = {
         ["tortuga-skulls", "Skulls and bones from the Pirates of Tortuga photo gallery", "https://morty.app/attraction/44491/pirates-of-tortuga"],
       ],
     },
-    {
-      id: "fortunes-favor",
-      name: "Fortune’s Favor",
-      type: "Exit Strategy Games · Enchanted forest",
-      address: "1831 I St",
-      fromSnug: { mode: "walking", time: "20 min walk from The Snug" },
-      note: "$35 each for eight · 60 min · 2–8 players",
-      theme: "Trace a missing friend through an enchanted grove with a stone well and a little woodland hut. Closest fit for a classic fantasy quest.",
-      website: "https://exitstrategygames.com/fortunes-favor/",
-      booking: "https://offthecouch.io/book/escapesac/fortunes",
-      photos: [
-        ["fortune-woods", "Enchanted forest set with textured trees and a stone well"],
-        ["fortune-hut", "Woodland hut with a glowing window in Fortune’s Favor"],
-        ["fortune-well", "Lanterns on the rim of the stone well", "https://worldofescapes.com/companies/escape-sacramento"],
-      ],
-      photoSource: "https://roomescapeartist.com/2023/02/20/escape-sacramento-fortunes-favor-review/",
-    },
-    {
-      ...enchambered,
-      id: "skull-witch",
-      name: "The Legend of the Skull Witch",
-      type: "Enchambered · Cursed bayou cabin",
-      note: "$45 each on Saturday · 60 min · 3–8 players\nAcross town from the bars · About 5–8 min walk to Punch Line",
-      theme: "A candlelit swamp cabin full of wooden totems and witchcraft. Enchambered is a drive from the bars and a short walk from Punch Line and Pete’s Arden.",
-      website: "https://www.enchambered.com/booking/skull-witch/",
-      photos: [
-        ["skull-witch-cabin", "Wooden cabin shelves with bottles and candlelight"],
-        ["skull-witch-tree", "Green lanterns suspended in the bayou set"],
-        ["skull-witch-totems", "Wooden masks and totems along a purple-lit wall"],
-      ],
-      photoSource: "https://roomescapeartist.com/2019/04/09/enchambered-the-legend-of-the-skull-witch-review/",
-    },
-    {
-      ...enchambered,
-      id: "the-collection",
-      name: "The Collection",
-      type: "Enchambered · Cursed lighthouse",
-      note: "60 min · 4–8 players\nAcross town from the bars · About 5–8 min walk to Punch Line",
-      theme: "Follow a professor’s journal through a lighthouse full of cursed relics and stop a ritual before the eclipse.",
-      website: "https://www.enchambered.com/booking/the-collection/",
-      photos: [
-        ["the-collection", "Enchambered’s official artwork for The Collection with a lighthouse above a dark sea"],
-      ],
-      photoSource: "https://morty.app/attraction/53801/the-collection",
-    },
   ],
 };
 
-const walkingBars = [
-  {
-    id: "petes-bar", name: "Pete’s Arden", type: "Local brewhouse · Best route fit",
-    address: "2100 Arden Way #123", walkToRoom: "5–8 min", walkToShow: "2–5 min",
-    note: "An upstairs full bar in Punch Line’s plaza. Saturday from 11 am.",
-    theme: "Warm wood tables, an upstairs bar, and local brewhouse character. The closest tavern-like compromise for an all-walking route; choose a different dinner if you want a change of scene.",
-    website: "https://petesarden.com/",
-    photos: venues.dinner.find(({ id }) => id === "petes-arden").photos,
-  },
-  {
-    id: "fieldhouse", name: "Fieldhouse American Sports Pub", type: "Local pub · Whiskey & draft beer",
-    address: "1833 Fulton Ave", walkToRoom: "21–25 min", walkToShow: "25–30 min",
-    note: "A local pub with timber bar tops and a full bar. Saturday from 10 am.",
-    theme: "Wood bar tops, dark ceilings, bottle shelves, and draft taps give this local spot a pub feel. Expect sports on 18 TVs and a lively atmosphere; it is an American sports pub, not an Irish tavern. Use the current 1833 Fulton address.",
-    website: "https://www.fieldhousesac.com/",
-    photos: [["fieldhouse-taps", "Draft taps and bottle shelves behind Fieldhouse’s bar"], ["fieldhouse-bar", "Fieldhouse’s wooden bar top beneath sports TVs"], ["fieldhouse-room", "Wooden tables and bar seating inside Fieldhouse"]],
-    photoSource: "https://www.restaurantji.com/ca/sacramento/field-house-american-sports-pub-/gallery/",
-  },
-  {
-    id: "maple-room", name: "Maple Room Lounge", type: "Neighborhood lounge · Casual pub feel",
-    address: "2740 Arden Way #1", walkToRoom: "20–25 min", walkToShow: "25–30 min",
-    note: "An independent, relaxed neighborhood bar. Saturday from 11 am.",
-    theme: "A long bar, bottle shelves, colored lighting, and a local hangout atmosphere. More casual dive lounge than polished Irish pub; karaoke and TVs can make it lively.",
-    website: "https://www.restaurantji.com/ca/sacramento/maple-room-lounge-/",
-    photos: [["maple-bar", "Maple Room’s back bar with bottles and colorful lighting"], ["maple-room", "Seating along the bar at Maple Room Lounge"], ["maple-drinks", "Drinks on Maple Room’s dark bar counter"]],
-    photoSource: "https://www.restaurantji.com/ca/sacramento/maple-room-lounge-/gallery/",
-  },
-];
-
-const plans = {
-  drive: { name: "2 drive 2", summary: "Bar → escape room → drive to dinner → Punch Line", decks: venues },
-  walk: {
-    name: "everything walkable", summary: "Bar → Enchambered → dinner → Punch Line · Walk each leg",
-    decks: {
-      bar: walkingBars,
-      room: venues.room.filter(({ id }) => ["skull-witch", "the-collection"].includes(id)).map((venue) => ({
-        ...venue, fromSnug: undefined, fromBars: undefined,
-        toComedy: { mode: "walking", time: "5–8 min walk to Punch Line" },
-        note: venue.note.split("\n")[0] + "\n5–8 min to Pete’s · 2–5 min to Thai Terrace · Walk from all three bars",
-        theme: venue.id === "skull-witch" ? "A candlelit swamp cabin full of wooden totems and witchcraft. A dark fantasy setting for all eight guests." : venue.theme,
-      })),
-      dinner: venues.dinner.filter(({ id }) => ["petes-arden", "thai-terrace"].includes(id)),
-    },
-  },
-};
-const walkingFields = { bar: "walkBar", room: "walkRoom", dinner: "walkDinner" };
 const punchLineAddress = "Punch Line Sacramento, 2100 Arden Way #225, Sacramento, CA";
-const enchamberedAddress = "Enchambered, 2230 Arden Way #C, Sacramento, CA";
-const planGuestKey = "bachelor-party-saturday-plan-view";
-const ballotTitles = { bar: "Vote for a bar", dinner: "Vote for dinner", room: "Vote for an escape room" };
+const ballotTitles = { bar: "Vote for a bar", dinner: "Vote for dinner", room: "Vote for an escape room location" };
 const dashboard = document.querySelector("[data-view]");
 const scheduleTabs = Array.from(document.querySelectorAll('[role="tab"]'));
 const compactViews = window.matchMedia("(max-width: 48rem), (max-height: 40rem)");
@@ -292,7 +174,6 @@ const ballotStoreUrl = persistenceConfig.ballotEndpointUrl ?? remoteStoreUrl;
 const ballotGuestKey = "bachelor-party-calling-card-guest";
 
 let activeGuest = "";
-let activePlan = "walk";
 let activeDeck = "bar";
 let venueIndex = 0;
 let callingCards = [];
@@ -301,14 +182,6 @@ let refreshing = false;
 let pendingChoices = null;
 let saveVersion = 0;
 
-function ballotField(deck = activeDeck) {
-  return activePlan === "walk" ? walkingFields[deck] : deck;
-}
-
-function currentDeck(deck = activeDeck) {
-  return plans[activePlan].decks[deck];
-}
-
 function mapLink(origin, destination, mode, waypoints) {
   const params = new URLSearchParams({ api: "1", origin, destination, travelmode: mode });
   if (waypoints) params.set("waypoints", waypoints.join("|"));
@@ -316,47 +189,20 @@ function mapLink(origin, destination, mode, waypoints) {
 }
 
 function placeAddress(venue) {
-  return `${venue.name}, ${venue.address.split(" · ")[0]}, Sacramento, CA`;
+  return `${venue.name}, ${venue.address}, Sacramento, CA`;
 }
 
-function renderPlan() {
-  const selected = selectedCard();
-  for (const button of document.querySelectorAll("[data-plan]")) {
-    button.setAttribute("aria-pressed", String(button.dataset.plan === activePlan));
-  }
-  for (const tally of document.querySelectorAll("[data-plan-tally]")) {
-    tally.textContent = voteTally("plan", tally.dataset.planTally) + (selected?.plan === tally.dataset.planTally ? " · Your vote" : "");
-  }
-  const vote = document.querySelector("[data-plan-vote]");
-  vote.dataset.choice = activePlan;
-  vote.setAttribute("aria-pressed", String(selected?.plan === activePlan));
-  vote.textContent = selected?.plan === activePlan ? "Voted for this plan" : "Vote for this plan";
-  document.querySelector("[data-clear-plan]").hidden = !selected?.plan;
-  document.querySelector("[data-plan-summary]").textContent = plans[activePlan].summary;
-  document.querySelector("[data-room-heading]").textContent = activePlan === "walk" ? "Escape at Enchambered" : "Escape room";
-  document.querySelector("[data-dinner-time]").textContent = activePlan === "walk" ? "7:00 pm" : "7:00–7:20 pm";
-  document.querySelector("#route-title").textContent = plans[activePlan].name;
-  for (const section of document.querySelectorAll("[data-route-plan]")) section.hidden = section.dataset.routePlan !== activePlan;
-  const route = ["bar", "room", "dinner"].map((deck) => {
-    const options = currentDeck(deck);
-    return options.find(({ id }) => id === selected?.[ballotField(deck)]) || options[0];
+function renderRoute(selected) {
+  const route = ["bar", "room", "dinner"].map((field) => {
+    const options = venues[field];
+    return options.find(({ id }) => id === selected?.[field]) || options[0];
   });
-  document.querySelector("[data-plan-directions]").href = mapLink(
-    placeAddress(route[0]), punchLineAddress, activePlan === "walk" ? "walking" : "driving",
+  document.querySelector("[data-saturday-directions]").href = mapLink(
+    placeAddress(route[0]), punchLineAddress, "driving",
     route.slice(1).map(placeAddress),
   );
 }
 
-for (const button of document.querySelectorAll("[data-plan]")) {
-  button.addEventListener("click", () => {
-    if (pendingChoices) return;
-    activePlan = button.dataset.plan;
-    venueIndex = 0;
-    try { window.localStorage.setItem(planGuestKey, activePlan); } catch { /* Browsing still works. */ }
-    if (connected) setStatus("plan");
-    renderVotingState();
-  });
-}
 document.querySelector("[data-breakfast-options]").append(document.querySelector("#breakfast-options").content.cloneNode(true));
 
 function selectSchedule(tab) {
@@ -467,16 +313,16 @@ function renderVotingState() {
     entry.textContent = names.join(", ") || (connected ? "None yet" : "Tally unavailable");
   }
 
-  const field = ballotField();
-  const venue = currentDeck()[venueIndex];
-  venueVote.textContent = selected?.[field] === venue.id ? "Voted" : "Vote";
-  venueDialog.querySelector("[data-venue-tally]").textContent = voteTally(field, venue.id);
-  clearVenue.hidden = !selected?.[field];
+  const venue = venues[activeDeck][venueIndex];
+  venueVote.textContent = selected?.[activeDeck] === venue.id ? "Voted" : "Vote";
+  venueDialog.querySelector("[data-venue-tally]").textContent = voteTally(activeDeck, venue.id);
+  clearVenue.hidden = !selected?.[activeDeck];
 
   for (const button of deckOpeners) {
     const field = button.dataset.openBallot;
-    const choice = currentDeck(field).find(({ id }) => id === selected?.[ballotField(field)]);
-    button.firstChild.textContent = choice ? `Your vote · ${choice.name} ` : selected?.[ballotField(field)] ? "Previous choice removed · vote again " : `${ballotTitles[field]} `;
+    const saved = selected?.[field];
+    const choice = venues[field].find(({ id }) => id === saved);
+    button.firstChild.textContent = choice ? `Your vote · ${choice.name} ` : saved ? "Previous choice removed · vote again " : `${ballotTitles[field]} `;
   }
   for (const button of seatingButtons) {
     button.querySelector("[data-seating-tally]").textContent = voteTally("seating", button.dataset.choice);
@@ -484,7 +330,7 @@ function renderVotingState() {
   const seatingChoice = seatingButtons.find((button) => button.dataset.choice === selected?.seating);
   seatingOpener.firstChild.textContent = seatingChoice ? `Your vote · ${seatingChoice.querySelector("strong").textContent} ` : "Vote on seating ";
   clearSeating.hidden = !selected?.seating;
-  renderPlan();
+  renderRoute(selected);
 }
 
 function selectGuest(id) {
@@ -506,45 +352,49 @@ function flipCard(showPhotos) {
 }
 
 function renderVenue() {
-  const deck = currentDeck();
+  const deck = venues[activeDeck];
   const venue = deck[venueIndex];
-  const trip = venue.walkToShow ? { mode: "walking", time: `${venue.walkToShow} walk to Punch Line` } : venue.toComedy || venue.fromSnug;
-  venueDialog.querySelector("[data-venue-ballot-title]").textContent = `${plans[activePlan].name} · ${ballotTitles[activeDeck]}`;
+  const trip = venue.toComedy;
+  venueDialog.querySelector("[data-venue-ballot-title]").textContent = ballotTitles[activeDeck];
   venueDialog.querySelector("[data-venue-type]").textContent = venue.type;
   venueDialog.querySelector("[data-venue-name]").textContent = venue.name;
   venueDialog.querySelector("[data-venue-address]").textContent = trip ? `${venue.address} · ${trip.time}` : venue.address;
-  venueDialog.querySelector("[data-venue-short]").textContent = venue.walkToRoom ? `${venue.walkToRoom} walk to Enchambered\n${venue.note}` : venue.note;
+  venueDialog.querySelector("[data-venue-short]").textContent = venue.note;
   venueDialog.querySelector("[data-venue-theme]").textContent = venue.theme;
   const site = venueDialog.querySelector("[data-venue-site]");
   site.href = venue.website;
-  site.firstChild.textContent = activeDeck === "room" && !venue.booking ? "Room & booking " : "Venue details ";
+  site.firstChild.textContent = `${venue.websiteLabel ?? "Venue details"} `;
+  const roomLinks = venueDialog.querySelector("[data-room-links]");
+  roomLinks.hidden = !venue.roomLinks;
+  roomLinks.replaceChildren(...(venue.roomLinks ?? []).map(([label, url]) => {
+    const link = document.createElement("a");
+    link.href = url;
+    link.target = "_blank";
+    link.rel = "noopener";
+    link.textContent = `${label} ↗`;
+    return link;
+  }));
   const booking = venueDialog.querySelector("[data-venue-booking]");
   booking.hidden = !venue.booking;
   if (venue.booking) booking.href = venue.booking;
   const directions = venueDialog.querySelector("[data-venue-directions]");
   directions.hidden = !trip;
-  if (trip) {
-    const address = `${venue.address}, Sacramento, CA`;
-    const route = new URLSearchParams({
-      api: "1",
-      origin: venue.toComedy || venue.walkToShow ? `${venue.name}, ${address}` : "The Snug, 1800 15th St, Sacramento, CA",
-      destination: venue.toComedy || venue.walkToShow ? punchLineAddress : address,
-      travelmode: trip.mode,
-    });
-    directions.firstChild.textContent = venue.toComedy || venue.walkToShow ? "Route to Punch Line " : "Route from The Snug ";
-    directions.href = `https://www.google.com/maps/dir/?${route}`;
-  }
-  const roomDirections = venueDialog.querySelector("[data-venue-escape-directions]");
-  roomDirections.hidden = !venue.walkToRoom;
-  if (venue.walkToRoom) roomDirections.href = mapLink(placeAddress(venue), enchamberedAddress, "walking");
+  if (trip) directions.href = mapLink(placeAddress(venue), punchLineAddress, trip.mode);
   const barRoutes = venueDialog.querySelector("[data-bar-routes]");
   barRoutes.hidden = !venue.fromBars;
-  barRoutes.replaceChildren(...(venue.fromBars ?? []).flatMap(([name, distance]) => {
-    const bar = document.createElement("dt");
-    bar.textContent = name;
-    const drive = document.createElement("dd");
-    drive.textContent = distance;
-    return [bar, drive];
+  barRoutes.replaceChildren(...(venue.fromBars ?? []).flatMap(([id, mode, time]) => {
+    const bar = venues.bar.find((option) => option.id === id);
+    const name = document.createElement("dt");
+    name.textContent = bar.name;
+    const travel = document.createElement("dd");
+    const link = document.createElement("a");
+    link.href = mapLink(placeAddress(bar), placeAddress(venue), mode);
+    link.target = "_blank";
+    link.rel = "noopener";
+    link.textContent = `${time} ↗`;
+    link.setAttribute("aria-label", `Directions from ${bar.name}: ${time}`);
+    travel.append(link);
+    return [name, travel];
   }));
   const credit = venueDialog.querySelector("[data-venue-credit]");
   credit.textContent = venue.photos.length === 1 ? "Image source ↗" : "Photo sources ↗";
@@ -565,10 +415,10 @@ function renderVenue() {
   });
   venueDialog.querySelector("[data-venue-photos]").replaceChildren(...photoLinks);
   venueDialog.querySelector("[data-deck-position]").textContent = `${venueIndex + 1} of ${deck.length}`;
-  venueVote.dataset.vote = ballotField();
+  venueVote.dataset.vote = activeDeck;
   venueVote.dataset.choice = venue.id;
   venueVote.setAttribute("aria-label", `Vote for ${venue.name}`);
-  clearVenue.dataset.vote = ballotField();
+  clearVenue.dataset.vote = activeDeck;
   flipCard(false);
   renderVotingState();
 }
@@ -576,10 +426,9 @@ function renderVenue() {
 for (const button of deckOpeners) {
   button.addEventListener("click", () => {
     activeDeck = button.dataset.openBallot;
-    const currentChoice = selectedCard()?.[ballotField()];
-    const currentIndex = currentDeck().findIndex(({ id }) => id === currentChoice);
+    const currentChoice = selectedCard()?.[activeDeck];
+    const currentIndex = venues[activeDeck].findIndex(({ id }) => id === currentChoice);
     venueIndex = Math.max(currentIndex, 0);
-    venueDialog.querySelector("[data-venue-ballot-title]").textContent = ballotTitles[activeDeck];
     if (connected) setStatus("venue", currentChoice && currentIndex < 0 ? "Choose again from the updated venues." : "");
     renderVenue();
     showDialog("venue-voting");
@@ -588,7 +437,7 @@ for (const button of deckOpeners) {
 
 for (const button of venueDialog.querySelectorAll("[data-deck-step]")) {
   button.addEventListener("click", () => {
-    const length = currentDeck().length;
+    const length = venues[activeDeck].length;
     venueIndex = (venueIndex + Number(button.dataset.deckStep) + length) % length;
     renderVenue();
   });
@@ -646,16 +495,16 @@ async function saveChoices(panel, choices, successMessage) {
     return;
   }
 
-  const deckAtSave = ballotField();
+  const deckAtSave = activeDeck;
   saveVersion += 1;
   pendingChoices = choices;
   renderVotingState();
   setStatus(scope, "Saving…");
   try {
     callingCards = await requestCallingCards({ inviteeId: activeGuest, ...choices });
-    if (scope !== "venue" || deckAtSave === ballotField()) setStatus(scope, successMessage);
+    if (scope !== "venue" || deckAtSave === activeDeck) setStatus(scope, successMessage);
   } catch {
-    if (scope !== "venue" || deckAtSave === ballotField()) setStatus(scope, "Vote could not be saved. Try again.");
+    if (scope !== "venue" || deckAtSave === activeDeck) setStatus(scope, "Vote could not be saved. Try again.");
   } finally {
     pendingChoices = null;
     renderVotingState();
@@ -691,8 +540,6 @@ for (const selector of guestSelectors) {
 try {
   const previousGuest = window.localStorage.getItem(ballotGuestKey);
   if (party.some(({ id }) => id === previousGuest)) activeGuest = previousGuest;
-  const previousPlan = window.localStorage.getItem(planGuestKey);
-  if (Object.hasOwn(plans, previousPlan)) activePlan = previousPlan;
 } catch {
   // The roster remains available when storage is disabled.
 }

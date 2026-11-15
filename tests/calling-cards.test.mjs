@@ -4,8 +4,7 @@ import { test } from "node:test";
 import worker, { CallingCards } from "../cloudflare/rsvp-worker.js";
 
 const endpoint = "https://test.example/?action=ballots";
-const planDefaults = { plan: "", walkBar: "", walkRoom: "", walkDinner: "" };
-const existing = { ...planDefaults, inviteeId: "cody-gardi", drive: "volunteer", bar: "snug", dinner: "wildwood" };
+const existing = { inviteeId: "cody-gardi", drive: "volunteer", bar: "snug", dinner: "wildwood" };
 
 function connect(db) {
   const box = new CallingCards({
@@ -44,7 +43,7 @@ test("the existing ballots table keeps all votes when adding ballot columns", as
 
   const api = connect(db);
   assert.deepEqual(await api.read(), [{ ...existing, room: "", seating: "", car: "", passengerSeats: null }]);
-  const newVotes = { room: "skull-witch", seating: "preferred", car: "offer", passengerSeats: 3 };
+  const newVotes = { room: "enchambered", seating: "preferred", car: "offer", passengerSeats: 3 };
   assert.equal((await api.save({ inviteeId: existing.inviteeId, ...newVotes })).status, 200);
   assert.deepEqual(await connect(db).read(), [{ ...existing, ...newVotes }]);
 });
@@ -57,19 +56,19 @@ test("a rider can save or withdraw a car and its passenger seats independently o
   assert.equal((await api.save(rider)).status, 200);
   const inviteeId = existing.inviteeId;
   const responses = await Promise.all([
-    api.save({ inviteeId, room: "fortunes-favor" }),
+    api.save({ inviteeId, room: "paniq" }),
     api.save({ inviteeId, seating: "general" }),
     api.save({ inviteeId, car: "offer" }),
   ]);
   for (const response of responses) assert.equal(response.status, 200);
   const withOffer = { ...rider, car: "offer", seating: "general", passengerSeats: 3 };
-  assert.deepEqual(await api.read(), [{ ...withOffer, room: "fortunes-favor", passengerSeats: null }]);
+  assert.deepEqual(await api.read(), [{ ...withOffer, room: "paniq", passengerSeats: null }]);
   assert.equal((await api.save({ inviteeId, car: "offer", passengerSeats: 0 })).status, 200);
-  assert.deepEqual(await connect(db).read(), [{ ...withOffer, room: "fortunes-favor", passengerSeats: 0 }]);
+  assert.deepEqual(await connect(db).read(), [{ ...withOffer, room: "paniq", passengerSeats: 0 }]);
   assert.equal((await api.save({ inviteeId, car: "offer", passengerSeats: 3 })).status, 200);
   assert.equal((await api.save({ inviteeId, car: "offer" })).status, 200);
 
-  for (const room of ["seance", "pirates-of-tortuga", "the-collection", "skull-witch"]) {
+  for (const room of ["paniq", "enchambered"]) {
     assert.equal((await api.save({ inviteeId, room })).status, 200);
     assert.deepEqual(await api.read(), [{ ...withOffer, room }]);
   }
@@ -81,66 +80,62 @@ test("a rider can save or withdraw a car and its passenger seats independently o
   }
   assert.equal((await api.save({ inviteeId, passengerSeats: 4 })).status, 400);
   assert.equal((await api.save({ inviteeId, car: "", passengerSeats: 4 })).status, 400);
-  assert.deepEqual(await api.read(), [{ ...withOffer, room: "skull-witch" }]);
+  assert.deepEqual(await api.read(), [{ ...withOffer, room: "enchambered" }]);
 
   assert.equal((await api.save({ inviteeId, car: "" })).status, 200);
-  assert.deepEqual(await connect(db).read(), [{ ...withOffer, room: "skull-witch", car: "", passengerSeats: null }]);
+  assert.deepEqual(await connect(db).read(), [{ ...withOffer, room: "enchambered", car: "", passengerSeats: null }]);
 
   assert.equal((await api.save({ inviteeId, seating: "" })).status, 200);
-  assert.deepEqual(await api.read(), [{ ...rider, room: "skull-witch", seating: "", car: "", passengerSeats: null }]);
+  assert.deepEqual(await api.read(), [{ ...rider, room: "enchambered", seating: "", car: "", passengerSeats: null }]);
   assert.equal((await api.save({ inviteeId, room: "" })).status, 200);
   assert.deepEqual(await api.read(), [{ ...rider, room: "", seating: "", car: "", passengerSeats: null }]);
 });
 
-test("Saturday plans keep independent venue votes across updates, reloads, and clears", async (t) => {
+test("the shared ballot carries forward eligible votes from both former plans", async (t) => {
   const db = new DatabaseSync(":memory:");
   t.after(() => db.close());
   const api = connect(db);
   const inviteeId = existing.inviteeId;
-  const card = {
-    ...existing, room: "seance", seating: "preferred", car: "offer", passengerSeats: 3,
-    plan: "drive", walkBar: "petes-bar", walkRoom: "skull-witch", walkDinner: "thai-terrace",
-  };
+  const card = { ...existing, seating: "preferred", car: "offer", passengerSeats: 3 };
   assert.equal((await api.save(card)).status, 200);
-  assert.deepEqual(await connect(db).read(), [card]);
-  for (const walkBar of ["fieldhouse", "maple-room", "petes-bar"]) {
-    assert.equal((await api.save({ inviteeId, walkBar })).status, 200);
-    assert.deepEqual(await api.read(), [{ ...card, walkBar }]);
-  }
-  const changed = { plan: "walk", walkRoom: "the-collection", walkDinner: "petes-arden", bar: "cabin" };
-  for (const [field, value] of Object.entries(changed)) {
-    assert.equal((await api.save({ inviteeId, [field]: value })).status, 200);
-  }
-  assert.deepEqual(await connect(db).read(), [{ ...card, ...changed }]);
-  for (const invalid of [{ plan: "other" }, { walkBar: "snug" }, { walkBar: "bjs-arden" }, { walkBar: "applebees-arden" }, { walkRoom: "seance" }, { walkDinner: "wildwood" }]) {
-    assert.equal((await api.save({ inviteeId, ...invalid, seating: "general" })).status, 400);
-  }
-  assert.deepEqual(await api.read(), [{ ...card, ...changed }]);
-  assert.equal((await api.save({ inviteeId, plan: "", walkBar: "" })).status, 200);
-  assert.deepEqual(await connect(db).read(), [{ ...card, ...changed, plan: "", walkBar: "" }]);
-  assert.equal((await api.save({ inviteeId: "robbie-merchant", plan: "walk", walkBar: "maple-room" })).status, 200);
-  const ballots = await connect(db).read();
-  assert.equal(ballots.length, 2);
-  assert.equal(ballots.find((row) => row.inviteeId === inviteeId).walkBar, "");
-  assert.equal(ballots.find((row) => row.inviteeId === "robbie-merchant").walkBar, "maple-room");
+  db.prepare(`
+    UPDATE ballots
+    SET plan = 'walk', room = 'pirates-of-tortuga', walkRoom = 'the-collection',
+        walkBar = 'maple-room', walkDinner = 'petes-arden'
+    WHERE inviteeId = ?
+  `).run(inviteeId);
+  const merged = { ...card, bar: "maple-room", room: "enchambered" };
+  assert.deepEqual(await connect(db).read(), [merged]);
+
+  db.prepare("UPDATE ballots SET plan = 'drive' WHERE inviteeId = ?").run(inviteeId);
+  assert.deepEqual(await api.read(), [{ ...card, room: "paniq" }]);
+  db.prepare("UPDATE ballots SET plan = 'walk' WHERE inviteeId = ?").run(inviteeId);
+  assert.equal((await api.save({ inviteeId, room: "", bar: "shady-lady" })).status, 200);
+  assert.deepEqual(await connect(db).read(), [{ ...merged, room: "", bar: "shady-lady" }]);
+
+  const guest = { inviteeId: "robbie-merchant", bar: "maple-room", room: "paniq", dinner: "tapa-the-world" };
+  assert.equal((await api.save(guest)).status, 200);
+  const saved = (await connect(db).read()).find((row) => row.inviteeId === guest.inviteeId);
+  assert.deepEqual(saved, { ...guest, drive: "", seating: "", car: "", passengerSeats: null });
 });
 
-test("retired bar votes stay attached to their original choice until the voter changes them", async (t) => {
+test("removed venues stay on existing ballots until the voter chooses again", async (t) => {
   const db = new DatabaseSync(":memory:");
   t.after(() => db.close());
   const api = connect(db);
-  assert.equal((await api.save({ ...existing, walkBar: "maple-room" })).status, 200);
-  for (const retired of ["bjs-arden", "applebees-arden"]) {
-    db.prepare("UPDATE ballots SET walkBar = ? WHERE inviteeId = ?").run(retired, existing.inviteeId);
-    assert.equal((await connect(db).read())[0].walkBar, retired);
-    assert.equal((await api.save({ inviteeId: existing.inviteeId, seating: "general" })).status, 200);
-    assert.equal((await api.read())[0].walkBar, retired);
-    assert.equal((await api.save({ inviteeId: existing.inviteeId, walkBar: retired })).status, 400);
-    assert.equal((await api.save({ inviteeId: existing.inviteeId, walkBar: "fieldhouse" })).status, 200);
-    const [card] = await connect(db).read();
-    assert.equal(card.walkBar, "fieldhouse");
-    assert.equal(card.bar, existing.bar);
-    assert.equal(card.dinner, existing.dinner);
-    assert.equal(card.seating, "general");
+  const inviteeId = existing.inviteeId;
+  assert.equal((await api.save(existing)).status, 200);
+  db.prepare("UPDATE ballots SET bar = '', walkBar = 'fieldhouse', room = 'seance', dinner = 'petes-arden' WHERE inviteeId = ?").run(inviteeId);
+  const retired = { bar: "fieldhouse", room: "seance", dinner: "petes-arden" };
+  assert.equal((await api.save({ inviteeId, seating: "general" })).status, 200);
+  const card = { ...existing, ...retired, seating: "general", car: "", passengerSeats: null };
+  assert.deepEqual(await connect(db).read(), [card]);
+
+  for (const [field, choice] of Object.entries({ ...retired, plan: "walk", walkBar: "maple-room" })) {
+    assert.equal((await api.save({ inviteeId, [field]: choice, seating: "preferred" })).status, 400);
   }
+  assert.deepEqual(await api.read(), [card]);
+  const replacements = { bar: "maple-room", room: "enchambered", dinner: "thai-terrace" };
+  assert.equal((await api.save({ inviteeId, ...replacements })).status, 200);
+  assert.deepEqual(await connect(db).read(), [{ ...card, ...replacements }]);
 });

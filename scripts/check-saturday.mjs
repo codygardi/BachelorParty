@@ -6,7 +6,7 @@ import { tmpdir } from "node:os";
 import { resolve, sep, basename, join } from "node:path";
 import { setTimeout as sleep } from "node:timers/promises";
 
-const temp = await mkdtemp(join(tmpdir(), "bachelor-plan-browser-"));
+const temp = await mkdtemp(join(tmpdir(), "bachelor-saturday-browser-"));
 const preview = spawn(process.execPath, ["preview.mjs", "0"], {
   windowsHide: true, stdio: ["ignore", "pipe", "pipe"],
   env: { ...process.env, BACHELOR_PARTY_PREVIEW_DB: ":memory:" },
@@ -93,93 +93,100 @@ try {
     if (message.method === "Runtime.exceptionThrown") errors.push(message.params.exceptionDetails.text);
   });
   const read = async () => (await (await fetch(url + "api/calling-cards?action=ballots")).json()).ballots;
-  const choose = async (id) => run('const s=document.querySelector("#plan-guest");s.value=' + JSON.stringify(id) + ';s.dispatchEvent(new Event("change",{bubbles:true}))');
+  const choose = async (id) => run('const s=document.querySelector("#ballot-guest");s.value=' + JSON.stringify(id) + ';s.dispatchEvent(new Event("change",{bubbles:true}))');
   const click = async (selector) => run('document.querySelector(' + JSON.stringify(selector) + ').click()');
   const textAt = async (selector) => run('return document.querySelector(' + JSON.stringify(selector) + ').textContent');
   const saveIn = async (scope, msg="Vote saved.") => until('return document.querySelector("[data-ballot-status=' + scope + ']").textContent === ' + JSON.stringify(msg), scope + " save failed");
   const openDeck = async (deck) => click('[data-open-ballot=' + deck + ']');
   const closeDeck = async () => click('#venue-voting .close-button');
   const castVenue = async () => { await click('[data-venue-vote]'); await saveIn("venue"); };
-  const browsePlan = async (plan) => click('[data-plan=' + plan + ']');
+  const next = async () => click('[data-deck-step="1"]');
 
   await choose("cody-gardi");
   assert.deepEqual(await read(), [], "Choosing a name must not vote");
-  await click('[data-plan-vote]'); await saveIn("plan");
-  await openDeck("bar");
-  assert.equal(await textAt('[data-deck-position]'), "1 of 3");
-  for (let index = 0; index < 3; index++) {
-    await click("[data-flip-card]");
-    assert.equal(await run('const imgs=[...document.querySelectorAll("[data-venue-photos] img")];await Promise.all(imgs.map(i=>i.decode()));return imgs.length===3&&imgs.every(i=>i.naturalWidth>0)'), true, "Card photos failed");
-    assert.equal(await run('return new URL(document.querySelector("[data-venue-escape-directions]").href).searchParams.get("travelmode")'), "walking");
-    await click('[data-deck-step="1"]');
+  assert.equal(await run('return document.querySelector("[data-ballot-panel=plan]") === null'), true);
+  const expectedVenues = {
+    bar: ["Maple Room Lounge", "The Snug", "Shady Lady Saloon"],
+    room: ["Enchambered", "PanIQ"],
+    dinner: ["Thai Terrace", "Wildwood Kitchen & Bar", "Tapa the World"],
+  };
+  for (const [deck, names] of Object.entries(expectedVenues)) {
+    await openDeck(deck);
+    for (const [index, name] of names.entries()) {
+      assert.equal(await textAt("[data-venue-name]"), name);
+      assert.equal(await textAt("[data-deck-position]"), `${index + 1} of ${names.length}`);
+      await click("[data-flip-card]");
+      assert.equal(await run('const imgs=[...document.querySelectorAll("[data-venue-photos] img")];await Promise.all(imgs.map(i=>i.decode()));return imgs.length===3&&imgs.every(i=>i.naturalWidth>0)'), true, "Card photos failed");
+      if (deck === "room") {
+        const modes = await run('return [...document.querySelectorAll("[data-bar-routes] a")].map(a => new URL(a.href).searchParams.get("travelmode"))');
+        assert.deepEqual(modes, name === "Enchambered" ? ["walking", "driving", "driving"] : ["driving", "driving", "driving"]);
+        if (name === "Enchambered") {
+          assert.deepEqual(await run('return [...document.querySelectorAll("[data-room-links] a")].map(a => a.textContent)'), ["Skull Witch ↗", "The Collection ↗"]);
+        }
+      }
+      await next();
+    }
+    await closeDeck();
   }
-  await click('[data-deck-step="1"]'); await click('[data-deck-step="1"]');
-  await castVenue(); await closeDeck();
-  await openDeck("room");
-  assert.equal(await textAt('[data-deck-position]'), "1 of 2");
-  await click('[data-deck-step="1"]'); await castVenue(); await closeDeck();
-  await openDeck("dinner");
-  assert.equal(await textAt('[data-deck-position]'), "1 of 2");
-  await click('[data-deck-step="1"]'); await castVenue(); await closeDeck();
 
-  const walkingVotes = await read();
-  await browsePlan("drive");
-  assert.deepEqual(await read(), walkingVotes, "Browsing a plan must not vote or clear choices");
-  await click('[data-plan-vote]'); await saveIn("plan");
   await openDeck("bar");
-  assert.equal(await textAt('[data-deck-position]'), "1 of 4");
+  await next(); await next();
   await castVenue(); await closeDeck();
   await openDeck("room");
-  assert.equal(await textAt('[data-deck-position]'), "1 of 5");
+  await next();
   await castVenue(); await closeDeck();
   await openDeck("dinner");
-  assert.equal(await textAt('[data-deck-position]'), "1 of 4");
-  await click('[data-deck-step="1"]'); await click('[data-deck-step="1"]');
+  await next();
   await castVenue(); await closeDeck();
   await run(offered + ".click()"); await didSave("Car offer saved.");
   await run(seats + '.value="3";' + seats + '.dispatchEvent(new Event("change",{bubbles:true}))'); await didSave("Passenger count saved.");
-  await browsePlan("walk");
-  assert.match(await textAt('[data-open-ballot=bar]'), /Maple Room/);
-  assert.match(await textAt('[data-open-ballot=room]'), /The Collection/);
-  assert.match(await textAt('[data-open-ballot=dinner]'), /Thai Terrace/);
   const beforeReload = await run("return performance.timeOrigin");
   await cdp("Page.reload");
   await until("return performance.timeOrigin !== " + beforeReload + " && " + enabled, "Reload failed");
   const [card] = await read();
-  assert.deepEqual({plan:card.plan,bar:card.bar,room:card.room,dinner:card.dinner,walkBar:card.walkBar,walkRoom:card.walkRoom,walkDinner:card.walkDinner,car:card.car,passengerSeats:card.passengerSeats},
-    {plan:"drive",bar:"snug",room:"seance",dinner:"wildwood",walkBar:"maple-room",walkRoom:"the-collection",walkDinner:"thai-terrace",car:"offer",passengerSeats:3});
+  assert.deepEqual(card, {
+    inviteeId: "cody-gardi", drive: "", bar: "shady-lady", room: "paniq", dinner: "wildwood",
+    seating: "", car: "offer", passengerSeats: 3,
+  });
+  assert.match(await textAt('[data-open-ballot=bar]'), /Shady Lady Saloon/);
+  assert.match(await textAt('[data-open-ballot=room]'), /PanIQ/);
+  assert.match(await textAt('[data-open-ballot=dinner]'), /Wildwood/);
   await click('[data-open-dialog=route]');
-  assert.equal(await run('return document.querySelector("[data-route-plan=walk]").hidden'), false);
-  const map = new URL(await run('return document.querySelector("[data-plan-directions]").href'));
-  assert.equal(map.searchParams.get("travelmode"), "walking");
-  assert.match(map.searchParams.get("origin"), /Maple/);
-  assert.match(map.searchParams.get("waypoints"), /Enchambered|2230 Arden/);
-  assert.match(map.searchParams.get("waypoints"), /Thai Terrace/);
+  const map = new URL(await run('return document.querySelector("[data-saturday-directions]").href'));
+  assert.equal(map.searchParams.get("travelmode"), "driving");
+  assert.match(map.searchParams.get("origin"), /Shady Lady/);
+  assert.match(map.searchParams.get("waypoints"), /PanIQ.*Wildwood/);
   await click("#route .close-button");
   await click('[data-open-dialog=breakfast]');
   assert.equal(await run('return document.querySelectorAll("#breakfast .breakfast-spots li").length'), 4);
   await click("#breakfast .close-button");
 
-  await fetch(url + "api/calling-cards", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"save-ballot",card:{inviteeId:"max-voorhees",plan:"walk",walkBar:"fieldhouse"}})});
+  const otherVote = await fetch(url + "api/calling-cards", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ action: "save-ballot", card: { inviteeId: "max-voorhees", bar: "shady-lady" } }),
+  });
+  assert.equal(otherVote.status, 200);
   await run("await refreshCallingCards()");
-  assert.equal(await textAt('[data-plan-tally=walk]'), "1 vote");
-  assert.equal(await textAt('[data-plan-tally=drive]'), "1 vote · Your vote");
   await choose("max-voorhees");
-  assert.match(await textAt('[data-open-ballot=bar]'), /Fieldhouse/);
-  await browsePlan("drive");
+  await openDeck("bar");
+  assert.equal(await textAt("[data-venue-tally]"), "2 votes");
+  await next();
   await cdp("Network.enable");
   await cdp("Network.emulateNetworkConditions", {offline:true,latency:0,downloadThroughput:-1,uploadThroughput:-1});
-  await click('[data-plan-vote]');
-  await saveIn("plan", "Vote could not be saved. Try again.");
-  assert.equal((await read()).find(x=>x.inviteeId==="max-voorhees").plan, "walk");
+  await click("[data-venue-vote]");
+  await saveIn("venue", "Vote could not be saved. Try again.");
+  assert.equal((await read()).find((row) => row.inviteeId === "max-voorhees").bar, "shady-lady");
   await cdp("Network.emulateNetworkConditions", {offline:false,latency:0,downloadThroughput:-1,uploadThroughput:-1});
-  await choose("cody-gardi"); await browsePlan("walk");
+  await closeDeck();
+  await choose("cody-gardi");
   await openDeck("bar");
   await click("[data-clear-venue]"); await saveIn("venue","Vote cleared."); await closeDeck();
-  assert.equal((await read()).find(x=>x.inviteeId==="cody-gardi").bar, "snug", "Clear must not affect driving ballot");
-  assert.equal((await read()).find(x=>x.inviteeId==="cody-gardi").walkBar, "");
+  const afterClear = await read();
+  assert.deepEqual(afterClear.find((row) => row.inviteeId === "cody-gardi"), { ...card, bar: "" });
+  assert.equal(afterClear.find((row) => row.inviteeId === "max-voorhees").bar, "shady-lady");
 
-  await mkdir(".venue-photo-review/two-plans", {recursive:true});
+  await mkdir(".venue-photo-review/saturday", {recursive:true});
   for (const [width,height] of [[1304,883],[780,820],[390,844]]) {
     await viewport(width,height);
     await click("#saturday-tab");
@@ -187,10 +194,10 @@ try {
     assert.equal(await run("return document.documentElement.scrollWidth <= innerWidth"), true, "Horizontal overflow at " + width);
     if(width===1304) assert.equal(await run("return document.documentElement.scrollHeight <= innerHeight"),true,"Desktop must fit without scrolling");
     const shot = await cdp("Page.captureScreenshot", {format:"png"});
-    await writeFile(".venue-photo-review/two-plans/" + width + ".png",Buffer.from(shot.data,"base64"));
+    await writeFile(".venue-photo-review/saturday/" + width + ".png",Buffer.from(shot.data,"base64"));
   }
   assert.deepEqual(errors, []);
-  console.log("Verified both plan ballots, independent votes, all three local bar photo cards, reload persistence, two voters, save failure feedback, scoped clearing, route maps, breakfast, passenger seats, and responsive layouts.");
+  console.log("Verified the Saturday ballots, venue photos, location directions, saved votes, tallies, failure feedback, clearing, and responsive layouts.");
 
 } finally {
   socket?.close();
@@ -201,7 +208,7 @@ try {
       await done.catch(() => {});
     }
   }
-  if (resolve(temp).startsWith(resolve(tmpdir()) + sep) && basename(temp).startsWith("bachelor-plan-browser-")) {
+  if (resolve(temp).startsWith(resolve(tmpdir()) + sep) && basename(temp).startsWith("bachelor-saturday-browser-")) {
     await rm(temp, { recursive: true, force: true, maxRetries: 5, retryDelay: 300 }).catch(() => {});
   }
 }

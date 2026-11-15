@@ -7,19 +7,26 @@ const voterIds = new Set([
 const driveChoices = new Set(["volunteer", "rider"]);
 const carChoices = new Set(["", "offer"]);
 const passengerSeatChoices = new Set([0, 1, 2, 3, 4, 5, 6, 7]);
-const barChoices = new Set(["", "snug", "omallys", "cabin", "shady-lady", "finnegans", "bookstore", "trapcat"]);
-const dinnerChoices = new Set(["", "petes-arden", "thai-terrace", "wildwood", "tapa-the-world"]);
-const roomChoices = new Set(["", "seance", "pirates-of-tortuga", "fortunes-favor", "skull-witch", "the-collection"]);
+const barChoices = new Set(["", "maple-room", "snug", "shady-lady"]);
+const dinnerChoices = new Set(["", "thai-terrace", "wildwood", "tapa-the-world"]);
+const roomChoices = new Set(["", "enchambered", "paniq"]);
 const seatingChoices = new Set(["", "general", "preferred"]);
-const planChoices = new Set(["", "drive", "walk"]);
-const walkBarChoices = new Set(["", "petes-bar", "fieldhouse", "maple-room"]);
-const walkRoomChoices = new Set(["", "skull-witch", "the-collection"]);
-const walkDinnerChoices = new Set(["", "petes-arden", "thai-terrace"]);
 const ballotChoices = {
   drive: driveChoices, car: carChoices, passengerSeats: passengerSeatChoices,
   bar: barChoices, dinner: dinnerChoices, room: roomChoices, seating: seatingChoices,
-  plan: planChoices, walkBar: walkBarChoices, walkRoom: walkRoomChoices, walkDinner: walkDinnerChoices,
 };
+const roomLocations = new Map([
+  ["skull-witch", "enchambered"],
+  ["the-collection", "enchambered"],
+  ["pirates-of-tortuga", "paniq"],
+]);
+
+function combinedChoice(field, driveVote, walkVote, plan) {
+  const votes = (plan === "walk" ? [walkVote, driveVote] : [driveVote, walkVote]).filter(Boolean);
+  const choices = field === "room" ? votes.map((vote) => roomLocations.get(vote) ?? vote) : votes;
+  // Keep a removed choice visible until its voter changes or clears it.
+  return choices.find((choice) => ballotChoices[field].has(choice)) ?? choices[0] ?? "";
+}
 
 const defaultHeaders = {
   "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
@@ -131,10 +138,11 @@ export class CallingCards {
 
   async fetch(request) {
     if (request.method === "POST") {
-      const { inviteeId, drive, bar, dinner, room, seating, car, passengerSeats, plan, walkBar, walkRoom, walkDinner } = await request.json();
+      const { inviteeId, drive, bar, dinner, room, seating, car, passengerSeats } = await request.json();
+      // Changing a venue also retires its old walking vote so clearing cannot revive it.
       this.sql.exec(`
-        INSERT INTO ballots (inviteeId, drive, bar, dinner, room, seating, car, passengerSeats, plan, walkBar, walkRoom, walkDinner)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO ballots (inviteeId, drive, bar, dinner, room, seating, car, passengerSeats)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT (inviteeId) DO UPDATE SET
           drive = COALESCE(?, ballots.drive),
           bar = COALESCE(?, ballots.bar),
@@ -142,18 +150,22 @@ export class CallingCards {
           room = COALESCE(?, ballots.room),
           seating = COALESCE(?, ballots.seating),
           car = COALESCE(?, ballots.car),
-          plan = COALESCE(?, ballots.plan),
-          walkBar = COALESCE(?, ballots.walkBar),
-          walkRoom = COALESCE(?, ballots.walkRoom),
-          walkDinner = COALESCE(?, ballots.walkDinner),
+          walkBar = CASE WHEN ? IS NULL THEN ballots.walkBar ELSE '' END,
+          walkRoom = CASE WHEN ? IS NULL THEN ballots.walkRoom ELSE '' END,
+          walkDinner = CASE WHEN ? IS NULL THEN ballots.walkDinner ELSE '' END,
           passengerSeats = CASE WHEN ? = '' THEN NULL ELSE COALESCE(excluded.passengerSeats, ballots.passengerSeats) END
       `, inviteeId, drive ?? "", bar ?? "", dinner ?? "", room ?? "", seating ?? "", car ?? "", passengerSeats ?? null,
-      plan ?? "", walkBar ?? "", walkRoom ?? "", walkDinner ?? "",
       drive ?? null, bar ?? null, dinner ?? null, room ?? null, seating ?? null, car ?? null,
-      plan ?? null, walkBar ?? null, walkRoom ?? null, walkDinner ?? null, car ?? null);
+      bar ?? null, room ?? null, dinner ?? null, car ?? null);
     }
 
-    const ballots = this.sql.exec("SELECT inviteeId, drive, bar, dinner, room, seating, car, passengerSeats, plan, walkBar, walkRoom, walkDinner FROM ballots").toArray();
+    const rows = this.sql.exec("SELECT inviteeId, drive, bar, dinner, room, seating, car, passengerSeats, plan, walkBar, walkRoom, walkDinner FROM ballots").toArray();
+    const ballots = rows.map(({ plan, walkBar, walkRoom, walkDinner, ...card }) => ({
+      ...card,
+      bar: combinedChoice("bar", card.bar, walkBar, plan),
+      room: combinedChoice("room", card.room, walkRoom, plan),
+      dinner: combinedChoice("dinner", card.dinner, walkDinner, plan),
+    }));
     return Response.json({ ballots });
   }
 }

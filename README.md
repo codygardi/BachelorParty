@@ -6,16 +6,12 @@ Run `node preview.mjs` with Node.js 22.13 or later and open `http://127.0.0.1:80
 
 For isolated ballot testing, set `BACHELOR_PARTY_PREVIEW_DB=:memory:` or a SQLite file path before starting the preview. The old local database in the system temporary directory is preserved; the preview no longer uses it by default.
 
-Run `node --test` for database and ballot checks. On Windows with Chrome installed, `node scripts/check-saturday.mjs` checks the two plans in a hidden browser with an isolated database, including photos, reloads, failed saves, and responsive layouts. It saves review screenshots under `.venue-photo-review/two-plans/`.
+Run `node --test` for database and ballot checks. On Windows with Chrome installed, `node scripts/check-saturday.mjs` checks the Saturday ballots in a hidden browser with an isolated database. It saves review screenshots under `.venue-photo-review/saturday/`.
 
 The GitHub Pages site uses the shared ballot endpoint on the [Cloudflare Worker](cloudflare/README.md).
 
-Saturday has a preferred-plan vote and independent venue ballots. The existing `bar`, `room`, and `dinner` fields belong to **2 drive 2**. The `walkBar`, `walkRoom`, and `walkDinner` fields belong to **everything walkable**. Browsing plans does not cast a vote. Transportation and comedy seating remain shared. Additive database migrations preserve existing votes.
+Saturday has one set of venue ballots for the bar, escape room location, and dinner. Both Enchambered rooms are listed on its location card.
 
-The walking plan has three local bar options, two Enchambered rooms that accept eight, and the two existing dinners within walking distance of Punch Line. The four original dinner choices remain in the driving plan; Wildwood and Tapa explicitly require a further drive to the show.
+The Worker carries forward eligible votes from the former plans. If someone saved two eligible votes for the same stop, it uses the vote from their preferred plan, or the drive vote if they never picked a plan. Skull Witch and The Collection map to Enchambered. Pirates of Tortuga maps to PanIQ. A removed choice prompts the voter to choose again. Saving or clearing a venue replaces both prior choices for that stop.
 
-Walking estimates were checked November 15, 2026 using ArcGIS address geocoding and the OpenStreetMap pedestrian router at routing.openstreetmap.de, with additional allowance for intersections. Approximate base times to Enchambered / Punch Line: Pete’s 6 / same plaza, Fieldhouse at its current 1833 Fulton address 20.9 / 24.4, Maple Room 20 / 23.5 minutes. Card ranges include a modest buffer; these are per-leg estimates, not guarantees or booked reservations.
-
-Current venue and hours sources: [Pete’s](https://petesarden.com/), [Fieldhouse](https://www.fieldhousesac.com/), and [Maple Room](https://www.restaurantji.com/ca/sacramento/maple-room-lounge-/). Fieldhouse is an American sports pub with wooden bar tops and a full bar; these are local pub alternatives, not claimed exact Irish theme matches. The user chose three bars to retain the 30-minute walking limit: The Office was excluded at approximately 31.8 / 32.6 minutes. Original URLs for card photographs are recorded in `assets/venues/walk-bar-sources.json`.
-
-Applebee’s and BJ’s are retired from the walking ballot. Their saved votes are preserved until the voter chooses again or clears the vote; no votes are reassigned to Fieldhouse. The API rejects new votes for retired options, and the UI prompts affected voters to choose again. Historical photo files remain available for already-open older cards.
+November 15, 2026 travel estimates use OpenStreetMap pedestrian and driving routes, rounded to allow for intersections and parking. The escape location cards link to directions from each bar.
