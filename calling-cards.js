@@ -150,7 +150,7 @@ const venues = {
 const punchLineAddress = "Punch Line Sacramento, 2100 Arden Way #225, Sacramento, CA";
 const ballotTitles = { bar: "Vote for a bar", dinner: "Vote for dinner", room: "Vote for an escape room location" };
 const planChoiceLabels = {
-  transport: "Ride or car", passengerSeats: "Passenger seats",
+  transport: "Ride or car",
   breakfast: "Breakfast", bar: "Bar", room: "Escape room", dinner: "Dinner", seating: "Comedy seating",
 };
 const requiredPlanChoices = ["transport", "breakfast", "bar", "room", "dinner", "seating"];
@@ -163,8 +163,6 @@ const guestSelectors = Array.from(document.querySelectorAll("[data-ballot-guest]
 const carOffer = document.querySelector("[data-car-offer]");
 const designatedDriverInput = document.querySelector("[data-designated-driver]");
 const driverSummary = document.querySelector("[data-driver-count]");
-const passengerField = document.getElementById("car-passengers");
-const passengerCount = passengerField.querySelector("select");
 const driverPanel = carOffer.closest("[data-ballot-panel]");
 const venueDialog = document.querySelector("#venue-voting");
 const venueVote = venueDialog.querySelector("[data-venue-vote]");
@@ -316,7 +314,7 @@ function renderVoteSummaries() {
   const riders = voteCount("drive", "rider");
   const cars = voteCount("car", "offer");
   const driverTally = drivers > 2 ? `${drivers} designated drivers` : `${drivers}/2 designated drivers`;
-  const carTally = cars > 2 ? `${cars} cars offered` : `${cars}/2 cars offered`;
+  const carTally = cars > 2 ? `${cars} cars` : `${cars}/2 cars`;
   driverSummary.textContent = `${driverTally} · ${riders} ${riders === 1 ? "rider" : "riders"} · ${carTally}`;
 }
 
@@ -381,9 +379,6 @@ function renderVotingState() {
   const offered = drive === "volunteer" && (pendingChoices?.car ?? selected?.car) === "offer";
   designatedDriverInput.checked = (pendingChoices?.designatedDriver ?? selected?.designatedDriver) === true;
   designatedDriverInput.disabled = controlsDisabled;
-  passengerField.hidden = !offered;
-  passengerCount.value = offered ? pendingChoices?.passengerSeats ?? selected?.passengerSeats ?? "" : "";
-  passengerCount.disabled = controlsDisabled;
   for (const button of voteButtons) {
     const { vote, choice } = button.dataset;
     button.setAttribute("aria-disabled", String(controlsDisabled));
@@ -645,10 +640,6 @@ function saveVote({ currentTarget }) {
 designatedDriverInput.addEventListener("change", () => {
   const designatedDriver = designatedDriverInput.checked;
   saveChoices(driverPanel, { designatedDriver }, designatedDriver ? "Designated driver saved." : "Designated driver cleared.");
-});
-passengerCount.addEventListener("change", () => {
-  if (passengerField.hidden || passengerCount.value === "") return;
-  saveChoices(driverPanel, { car: "offer", passengerSeats: Number(passengerCount.value) }, "Passenger count saved.");
 });
 orderInput.addEventListener("input", updateOrderSaveButton);
 orderForm.addEventListener("submit", (event) => {

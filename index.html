@@ -8,10 +8,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="bachelor-party.css?v=20261115o">
+    <link rel="stylesheet" href="bachelor-party.css?v=20261115p">
     <script src="bachelor-party-config.js" defer></script>
     <script src="bachelor-party.js?v=20261113c" defer></script>
-    <script src="calling-cards.js?v=20261115o" defer></script>
+    <script src="calling-cards.js?v=20261115p" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
@@ -96,22 +96,10 @@
                   <h3 id="departure-title">Leave for Sacramento</h3>
                   <p class="vote-summary" data-driver-count></p>
                 </div>
-                <div class="driver-controls">
-                  <div class="driver-choices" role="group" aria-label="Saturday transportation">
-                    <label class="designated-driver"><input type="checkbox" data-designated-driver disabled> Designated Driver</label>
-                    <button class="button button-choice" type="button" data-vote="drive" data-choice="volunteer" data-car-offer aria-controls="car-passengers" aria-pressed="false" aria-disabled="true">We can take my car</button>
-                    <button class="button button-choice" type="button" data-vote="drive" data-choice="rider" aria-pressed="false" aria-disabled="true">I need a ride</button>
-                  </div>
-                  <label class="car-passengers" id="car-passengers" hidden>
-                    Passenger seats
-                    <select aria-label="Passenger seats, excluding the driver" disabled>
-                      <option value="" disabled selected>Choose</option>
-                      <option value="0">0</option><option value="1">1</option>
-                      <option value="2">2</option><option value="3">3</option>
-                      <option value="4">4</option><option value="5">5</option>
-                      <option value="6">6</option><option value="7">7</option>
-                    </select>
-                  </label>
+                <div class="driver-choices" role="group" aria-label="Saturday transportation">
+                  <label class="designated-driver"><input type="checkbox" data-designated-driver disabled> Designated Driver</label>
+                  <button class="button button-choice" type="button" data-vote="drive" data-choice="volunteer" data-car-offer aria-pressed="false" aria-disabled="true">We can take my car</button>
+                  <button class="button button-choice" type="button" data-vote="drive" data-choice="rider" aria-pressed="false" aria-disabled="true">I need a ride</button>
                 </div>
                 <div class="driver-footer">
                   <p class="vote-message" role="status" data-ballot-status="drive"></p>

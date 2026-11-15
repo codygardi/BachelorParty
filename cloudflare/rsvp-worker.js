@@ -49,11 +49,8 @@ function currentBallot({ plan, walkBar, walkRoom, walkDinner, planSubmitted, des
 
 function missingPlanChoices(card = {}) {
   const missing = [];
-  if (card.drive === "volunteer" && card.car === "offer") {
-    if (!passengerSeatChoices.has(card.passengerSeats)) missing.push("passengerSeats");
-  } else if (card.drive !== "rider") {
-    missing.push("transport");
-  }
+  const hasCarOffer = card.drive === "volunteer" && card.car === "offer";
+  if (card.drive !== "rider" && !hasCarOffer) missing.push("transport");
   for (const field of planVoteFields) {
     if (!card[field] || !ballotChoices[field].has(card[field])) missing.push(field);
   }
@@ -212,7 +209,7 @@ export class CallingCards {
     const driverVote = designatedDriver === undefined ? null : Number(designatedDriver);
     const breakfastOrder = choices.breakfastOrder?.trim();
     const changed = previous?.planSubmitted && Object.entries(choices).some(([field, value]) =>
-      field !== "breakfastOrder" && field !== "dndHost" && field !== "designatedDriver" && previous[field] !== value
+      (field === "drive" || field === "car" || planVoteFields.includes(field)) && previous[field] !== value
     );
     // Clear the former walking vote when its venue is updated.
     this.sql.exec(`

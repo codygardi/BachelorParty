@@ -72,8 +72,6 @@ try {
   }
   const offered = 'document.querySelector("[data-car-offer]")';
   const designated = 'document.querySelector("[data-designated-driver]")';
-  const seats = 'document.querySelector("#car-passengers select")';
-  const field = 'document.querySelector("#car-passengers")';
   const status = 'document.querySelector("[data-ballot-status=drive]")?.textContent';
   const enabled = offered + '?.getAttribute("aria-disabled") === "false"';
   const didSave = (message) => until("return " + status + " === " + JSON.stringify(message), message + " did not appear.");
@@ -85,7 +83,7 @@ try {
   await viewport(1304, 883);
   await cdp("Page.navigate", { url });
   await until("return " + enabled, "Ballot did not load.");
-  assert.deepEqual(await run("return [" + offered + ".textContent, " + field + ".hidden]"), ["We can take my car", true]);
+  assert.equal(await run("return " + offered + ".textContent"), "We can take my car");
   assert.equal(await run('return document.querySelector(".site-header [data-open-dialog=games]") === null'), true);
 
   await cdp("Runtime.enable");
@@ -183,17 +181,14 @@ try {
   await castVenue(); await closeDeck();
   await run(offered + ".click()"); await didSave("Car offer saved.");
   assert.equal(await run("return " + designated + ".checked"), false);
-  assert.equal(await textAt("[data-driver-count]"), "0/2 designated drivers · 0 riders · 1/2 cars offered");
-  assert.equal(await run("return " + field + ".hidden"), false);
+  assert.equal(await textAt("[data-driver-count]"), "0/2 designated drivers · 0 riders · 1/2 cars");
+  assert.equal(await run('return document.querySelector("#calling-cards select") === null'), true);
   assert.equal(await submitDisabled(), true);
-  assert.match(await textAt("[data-plan-progress]"), /Passenger seats.*Comedy seating/);
+  assert.equal(await textAt("[data-plan-progress]"), "Still needed · Breakfast · Comedy seating");
   await click('[data-open-dialog="seating-voting"]');
   await click('[data-vote=seating][data-choice=general]');
   await saveIn("seating");
   await click("#seating-voting .close-button");
-  assert.equal(await submitDisabled(), true);
-  assert.match(await textAt("[data-plan-progress]"), /Passenger seats/);
-  await run(seats + '.value="3";' + seats + '.dispatchEvent(new Event("change",{bubbles:true}))'); await didSave("Passenger count saved.");
   assert.equal(await submitDisabled(), true);
   assert.equal(await textAt("[data-plan-progress]"), "Still needed · Breakfast");
   await click('[data-open-dialog="breakfast"]');
@@ -233,7 +228,7 @@ try {
   assert.equal(await textAt("[data-plan-submit]"), "Votes submitted");
   await click("[data-designated-driver]");
   await didSave("Designated driver saved.");
-  assert.equal(await textAt("[data-driver-count]"), "1/2 designated drivers · 0 riders · 1/2 cars offered");
+  assert.equal(await textAt("[data-driver-count]"), "1/2 designated drivers · 0 riders · 1/2 cars");
   assert.equal(await textAt("[data-plan-submit]"), "Votes submitted");
   const beforeReload = await run("return performance.timeOrigin");
   await cdp("Page.reload");
@@ -242,9 +237,8 @@ try {
   assert.deepEqual(card, {
     inviteeId: "cody-gardi", dndHost: "host", drive: "volunteer", designatedDriver: true, breakfast: "bubbas", breakfastOrder: orderText,
     bar: "shady-lady", room: "paniq", dinner: "wildwood",
-    seating: "general", car: "offer", passengerSeats: 3, planSubmitted: true, missingPlanChoices: [],
+    seating: "general", car: "offer", passengerSeats: null, planSubmitted: true, missingPlanChoices: [],
   });
-  assert.equal(await run("return " + seats + ".value"), "3");
   assert.equal(await run("return " + designated + ".checked"), true);
   assert.equal(await textAt("[data-plan-submit]"), "Votes submitted");
   await click("#friday-tab");
@@ -298,11 +292,10 @@ try {
   await choose("cody-gardi");
   await click('[data-vote=drive][data-choice=rider]');
   await didSave("Ride request saved.");
-  assert.equal(await textAt("[data-driver-count]"), "1/2 designated drivers · 1 rider · 0/2 cars offered");
+  assert.equal(await textAt("[data-driver-count]"), "1/2 designated drivers · 1 rider · 0/2 cars");
   await click("[data-designated-driver]");
   await didSave("Designated driver cleared.");
-  assert.equal(await textAt("[data-driver-count]"), "0/2 designated drivers · 1 rider · 0/2 cars offered");
-  assert.equal(await run("return " + field + ".hidden"), true);
+  assert.equal(await textAt("[data-driver-count]"), "0/2 designated drivers · 1 rider · 0/2 cars");
   assert.equal(await submitDisabled(), false);
   await openDeck("bar");
   await click("[data-clear-venue]"); await saveIn("venue","Vote cleared."); await closeDeck();
@@ -325,7 +318,7 @@ try {
         const heading = document.querySelector("#departure-title");
         const summary = heading.nextElementSibling;
         const tally = summary.getBoundingClientRect();
-        const controls = document.querySelector(".driver-controls").getBoundingClientRect();
+        const controls = document.querySelector(".driver-choices").getBoundingClientRect();
         return summary.matches(".vote-summary[data-driver-count]") && heading.getBoundingClientRect().right < tally.left && tally.right < controls.left;
       `);
       assert.equal(driverTallyAligned, true, "The drive tally must sit beside the departure title, before the controls.");

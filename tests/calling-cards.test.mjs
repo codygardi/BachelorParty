@@ -144,7 +144,7 @@ test("removed venues stay on existing ballots until the voter chooses again", as
   assert.deepEqual(await connect(db).readVotes(), [{ ...card, ...replacements }]);
 });
 
-test("plan submission requires saved venue votes, transportation, and capacity for a car offer", async (t) => {
+test("plan submission requires saved activity votes and a car offer or ride request", async (t) => {
   const db = new DatabaseSync(":memory:");
   t.after(() => db.close());
   const api = connect(db);
@@ -164,9 +164,9 @@ test("plan submission requires saved venue votes, transportation, and capacity f
   assert.deepEqual((await api.read())[0].missingPlanChoices, ["transport"]);
   assert.equal((await api.save(submit)).status, 409);
   assert.equal((await api.save({ inviteeId, drive: "volunteer", car: "offer" })).status, 200);
-  assert.deepEqual((await api.read())[0].missingPlanChoices, ["passengerSeats"]);
-  assert.equal((await api.save(submit)).status, 409);
-  assert.equal((await api.save({ inviteeId, car: "offer", passengerSeats: 4 })).status, 200);
+  assert.deepEqual((await api.read())[0].missingPlanChoices, []);
+  assert.equal((await api.save(submit)).status, 200);
+  assert.equal((await api.read())[0].passengerSeats, null);
 
   for (const [field, choice] of Object.entries(votes)) {
     assert.equal((await api.save({ inviteeId, [field]: "" })).status, 200);
@@ -179,6 +179,10 @@ test("plan submission requires saved venue votes, transportation, and capacity f
   assert.equal((await connect(db).read())[0].planSubmitted, true);
   assert.equal((await api.save({ inviteeId, bar: "snug" })).status, 200);
   assert.equal((await api.read())[0].planSubmitted, true, "Retrying the same vote keeps the submission");
+  assert.equal((await api.save({ inviteeId, car: "offer", passengerSeats: 4 })).status, 200);
+  const [withLegacySeats] = await connect(db).read();
+  assert.equal(withLegacySeats.passengerSeats, 4);
+  assert.equal(withLegacySeats.planSubmitted, true);
 
   assert.equal((await api.save({ inviteeId, seating: "preferred" })).status, 200);
   assert.equal((await api.read())[0].planSubmitted, false);
