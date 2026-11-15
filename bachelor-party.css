@@ -318,9 +318,9 @@ button[aria-disabled="true"], button:disabled { opacity: 0.58; cursor: default; 
 .timeline-stop p, .timeline-stop a { font-size: 0.76rem; }
 .timeline-stop p { color: var(--muted); }
 .timeline-stop .quiet-button { padding-block: 0.1rem; }
-.timeline-stop .vote-leader { color: var(--green); }
-.vote-leader:empty { display: none; }
-.vote-leader::before { content: "·"; margin-right: 0.35rem; }
+.timeline-stop .vote-summary { color: var(--green); }
+.vote-summary:empty { display: none; }
+.vote-summary::before { content: "·"; margin-right: 0.35rem; }
 .timeline > li:has(> .timeline-vote) {
   grid-template-columns: var(--time-column) minmax(0, 1fr) auto;
 }
@@ -507,7 +507,7 @@ dialog::backdrop { background: #0a0b08bd; }
   .timeline { --time-column: 4.25rem; }
   .timeline-stop h3 { font-size: 1.24rem; }
   .timeline-stop p { flex-basis: 100%; }
-  .vote-leader::before { content: none; }
+  .vote-summary::before { content: none; }
   .schedule-panel { padding-inline: 0.55rem; }
   .schedule-tabs button, .party-tab { padding-inline: 0.51rem; }
   dialog { padding: 0.85rem; }

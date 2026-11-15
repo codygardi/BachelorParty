@@ -8,10 +8,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="bachelor-party.css?v=20261115i">
+    <link rel="stylesheet" href="bachelor-party.css?v=20261115k">
     <script src="bachelor-party-config.js" defer></script>
     <script src="bachelor-party.js?v=20261113c" defer></script>
-    <script src="calling-cards.js?v=20261115j" defer></script>
+    <script src="calling-cards.js?v=20261115k" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
@@ -83,17 +83,17 @@
           <ol class="timeline">
             <li>
               <span class="timeline-time">Afternoon</span>
-              <div class="timeline-stop"><h3>Arrive at base camp</h3><p>Fly into Sacramento International (SMF).</p></div>
+              <div class="timeline-stop"><h3>Arrive at base camp</h3></div>
             </li>
             <li>
-              <span class="timeline-time">Evening</span>
+              <time class="timeline-time" datetime="16:00">4:00 pm</time>
               <div class="timeline-stop">
                 <h3>Grass Valley Brewing Co.</h3>
                 <a href="https://www.gvbrew.com/menus-1" target="_blank" rel="noopener">Brewery menu <span aria-hidden="true">↗</span></a>
               </div>
             </li>
             <li>
-              <span class="timeline-time">After dinner</span>
+              <time class="timeline-time" datetime="18:00">6:00 pm</time>
               <div class="timeline-stop">
                 <h3>D&amp;D at base camp</h3>
                 <button class="quiet-button" type="button" data-open-dialog="games">Tavern games <span aria-hidden="true">↗</span></button>
@@ -112,7 +112,7 @@
               <span class="timeline-time">Morning</span>
               <div class="timeline-stop">
                 <h3>Breakfast</h3>
-                <p class="vote-leader" data-vote-leader="breakfast"></p>
+                <p class="vote-summary" data-vote-summary="breakfast"></p>
               </div>
               <button class="button button-outline timeline-vote" type="button" data-open-dialog="breakfast" aria-label="Vote on Bubba’s Bagels" aria-haspopup="dialog">Vote</button>
             </li>
@@ -124,7 +124,7 @@
               <span class="timeline-time">Pending</span>
               <div class="timeline-stop">
                 <h3>Toast to Robbie</h3>
-                <p class="vote-leader" data-vote-leader="bar"></p>
+                <p class="vote-summary" data-vote-summary="bar"></p>
               </div>
               <button class="button button-outline timeline-vote" type="button" data-open-ballot="bar" aria-label="Vote for a bar" aria-haspopup="dialog">Vote</button>
             </li>
@@ -132,7 +132,7 @@
               <span class="timeline-time">Pending</span>
               <div class="timeline-stop">
                 <h3>Escape room</h3>
-                <p class="vote-leader" data-vote-leader="room"></p>
+                <p class="vote-summary" data-vote-summary="room"></p>
               </div>
               <button class="button button-outline timeline-vote" type="button" data-open-ballot="room" aria-label="Vote for an escape room location" aria-haspopup="dialog">Vote</button>
             </li>
@@ -140,7 +140,7 @@
               <span class="timeline-time">Pending</span>
               <div class="timeline-stop">
                 <h3>Dinner</h3>
-                <p class="vote-leader" data-vote-leader="dinner"></p>
+                <p class="vote-summary" data-vote-summary="dinner"></p>
               </div>
               <button class="button button-outline timeline-vote" type="button" data-open-ballot="dinner" aria-label="Vote for dinner" aria-haspopup="dialog">Vote</button>
             </li>
@@ -148,7 +148,7 @@
               <span class="timeline-time"><time datetime="20:45">8:45 pm</time> · Pending</span>
               <div class="timeline-stop">
                 <h3>Leslie Liao at Punch Line</h3>
-                <p class="vote-leader" data-vote-leader="seating" data-tie-label="General / Premium Seating"></p>
+                <p class="vote-summary" data-vote-summary="seating"></p>
                 <a href="https://www.ticketmaster.com/leslie-liao-sacramento-california-01-16-2027/event/1C006543E18B42C7" target="_blank" rel="noopener">Show tickets <span aria-hidden="true">↗</span></a>
               </div>
               <button class="button button-outline timeline-vote" type="button" data-open-dialog="seating-voting" aria-label="Vote on seating" aria-haspopup="dialog">Vote</button>
@@ -236,10 +236,10 @@
       <div class="dialog-copy">
         <p>Leslie Liao · Saturday, Jan 16 · Booking pending. Prices include fees, before any tax.</p>
         <div class="poll-options" role="group" aria-label="Seating choices">
-          <button class="button button-choice poll-option" type="button" data-vote="seating" data-choice="general" data-leader-label="General Seating" aria-pressed="false" aria-disabled="true">
+          <button class="button button-choice poll-option" type="button" data-vote="seating" data-choice="general" data-summary-label="General Seating" aria-pressed="false" aria-disabled="true">
             <strong>General Admission</strong><span class="seating-price">$256.40 for 8</span><span>$32.05 each</span><span class="poll-tally" data-poll-tally></span>
           </button>
-          <button class="button button-choice poll-option" type="button" data-vote="seating" data-choice="preferred" data-leader-label="Premium Seating" aria-pressed="false" aria-disabled="true">
+          <button class="button button-choice poll-option" type="button" data-vote="seating" data-choice="preferred" data-summary-label="Premium Seating" aria-pressed="false" aria-disabled="true">
             <strong>Preferred Premium Seating</strong><span class="seating-price">$366.40 for 8</span><span>$45.80 each</span><span class="poll-tally" data-poll-tally></span>
           </button>
         </div>

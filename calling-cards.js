@@ -184,11 +184,11 @@ const polls = [
     clear: dialog.querySelector('[data-choice=""]'),
   };
 });
-const voteLeaders = Array.from(document.querySelectorAll("[data-vote-leader]"), (display) => {
-  const field = display.dataset.voteLeader;
+const voteSummaries = Array.from(document.querySelectorAll("[data-vote-summary]"), (display) => {
+  const field = display.dataset.voteSummary;
   const options = venues[field] ?? polls.find((poll) => poll.field === field).buttons.map((button) => ({
     id: button.dataset.choice,
-    name: button.dataset.leaderLabel ?? button.querySelector("strong").textContent,
+    name: button.dataset.summaryLabel ?? button.querySelector("strong").textContent,
   }));
   return { display, field, options };
 });
@@ -299,23 +299,13 @@ function voteTally(field, choice) {
   return `${count} ${count === 1 ? "vote" : "votes"}`;
 }
 
-function renderVoteLeaders() {
-  for (const { display, field, options } of voteLeaders) {
+function renderVoteSummaries() {
+  for (const { display, field, options } of voteSummaries) {
     if (!connected && !callingCards.length) {
       display.textContent = refreshing ? "Loading votes…" : "Votes unavailable";
       continue;
     }
-    const totals = options.map(({ id, name }) => ({ name, count: voteCount(field, id) }));
-    const highest = Math.max(...totals.map(({ count }) => count));
-    if (!highest) {
-      display.textContent = "No votes yet";
-      continue;
-    }
-    const leaders = totals.filter(({ count }) => count === highest).map(({ name }) => name);
-    const tied = leaders.length > 1;
-    const tieLabel = tied && leaders.length === options.length ? display.dataset.tieLabel : undefined;
-    const tally = `${highest} ${highest === 1 ? "vote" : "votes"}${tied ? " each" : ""}`;
-    display.textContent = `${tied ? "Tie" : "Leading"} · ${tieLabel ?? leaders.join(" / ")} · ${tally}`;
+    display.textContent = options.map(({ id, name }) => `${name} · ${voteTally(field, id)}`).join(" / ");
   }
 }
 
@@ -436,7 +426,7 @@ function renderVotingState() {
       button.querySelector("[data-poll-tally]").textContent = voteTally(field, button.dataset.choice);
     }
   }
-  renderVoteLeaders();
+  renderVoteSummaries();
   renderBreakfastOrders(selected);
   renderPlanSubmission(selected);
   renderRoute(selected);

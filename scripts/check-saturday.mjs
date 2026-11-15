@@ -103,11 +103,16 @@ try {
   const castVenue = async () => { await click('[data-venue-vote]'); await saveIn("venue"); };
   const next = async () => click('[data-deck-step="1"]');
   const submitDisabled = () => run('return document.querySelector("[data-plan-submit]").disabled');
-  const leader = (field) => textAt('[data-vote-leader="' + field + '"]');
+  const summary = (field) => textAt('[data-vote-summary="' + field + '"]');
   const orderText = "1 everything bagel, toasted\nScallion cream cheese";
   const enterOrder = (value) => run('const input=document.querySelector("#breakfast-order");input.value=' + JSON.stringify(value) + ';input.dispatchEvent(new Event("input",{bubbles:true}))');
   const pickup = () => run('return [...document.querySelectorAll("[data-pickup-orders] > *")].map(row => row.textContent)');
 
+  await click("#friday-tab");
+  assert.equal(await textAt("#friday .timeline > li:first-child .timeline-stop"), "Arrive at base camp");
+  assert.equal(await textAt('#friday time[datetime="16:00"]'), "4:00 pm");
+  assert.equal(await textAt('#friday time[datetime="18:00"]'), "6:00 pm");
+  await click("#saturday-tab");
   await choose("cody-gardi");
   assert.deepEqual(await read(), [], "Choosing a name must not vote");
   assert.equal(await submitDisabled(), true);
@@ -116,14 +121,19 @@ try {
   assert.match(await textAt("#saturday .timeline > li:nth-child(2) .timeline-stop"), /Meet at ___ \(pending\).*Leave no later than 1 pm/);
   assert.doesNotMatch(await textAt("#saturday .timeline"), /Doors 8:45 pm|Two beverages per guest/);
   assert.match(await textAt("[data-plan-progress]"), /Ride or car.*Breakfast.*Bar.*Escape room.*Dinner.*Comedy seating/);
-  for (const field of ["breakfast", "bar", "room", "dinner", "seating"]) {
-    assert.equal(await leader(field), "No votes yet");
-  }
   const expectedVenues = {
     bar: ["Maple Room Lounge", "The Snug", "Shady Lady Saloon"],
     room: ["Enchambered", "PanIQ"],
     dinner: ["Thai Terrace", "Wildwood Kitchen & Bar", "Tapa the World"],
   };
+  const expectedOptions = {
+    breakfast: ["Bubba’s Bagels", "I’ll get my own"],
+    ...expectedVenues,
+    seating: ["General Seating", "Premium Seating"],
+  };
+  for (const [field, names] of Object.entries(expectedOptions)) {
+    assert.equal(await summary(field), names.map((name) => `${name} · 0 votes`).join(" / "));
+  }
   for (const [deck, names] of Object.entries(expectedVenues)) {
     await openDeck(deck);
     for (const [index, name] of names.entries()) {
@@ -173,11 +183,11 @@ try {
   assert.equal(await run('return document.querySelector("[data-breakfast-order]").hidden'), false);
   assert.deepEqual(await pickup(), ["Cody Gardi", "Order pending"]);
   await click("#breakfast .close-button");
-  assert.equal(await leader("breakfast"), "Leading · Bubba’s Bagels · 1 vote");
-  assert.equal(await leader("bar"), "Leading · Shady Lady Saloon · 1 vote");
-  assert.equal(await leader("room"), "Leading · PanIQ · 1 vote");
-  assert.equal(await leader("dinner"), "Leading · Wildwood Kitchen & Bar · 1 vote");
-  assert.equal(await leader("seating"), "Leading · General Seating · 1 vote");
+  assert.equal(await summary("breakfast"), "Bubba’s Bagels · 1 vote / I’ll get my own · 0 votes");
+  assert.equal(await summary("bar"), "Maple Room Lounge · 0 votes / The Snug · 0 votes / Shady Lady Saloon · 1 vote");
+  assert.equal(await summary("room"), "Enchambered · 0 votes / PanIQ · 1 vote");
+  assert.equal(await summary("dinner"), "Thai Terrace · 0 votes / Wildwood Kitchen & Bar · 1 vote / Tapa the World · 0 votes");
+  assert.equal(await summary("seating"), "General Seating · 1 vote / Premium Seating · 0 votes");
   assert.equal(await submitDisabled(), false);
   await click("[data-plan-submit]");
   await until('return document.querySelector("[data-plan-submit]").hasAttribute("data-submitted")', "Plan vote did not submit.");
@@ -224,8 +234,8 @@ try {
   assert.equal(otherVote.status, 200);
   await run("await refreshCallingCards()");
   await choose("max-voorhees");
-  assert.equal(await leader("breakfast"), "Tie · Bubba’s Bagels / I’ll get my own · 1 vote each");
-  assert.equal(await leader("seating"), "Tie · General / Premium Seating · 1 vote each");
+  assert.equal(await summary("breakfast"), "Bubba’s Bagels · 1 vote / I’ll get my own · 1 vote");
+  assert.equal(await summary("seating"), "General Seating · 1 vote / Premium Seating · 1 vote");
   await click('[data-open-dialog="breakfast"]');
   assert.equal(await run('return document.querySelector("[data-breakfast-order]").hidden'), true);
   assert.deepEqual(await pickup(), ["Cody Gardi", orderText]);
@@ -233,7 +243,7 @@ try {
   await saveIn("breakfast");
   assert.deepEqual(await pickup(), ["Max Voorhees", "Order pending", "Cody Gardi", orderText]);
   await click("#breakfast .close-button");
-  assert.equal(await leader("breakfast"), "Leading · Bubba’s Bagels · 2 votes");
+  assert.equal(await summary("breakfast"), "Bubba’s Bagels · 2 votes / I’ll get my own · 0 votes");
   await openDeck("bar");
   assert.equal(await textAt("[data-venue-tally]"), "2 votes");
   await next();
@@ -270,18 +280,18 @@ try {
         const right = document.querySelector("[data-open-dialog=route]").getBoundingClientRect().right;
         return [...document.querySelectorAll("#saturday .timeline-vote")].map(button => {
           const row = button.closest("li");
-          const leader = row.querySelector(".timeline-stop [data-vote-leader]");
+          const summary = row.querySelector(".timeline-stop [data-vote-summary]");
           const vote = button.getBoundingClientRect();
-          return button.textContent === "Vote" && leader.getBoundingClientRect().right < vote.left && Math.abs(vote.right - right) < 1;
+          return button.textContent === "Vote" && summary.getBoundingClientRect().right < vote.left && Math.abs(vote.right - right) < 1;
         });
       `);
-      assert.deepEqual(positions, [true, true, true, true, true], "Vote buttons must line up at the right of their event and leader.");
+      assert.deepEqual(positions, [true, true, true, true, true], "Vote buttons must line up at the right of their event and vote summary.");
     }
     const shot = await cdp("Page.captureScreenshot", {format:"png"});
     await writeFile(".venue-photo-review/saturday/" + width + ".png",Buffer.from(shot.data,"base64"));
   }
   assert.deepEqual(errors, []);
-  console.log("Verified leaders and ties, breakfast pickup orders and reload, preserved plan submissions, venue cards, and responsive layouts.");
+  console.log("Verified Friday schedule, per-option tallies, breakfast pickup orders and reload, preserved plan submissions, venue cards, and responsive layouts.");
 
 } finally {
   socket?.close();
