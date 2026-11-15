@@ -4,7 +4,7 @@ import { test } from "node:test";
 import worker, { CallingCards } from "../cloudflare/rsvp-worker.js";
 
 const endpoint = "https://test.example/?action=ballots";
-const existing = { inviteeId: "cody-gardi", dndHost: "", drive: "volunteer", breakfast: "", bar: "snug", dinner: "wildwood" };
+const existing = { inviteeId: "cody-gardi", dndHost: "", drive: "volunteer", designatedDriver: false, breakfast: "", bar: "snug", dinner: "wildwood" };
 
 function connect(db) {
   const box = new CallingCards({
@@ -120,7 +120,7 @@ test("the shared ballot carries forward eligible votes from both former plans", 
   const guest = { inviteeId: "robbie-merchant", bar: "maple-room", room: "paniq", dinner: "tapa-the-world" };
   assert.equal((await api.save(guest)).status, 200);
   const saved = (await connect(db).readVotes()).find((row) => row.inviteeId === guest.inviteeId);
-  assert.deepEqual(saved, { ...guest, dndHost: "", drive: "", breakfast: "", seating: "", car: "", passengerSeats: null });
+  assert.deepEqual(saved, { ...guest, dndHost: "", drive: "", designatedDriver: false, breakfast: "", seating: "", car: "", passengerSeats: null });
 });
 
 test("removed venues stay on existing ballots until the voter chooses again", async (t) => {
@@ -258,4 +258,30 @@ test("Friday hosting votes save, change, and clear independently of Saturday vot
     assert.equal((await api.save({ inviteeId, dndHost })).status, 200);
     assert.deepEqual(await connect(db).read(), [{ ...submitted, dndHost }]);
   }
+});
+
+test("guests can check and uncheck designated driver independently of their ride choice", async (t) => {
+  const db = new DatabaseSync(":memory:");
+  t.after(() => db.close());
+  const api = connect(db);
+  const { inviteeId } = existing;
+  for (const designatedDriver of ["true", 1, null]) {
+    assert.equal((await api.save({ inviteeId, designatedDriver })).status, 400);
+  }
+  assert.deepEqual(await api.read(), []);
+
+  assert.equal((await api.save({ inviteeId, designatedDriver: true })).status, 200);
+  const [driver] = await connect(db).read();
+  assert.equal(driver.designatedDriver, true);
+  assert.equal(driver.drive, "");
+  assert.equal(driver.car, "");
+
+  const saturday = { inviteeId, drive: "volunteer", car: "offer", passengerSeats: 3, breakfast: "own", bar: "snug", room: "paniq", dinner: "wildwood", seating: "general" };
+  assert.equal((await api.save(saturday)).status, 200);
+  assert.equal((await api.save({ inviteeId, planSubmitted: true })).status, 200);
+  const [submitted] = await api.read();
+  assert.equal(submitted.designatedDriver, true);
+  assert.equal(submitted.planSubmitted, true);
+  assert.equal((await api.save({ inviteeId, designatedDriver: false })).status, 200);
+  assert.deepEqual(await connect(db).read(), [{ ...submitted, designatedDriver: false }]);
 });

@@ -16,12 +16,13 @@ const roomChoices = new Set(["", "enchambered", "paniq"]);
 const seatingChoices = new Set(["", "general", "preferred"]);
 const ballotChoices = {
   dndHost: dndHostChoices,
+  designatedDriver: new Set([true, false]),
   drive: driveChoices, car: carChoices, passengerSeats: passengerSeatChoices, breakfast: breakfastChoices,
   bar: barChoices, dinner: dinnerChoices, room: roomChoices, seating: seatingChoices,
   planSubmitted: new Set([true]),
 };
 const planVoteFields = ["breakfast", "bar", "room", "dinner", "seating"];
-const ballotColumns = "inviteeId, dndHost, drive, breakfast, breakfastOrder, bar, dinner, room, seating, car, passengerSeats, plan, walkBar, walkRoom, walkDinner, planSubmitted";
+const ballotColumns = "inviteeId, dndHost, drive, designatedDriver, breakfast, breakfastOrder, bar, dinner, room, seating, car, passengerSeats, plan, walkBar, walkRoom, walkDinner, planSubmitted";
 const roomLocations = new Map([
   ["skull-witch", "enchambered"],
   ["the-collection", "enchambered"],
@@ -35,12 +36,13 @@ function combinedChoice(field, driveVote, walkVote, plan) {
   return choices.find((choice) => ballotChoices[field].has(choice)) ?? choices[0] ?? "";
 }
 
-function currentBallot({ plan, walkBar, walkRoom, walkDinner, planSubmitted, ...card }) {
+function currentBallot({ plan, walkBar, walkRoom, walkDinner, planSubmitted, designatedDriver, ...card }) {
   return {
     ...card,
     bar: combinedChoice("bar", card.bar, walkBar, plan),
     room: combinedChoice("room", card.room, walkRoom, plan),
     dinner: combinedChoice("dinner", card.dinner, walkDinner, plan),
+    designatedDriver: designatedDriver === 1,
     planSubmitted: planSubmitted === 1,
   };
 }
@@ -157,6 +159,7 @@ export class CallingCards {
         inviteeId TEXT PRIMARY KEY,
         dndHost TEXT NOT NULL DEFAULT '',
         drive TEXT NOT NULL,
+        designatedDriver INTEGER NOT NULL DEFAULT 0,
         breakfast TEXT NOT NULL DEFAULT '',
         breakfastOrder TEXT NOT NULL DEFAULT '',
         bar TEXT NOT NULL,
@@ -173,6 +176,7 @@ export class CallingCards {
       if (!columns.includes(name)) this.sql.exec(`ALTER TABLE ballots ADD COLUMN ${name} TEXT NOT NULL DEFAULT ''`);
     }
     if (!columns.includes("passengerSeats")) this.sql.exec("ALTER TABLE ballots ADD COLUMN passengerSeats INTEGER");
+    if (!columns.includes("designatedDriver")) this.sql.exec("ALTER TABLE ballots ADD COLUMN designatedDriver INTEGER NOT NULL DEFAULT 0");
     if (!columns.includes("planSubmitted")) this.sql.exec("ALTER TABLE ballots ADD COLUMN planSubmitted INTEGER NOT NULL DEFAULT 0");
   }
 
@@ -204,18 +208,20 @@ export class CallingCards {
   }
 
   saveChoices(inviteeId, choices, previous) {
-    const { dndHost, drive, breakfast, bar, dinner, room, seating, car, passengerSeats } = choices;
+    const { dndHost, drive, designatedDriver, breakfast, bar, dinner, room, seating, car, passengerSeats } = choices;
+    const driverVote = designatedDriver === undefined ? null : Number(designatedDriver);
     const breakfastOrder = choices.breakfastOrder?.trim();
     const changed = previous?.planSubmitted && Object.entries(choices).some(([field, value]) =>
-      field !== "breakfastOrder" && field !== "dndHost" && previous[field] !== value
+      field !== "breakfastOrder" && field !== "dndHost" && field !== "designatedDriver" && previous[field] !== value
     );
     // Clear the former walking vote when its venue is updated.
     this.sql.exec(`
-        INSERT INTO ballots (inviteeId, dndHost, drive, breakfast, breakfastOrder, bar, dinner, room, seating, car, passengerSeats)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO ballots (inviteeId, dndHost, drive, designatedDriver, breakfast, breakfastOrder, bar, dinner, room, seating, car, passengerSeats)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT (inviteeId) DO UPDATE SET
           dndHost = COALESCE(?, ballots.dndHost),
           drive = COALESCE(?, ballots.drive),
+          designatedDriver = COALESCE(?, ballots.designatedDriver),
           breakfast = COALESCE(?, ballots.breakfast),
           breakfastOrder = CASE WHEN ? IN ('', 'own') THEN '' ELSE COALESCE(?, ballots.breakfastOrder) END,
           bar = COALESCE(?, ballots.bar),
@@ -228,8 +234,8 @@ export class CallingCards {
           walkDinner = CASE WHEN ? IS NULL THEN ballots.walkDinner ELSE '' END,
           passengerSeats = CASE WHEN ? = '' THEN NULL ELSE COALESCE(excluded.passengerSeats, ballots.passengerSeats) END,
           planSubmitted = CASE WHEN ? = 1 THEN 0 ELSE ballots.planSubmitted END
-    `, inviteeId, dndHost ?? "", drive ?? "", breakfast ?? "", breakfastOrder ?? "", bar ?? "", dinner ?? "", room ?? "", seating ?? "", car ?? "", passengerSeats ?? null,
-    dndHost ?? null, drive ?? null, breakfast ?? null, breakfast ?? null, breakfastOrder ?? null,
+    `, inviteeId, dndHost ?? "", drive ?? "", driverVote ?? 0, breakfast ?? "", breakfastOrder ?? "", bar ?? "", dinner ?? "", room ?? "", seating ?? "", car ?? "", passengerSeats ?? null,
+    dndHost ?? null, drive ?? null, driverVote, breakfast ?? null, breakfast ?? null, breakfastOrder ?? null,
     bar ?? null, dinner ?? null, room ?? null, seating ?? null, car ?? null,
     bar ?? null, room ?? null, dinner ?? null, car ?? null, changed ? 1 : 0);
   }

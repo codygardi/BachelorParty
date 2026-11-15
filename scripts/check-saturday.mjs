@@ -71,6 +71,7 @@ try {
     throw new Error(problem);
   }
   const offered = 'document.querySelector("[data-car-offer]")';
+  const designated = 'document.querySelector("[data-designated-driver]")';
   const seats = 'document.querySelector("#car-passengers select")';
   const field = 'document.querySelector("#car-passengers")';
   const status = 'document.querySelector("[data-ballot-status=drive]")?.textContent';
@@ -116,7 +117,8 @@ try {
   await click("#saturday-tab");
   assert.equal(await run('return document.querySelector("#calling-cards [data-ballot-guest]") === null'), true);
   assert.equal(await run('return document.querySelector("#calling-cards [data-open-dialog=drivers]") === null'), true);
-  await click("[data-car-offer]");
+  await click("[data-designated-driver]");
+  assert.equal(await run("return " + designated + ".checked"), false);
   assert.equal(await textAt("[data-ballot-status=drive]"), "Choose your name from the party roster.");
   assert.equal(await run('return document.activeElement.matches("#party [data-calling-card]")'), true);
 
@@ -180,6 +182,8 @@ try {
   await next();
   await castVenue(); await closeDeck();
   await run(offered + ".click()"); await didSave("Car offer saved.");
+  assert.equal(await run("return " + designated + ".checked"), false);
+  assert.equal(await textAt("[data-driver-count]"), "0/2 designated drivers · 0 riders · 1/2 cars offered");
   assert.equal(await run("return " + field + ".hidden"), false);
   assert.equal(await submitDisabled(), true);
   assert.match(await textAt("[data-plan-progress]"), /Passenger seats.*Comedy seating/);
@@ -227,16 +231,21 @@ try {
   assert.equal(await summary("dndHost"), "Can host · 1 vote / Can’t host · 0 votes");
   await click("#saturday-tab");
   assert.equal(await textAt("[data-plan-submit]"), "Votes submitted");
+  await click("[data-designated-driver]");
+  await didSave("Designated driver saved.");
+  assert.equal(await textAt("[data-driver-count]"), "1/2 designated drivers · 0 riders · 1/2 cars offered");
+  assert.equal(await textAt("[data-plan-submit]"), "Votes submitted");
   const beforeReload = await run("return performance.timeOrigin");
   await cdp("Page.reload");
   await until("return performance.timeOrigin !== " + beforeReload + " && " + enabled, "Reload failed");
   const [card] = await read();
   assert.deepEqual(card, {
-    inviteeId: "cody-gardi", dndHost: "host", drive: "volunteer", breakfast: "bubbas", breakfastOrder: orderText,
+    inviteeId: "cody-gardi", dndHost: "host", drive: "volunteer", designatedDriver: true, breakfast: "bubbas", breakfastOrder: orderText,
     bar: "shady-lady", room: "paniq", dinner: "wildwood",
     seating: "general", car: "offer", passengerSeats: 3, planSubmitted: true, missingPlanChoices: [],
   });
   assert.equal(await run("return " + seats + ".value"), "3");
+  assert.equal(await run("return " + designated + ".checked"), true);
   assert.equal(await textAt("[data-plan-submit]"), "Votes submitted");
   await click("#friday-tab");
   await click('[data-open-dialog="dnd-host"]');
@@ -264,6 +273,7 @@ try {
   assert.equal(otherVote.status, 200);
   await run("await refreshCallingCards()");
   await choose("max-voorhees");
+  assert.equal(await run("return " + designated + ".checked"), false);
   assert.equal(await summary("dndHost"), "Can host · 1 vote / Can’t host · 1 vote");
   assert.equal(await summary("breakfast"), "Bubba’s Bagels · 1 vote / I’ll get my own · 1 vote");
   assert.equal(await summary("seating"), "General Seating · 1 vote / Premium Seating · 1 vote");
@@ -288,14 +298,17 @@ try {
   await choose("cody-gardi");
   await click('[data-vote=drive][data-choice=rider]');
   await didSave("Ride request saved.");
-  assert.equal(await textAt("[data-driver-count]"), "0/2 drivers · 1 rider · 0/2 cars offered");
+  assert.equal(await textAt("[data-driver-count]"), "1/2 designated drivers · 1 rider · 0/2 cars offered");
+  await click("[data-designated-driver]");
+  await didSave("Designated driver cleared.");
+  assert.equal(await textAt("[data-driver-count]"), "0/2 designated drivers · 1 rider · 0/2 cars offered");
   assert.equal(await run("return " + field + ".hidden"), true);
   assert.equal(await submitDisabled(), false);
   await openDeck("bar");
   await click("[data-clear-venue]"); await saveIn("venue","Vote cleared."); await closeDeck();
   const afterClear = await read();
   assert.deepEqual(afterClear.find((row) => row.inviteeId === "cody-gardi"), {
-    ...card, bar: "", drive: "rider", car: "", passengerSeats: null, planSubmitted: false, missingPlanChoices: ["bar"],
+    ...card, bar: "", drive: "rider", designatedDriver: false, car: "", passengerSeats: null, planSubmitted: false, missingPlanChoices: ["bar"],
   });
   assert.equal(afterClear.find((row) => row.inviteeId === "max-voorhees").bar, "shady-lady");
   assert.equal(await submitDisabled(), true);
@@ -309,11 +322,13 @@ try {
     if(width===1304) assert.equal(await run("return document.documentElement.scrollHeight <= innerHeight"),true,"Desktop must fit without scrolling");
     if (width === 1304) {
       const driverTallyAligned = await run(`
-        const tally = document.querySelector("[data-driver-count]").getBoundingClientRect();
-        const offer = document.querySelector("[data-car-offer]").getBoundingClientRect();
-        return tally.right < offer.left && tally.top >= offer.top && tally.bottom <= offer.bottom;
+        const heading = document.querySelector("#departure-title");
+        const summary = heading.nextElementSibling;
+        const tally = summary.getBoundingClientRect();
+        const controls = document.querySelector(".driver-controls").getBoundingClientRect();
+        return summary.matches(".vote-summary[data-driver-count]") && heading.getBoundingClientRect().right < tally.left && tally.right < controls.left;
       `);
-      assert.equal(driverTallyAligned, true, "The drive tally must sit to the left of the car offer button.");
+      assert.equal(driverTallyAligned, true, "The drive tally must sit beside the departure title, before the controls.");
       const positions = await run(`
         const right = document.querySelector("[data-open-dialog=route]").getBoundingClientRect().right;
         return [...document.querySelectorAll("#saturday .timeline-vote")].map(button => {

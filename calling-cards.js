@@ -161,6 +161,8 @@ const showParty = document.querySelector("[data-show-party]");
 const roster = document.querySelector("[data-response-list]");
 const guestSelectors = Array.from(document.querySelectorAll("[data-ballot-guest]"));
 const carOffer = document.querySelector("[data-car-offer]");
+const designatedDriverInput = document.querySelector("[data-designated-driver]");
+const driverSummary = document.querySelector("[data-driver-count]");
 const passengerField = document.getElementById("car-passengers");
 const passengerCount = passengerField.querySelector("select");
 const driverPanel = carOffer.closest("[data-ballot-panel]");
@@ -301,13 +303,21 @@ function voteTally(field, choice) {
 }
 
 function renderVoteSummaries() {
+  if (!connected && !callingCards.length) {
+    const status = refreshing ? "Loading votes…" : "Votes unavailable";
+    for (const { display } of voteSummaries) display.textContent = status;
+    driverSummary.textContent = status;
+    return;
+  }
   for (const { display, field, options } of voteSummaries) {
-    if (!connected && !callingCards.length) {
-      display.textContent = refreshing ? "Loading votes…" : "Votes unavailable";
-      continue;
-    }
     display.textContent = options.map(({ id, name }) => `${name} · ${voteTally(field, id)}`).join(" / ");
   }
+  const drivers = voteCount("designatedDriver", true);
+  const riders = voteCount("drive", "rider");
+  const cars = voteCount("car", "offer");
+  const driverTally = drivers > 2 ? `${drivers} designated drivers` : `${drivers}/2 designated drivers`;
+  const carTally = cars > 2 ? `${cars} cars offered` : `${cars}/2 cars offered`;
+  driverSummary.textContent = `${driverTally} · ${riders} ${riders === 1 ? "rider" : "riders"} · ${carTally}`;
 }
 
 function renderVoteButton(button, prompt, saved, name) {
@@ -369,6 +379,8 @@ function renderVotingState() {
   const controlsDisabled = !connected || pendingChoices !== null;
   const drive = pendingChoices?.drive ?? selected?.drive;
   const offered = drive === "volunteer" && (pendingChoices?.car ?? selected?.car) === "offer";
+  designatedDriverInput.checked = (pendingChoices?.designatedDriver ?? selected?.designatedDriver) === true;
+  designatedDriverInput.disabled = controlsDisabled;
   passengerField.hidden = !offered;
   passengerCount.value = offered ? pendingChoices?.passengerSeats ?? selected?.passengerSeats ?? "" : "";
   passengerCount.disabled = controlsDisabled;
@@ -386,14 +398,6 @@ function renderVotingState() {
   }
   for (const button of retryButtons) button.hidden = connected || refreshing;
 
-  const drivers = voteCount("drive", "volunteer");
-  const riders = voteCount("drive", "rider");
-  const cars = voteCount("car", "offer");
-  const driverTally = drivers > 2 ? `${drivers} volunteers for 2 cars` : `${drivers}/2 drivers`;
-  const carTally = cars > 2 ? `${cars} cars offered` : `${cars}/2 cars offered`;
-  document.querySelector("[data-driver-count]").textContent = connected || callingCards.length
-    ? `${driverTally} · ${riders} ${riders === 1 ? "rider" : "riders"} · ${carTally}`
-    : refreshing ? "Loading driver tally…" : "Driver tally unavailable";
   for (const entry of document.querySelectorAll("[data-roll-call]")) {
     const { rollCall, choice } = entry.dataset;
     const names = party.flatMap(({ id, name }) => {
@@ -598,7 +602,9 @@ async function saveChoices(panel, choices, successMessage) {
   saveVersion += 1;
   pendingChoices = choices;
   renderVotingState();
-  if (scope !== "submission" && scope !== "dndHost" && !Object.hasOwn(choices, "breakfastOrder")) setStatus("submission");
+  const updatesPlanChoices = scope !== "submission" && scope !== "dndHost"
+    && !Object.hasOwn(choices, "breakfastOrder") && !Object.hasOwn(choices, "designatedDriver");
+  if (updatesPlanChoices) setStatus("submission");
   setStatus(scope, "Saving…");
   let refreshAfterFailure = false;
   try {
@@ -636,6 +642,10 @@ function saveVote({ currentTarget }) {
   return saveChoices(panel, choices, message);
 }
 
+designatedDriverInput.addEventListener("change", () => {
+  const designatedDriver = designatedDriverInput.checked;
+  saveChoices(driverPanel, { designatedDriver }, designatedDriver ? "Designated driver saved." : "Designated driver cleared.");
+});
 passengerCount.addEventListener("change", () => {
   if (passengerField.hidden || passengerCount.value === "") return;
   saveChoices(driverPanel, { car: "offer", passengerSeats: Number(passengerCount.value) }, "Passenger count saved.");

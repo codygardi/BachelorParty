@@ -196,14 +196,17 @@ button { cursor: pointer; }
   flex-wrap: wrap;
   gap: 0.4rem 0.62rem;
 }
-.car-passengers {
+.designated-driver, .car-passengers {
   display: inline-flex;
   align-items: center;
   gap: 0.42rem;
   min-height: 2.15rem;
   font-size: 0.8rem;
+  color: var(--muted);
 }
-.car-passengers { color: var(--muted); }
+.designated-driver { cursor: pointer; }
+.designated-driver input { width: 1rem; height: 1rem; margin: 0; accent-color: var(--gold); }
+.designated-driver:has(input:disabled) { opacity: 0.58; cursor: default; }
 .car-passengers select:disabled { opacity: 0.58; }
 select {
   min-height: 2.15rem;
@@ -237,7 +240,6 @@ button[aria-disabled="true"], button:disabled { opacity: 0.58; cursor: default; 
 .button[aria-disabled="true"]:hover, .button:disabled:hover { border-color: #68563c; }
 .driver-footer { grid-column: 1 / -1; }
 .driver-footer:not(:has(.vote-message:not(:empty), button:not([hidden]))) { display: none; }
-[data-driver-count] { color: var(--green); font-size: 0.75rem; font-weight: 650; }
 .vote-message { color: var(--muted); font-size: 0.76rem; }
 .vote-message:empty { display: none; }
 
