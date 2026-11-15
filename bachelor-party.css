@@ -297,10 +297,10 @@ button[aria-disabled="true"], button:disabled { opacity: 0.58; cursor: default; 
 [data-plan-submit][data-submitted] { color: var(--green); }
 .route-note { font-size: 0.76rem; }
 .venue-dialog .dialog-header h2 { font-size: clamp(1.5rem, 4vw, 1.9rem); }
-.timeline { list-style: none; margin: 0; padding: 0; }
+.timeline { --time-column: 6.2rem; list-style: none; margin: 0; padding: 0; }
 .timeline > li {
   display: grid;
-  grid-template-columns: 6.2rem minmax(0, 1fr);
+  grid-template-columns: var(--time-column) minmax(0, 1fr);
   align-items: baseline;
   gap: 0.2rem 0.6rem;
   padding: 0.29rem 0;
@@ -318,27 +318,21 @@ button[aria-disabled="true"], button:disabled { opacity: 0.58; cursor: default; 
 .timeline-stop p, .timeline-stop a { font-size: 0.76rem; }
 .timeline-stop p { color: var(--muted); }
 .timeline-stop .quiet-button { padding-block: 0.1rem; }
-.vote-leader {
-  grid-column: 2;
-  color: var(--green);
-  font-size: 0.75rem;
-  text-align: right;
+.timeline-stop .vote-leader { color: var(--green); }
+.vote-leader:empty { display: none; }
+.vote-leader::before { content: "·"; margin-right: 0.35rem; }
+.timeline > li:has(> .timeline-vote) {
+  grid-template-columns: var(--time-column) minmax(0, 1fr) auto;
 }
-@media (min-width: 48.001rem) {
-  .timeline > li:has(> .vote-leader) { grid-template-columns: 6.2rem minmax(0, 1fr) minmax(11rem, 27%); }
-  .vote-leader { grid-column: 3; }
+.timeline-vote {
+  justify-self: end;
+  align-self: center;
+  min-width: 3.75rem;
+  min-height: 1.85rem;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.76rem;
 }
-.inline-vote {
-  width: fit-content;
-  padding: 0.1rem 0;
-  border: 0;
-  background: transparent;
-  color: var(--gold);
-  font-size: 0.79rem;
-  font-weight: 700;
-  text-align: left;
-}
-.inline-vote:hover { color: var(--gold-light); text-decoration: underline; text-underline-offset: 0.2em; }
+.timeline-vote[data-voted] { border-color: #678861; color: var(--green); }
 
 dialog {
   width: min(38rem, calc(100% - 1.5rem));
@@ -510,9 +504,10 @@ dialog::backdrop { background: #0a0b08bd; }
   .driver-choices { gap: 0.26rem; }
   .driver-controls { gap: 0.35rem; }
   .driver-choices .button { padding-inline: 0.4rem; }
-  .timeline > li { grid-template-columns: 4.25rem minmax(0, 1fr); }
+  .timeline { --time-column: 4.25rem; }
   .timeline-stop h3 { font-size: 1.24rem; }
   .timeline-stop p { flex-basis: 100%; }
+  .vote-leader::before { content: none; }
   .schedule-panel { padding-inline: 0.55rem; }
   .schedule-tabs button, .party-tab { padding-inline: 0.51rem; }
   dialog { padding: 0.85rem; }

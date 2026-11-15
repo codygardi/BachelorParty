@@ -8,10 +8,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="bachelor-party.css?v=20261115h">
+    <link rel="stylesheet" href="bachelor-party.css?v=20261115i">
     <script src="bachelor-party-config.js" defer></script>
     <script src="bachelor-party.js?v=20261113c" defer></script>
-    <script src="calling-cards.js?v=20261115h" defer></script>
+    <script src="calling-cards.js?v=20261115i" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
@@ -112,47 +112,46 @@
               <span class="timeline-time">Morning</span>
               <div class="timeline-stop">
                 <h3>Breakfast</h3>
-                <button class="inline-vote" type="button" data-open-dialog="breakfast" aria-haspopup="dialog">Vote on Bubba’s Bagels <span aria-hidden="true">↗</span></button>
+                <p class="vote-leader" data-vote-leader="breakfast"></p>
               </div>
-              <p class="vote-leader" data-vote-leader="breakfast"></p>
+              <button class="button button-outline timeline-vote" type="button" data-open-dialog="breakfast" aria-label="Vote on Bubba’s Bagels" aria-haspopup="dialog">Vote</button>
             </li>
             <li>
-              <time class="timeline-time" datetime="12:45">12:45 pm</time>
-              <div class="timeline-stop"><h3>Meet at Robbie’s</h3><p>Leave at 1 pm, by 2 pm at the latest.</p></div>
+              <time class="timeline-time" datetime="12:30">12:30 pm</time>
+              <div class="timeline-stop"><h3>Meet at ___ (pending)</h3><p>Leave by 1 pm.</p></div>
             </li>
             <li>
               <time class="timeline-time" datetime="16:00">4:00 pm</time>
               <div class="timeline-stop">
                 <h3>Toast to Robbie</h3>
-                <button class="inline-vote" type="button" data-open-ballot="bar" aria-haspopup="dialog">Vote for a bar <span aria-hidden="true">↗</span></button>
+                <p class="vote-leader" data-vote-leader="bar"></p>
               </div>
-              <p class="vote-leader" data-vote-leader="bar"></p>
+              <button class="button button-outline timeline-vote" type="button" data-open-ballot="bar" aria-label="Vote for a bar" aria-haspopup="dialog">Vote</button>
             </li>
             <li>
               <span class="timeline-time">5:30–5:45 pm</span>
               <div class="timeline-stop">
                 <h3>Escape room</h3>
-                <button class="inline-vote" type="button" data-open-ballot="room" aria-haspopup="dialog">Vote for an escape room location <span aria-hidden="true">↗</span></button>
+                <p class="vote-leader" data-vote-leader="room"></p>
               </div>
-              <p class="vote-leader" data-vote-leader="room"></p>
+              <button class="button button-outline timeline-vote" type="button" data-open-ballot="room" aria-label="Vote for an escape room location" aria-haspopup="dialog">Vote</button>
             </li>
             <li>
               <span class="timeline-time">7:00–7:20 pm</span>
               <div class="timeline-stop">
                 <h3>Dinner</h3>
-                <button class="inline-vote" type="button" data-open-ballot="dinner" aria-haspopup="dialog">Vote for dinner <span aria-hidden="true">↗</span></button>
+                <p class="vote-leader" data-vote-leader="dinner"></p>
               </div>
-              <p class="vote-leader" data-vote-leader="dinner"></p>
+              <button class="button button-outline timeline-vote" type="button" data-open-ballot="dinner" aria-label="Vote for dinner" aria-haspopup="dialog">Vote</button>
             </li>
             <li>
               <time class="timeline-time" datetime="21:15">9:15 pm</time>
               <div class="timeline-stop">
                 <h3>Leslie Liao at Punch Line</h3>
-                <p>Doors 8:45 pm · Two beverages per guest.</p>
-                <button class="inline-vote" type="button" data-open-dialog="seating-voting" aria-haspopup="dialog">Vote on seating <span aria-hidden="true">↗</span></button>
+                <p class="vote-leader" data-vote-leader="seating"></p>
                 <a href="https://www.ticketmaster.com/leslie-liao-sacramento-california-01-16-2027/event/1C006543E18B42C7" target="_blank" rel="noopener">Show tickets <span aria-hidden="true">↗</span></a>
               </div>
-              <p class="vote-leader" data-vote-leader="seating"></p>
+              <button class="button button-outline timeline-vote" type="button" data-open-dialog="seating-voting" aria-label="Vote on seating" aria-haspopup="dialog">Vote</button>
             </li>
             <li>
               <span class="timeline-time">After show</span>
@@ -169,7 +168,7 @@
             <div class="submission-controls">
               <label class="sr-only" for="submission-guest">Your calling card</label>
               <select id="submission-guest" data-ballot-guest><option value="">Choose your name</option></select>
-              <button class="button button-choice" type="button" data-plan-submit aria-describedby="plan-progress" disabled>Submit plan vote</button>
+              <button class="button button-choice" type="button" data-plan-submit aria-describedby="plan-progress" disabled>Submit Votes</button>
             </div>
           </div>
         </div>
@@ -265,7 +264,7 @@
     <dialog id="route" aria-labelledby="route-title">
       <div class="dialog-header"><h2 id="route-title">Saturday route</h2><form method="dialog"><button class="close-button" aria-label="Close route details">×</button></form></div>
       <div class="dialog-copy">
-        <p><strong>1 pm departure.</strong> Meet at Robbie’s by 12:45 pm. Allow 75–90 minutes for the drive and parking. Leave by 2 pm at the latest.</p>
+        <p><strong>12:30 pm meetup.</strong> Location pending. Leave by 1 pm and allow 75–90 minutes for the drive and parking.</p>
         <p><strong>4 pm toast.</strong> Maple Room is a 20–25 minute walk to Enchambered. Take both cars from The Snug or Shady Lady to Enchambered, or from any bar to PanIQ.</p>
         <p><strong>5:30–5:45 pm escape room.</strong> Leave the bar by 4:45 pm to allow for travel, parking, and check-in 15 minutes before the room. Confirm a slot for eight.</p>
         <p><strong>7–7:20 pm dinner.</strong> Thai Terrace is next to Enchambered and a short walk from Punch Line. From PanIQ, drive to dinner. To reach the show by 8:30 pm, leave Tapa the World by 8 pm, Wildwood by 8:10 pm, or Thai Terrace by 8:20 pm.</p>

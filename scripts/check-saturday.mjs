@@ -111,6 +111,10 @@ try {
   await choose("cody-gardi");
   assert.deepEqual(await read(), [], "Choosing a name must not vote");
   assert.equal(await submitDisabled(), true);
+  assert.equal(await textAt("[data-plan-submit]"), "Submit Votes");
+  assert.equal(await textAt('#saturday time[datetime="12:30"]'), "12:30 pm");
+  assert.match(await textAt("#saturday .timeline > li:nth-child(2) .timeline-stop"), /Meet at ___ \(pending\).*Leave by 1 pm/);
+  assert.doesNotMatch(await textAt("#saturday .timeline"), /Doors 8:45 pm|Two beverages per guest/);
   assert.match(await textAt("[data-plan-progress]"), /Ride or car.*Breakfast.*Bar.*Escape room.*Dinner.*Comedy seating/);
   for (const field of ["breakfast", "bar", "room", "dinner", "seating"]) {
     assert.equal(await leader(field), "No votes yet");
@@ -187,7 +191,7 @@ try {
   await saveIn("breakfast", "Order saved.");
   assert.deepEqual(await pickup(), ["Cody Gardi", orderText]);
   await click("#breakfast .close-button");
-  assert.equal(await textAt("[data-plan-submit]"), "Plan vote submitted");
+  assert.equal(await textAt("[data-plan-submit]"), "Votes submitted");
   const beforeReload = await run("return performance.timeOrigin");
   await cdp("Page.reload");
   await until("return performance.timeOrigin !== " + beforeReload + " && " + enabled, "Reload failed");
@@ -198,14 +202,14 @@ try {
     seating: "general", car: "offer", passengerSeats: 3, planSubmitted: true, missingPlanChoices: [],
   });
   assert.equal(await run("return " + seats + ".value"), "3");
-  assert.equal(await textAt("[data-plan-submit]"), "Plan vote submitted");
+  assert.equal(await textAt("[data-plan-submit]"), "Votes submitted");
   await click('[data-open-dialog="breakfast"]');
   assert.equal(await run('return document.querySelector("#breakfast-order").value'), orderText);
   assert.deepEqual(await pickup(), ["Cody Gardi", orderText]);
   await click("#breakfast .close-button");
-  assert.match(await textAt('[data-open-ballot=bar]'), /Shady Lady Saloon/);
-  assert.match(await textAt('[data-open-ballot=room]'), /PanIQ/);
-  assert.match(await textAt('[data-open-ballot=dinner]'), /Wildwood/);
+  assert.match(await run('return document.querySelector("[data-open-ballot=bar]").ariaLabel'), /Shady Lady Saloon/);
+  assert.match(await run('return document.querySelector("[data-open-ballot=room]").ariaLabel'), /PanIQ/);
+  assert.match(await run('return document.querySelector("[data-open-ballot=dinner]").ariaLabel'), /Wildwood/);
   await click('[data-open-dialog=route]');
   const map = new URL(await run('return document.querySelector("[data-saturday-directions]").href'));
   assert.equal(map.searchParams.get("travelmode"), "driving");
@@ -262,7 +266,16 @@ try {
     assert.equal(await run("return document.documentElement.scrollWidth <= innerWidth"), true, "Horizontal overflow at " + width);
     if(width===1304) assert.equal(await run("return document.documentElement.scrollHeight <= innerHeight"),true,"Desktop must fit without scrolling");
     if (width === 1304) {
-      assert.equal(await run('const right=document.querySelector("[data-open-dialog=route]").getBoundingClientRect().right;return [...document.querySelectorAll("[data-vote-leader]")].every(row=>Math.abs(row.getBoundingClientRect().right-right)<1)'), true);
+      const positions = await run(`
+        const right = document.querySelector("[data-open-dialog=route]").getBoundingClientRect().right;
+        return [...document.querySelectorAll("#saturday .timeline-vote")].map(button => {
+          const row = button.closest("li");
+          const leader = row.querySelector(".timeline-stop [data-vote-leader]");
+          const vote = button.getBoundingClientRect();
+          return button.textContent === "Vote" && leader.getBoundingClientRect().right < vote.left && Math.abs(vote.right - right) < 1;
+        });
+      `);
+      assert.deepEqual(positions, [true, true, true, true, true], "Vote buttons must line up at the right of their event and leader.");
     }
     const shot = await cdp("Page.captureScreenshot", {format:"png"});
     await writeFile(".venue-photo-review/saturday/" + width + ".png",Buffer.from(shot.data,"base64"));

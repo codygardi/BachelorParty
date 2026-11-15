@@ -318,6 +318,13 @@ function renderVoteLeaders() {
   }
 }
 
+function renderVoteButton(button, prompt, saved, name) {
+  const detail = name ? `Your vote is ${name}.` : saved ? "Your previous choice was removed. Vote again." : "";
+  button.setAttribute("aria-label", detail ? `${prompt}. ${detail}` : prompt);
+  button.title = detail;
+  button.toggleAttribute("data-voted", Boolean(name));
+}
+
 function updateOrderSaveButton() {
   orderSave.disabled = orderForm.hidden || orderInput.readOnly || orderInput.value.trim() === orderInput.defaultValue;
 }
@@ -351,7 +358,7 @@ function renderPlanSubmission(card) {
   const missing = card?.missingPlanChoices ?? requiredPlanChoices;
   const submitted = card?.planSubmitted === true;
   planSubmit.disabled = !connected || !activeGuest || pendingChoices !== null || missing.length > 0 || submitted;
-  planSubmit.textContent = submitted ? "Plan vote submitted" : "Submit plan vote";
+  planSubmit.textContent = submitted ? "Votes submitted" : "Submit Votes";
   planSubmit.toggleAttribute("data-submitted", submitted);
 
   let progress = activeGuest ? "" : "Choose your name to see what’s left.";
@@ -417,13 +424,13 @@ function renderVotingState() {
     const field = button.dataset.openBallot;
     const saved = selected?.[field];
     const choice = venues[field].find(({ id }) => id === saved);
-    button.firstChild.textContent = choice ? `Your vote · ${choice.name} ` : saved ? "Previous choice removed · vote again " : `${ballotTitles[field]} `;
+    renderVoteButton(button, ballotTitles[field], saved, choice?.name);
   }
   for (const { field, prompt, opener, buttons, clear } of polls) {
-    const selection = buttons.find((button) => button.dataset.choice === selected?.[field]);
-    const label = selection ? `Your vote · ${selection.querySelector("strong").textContent}` : prompt;
-    opener.firstChild.textContent = `${label} `;
-    clear.hidden = !selected?.[field];
+    const saved = selected?.[field];
+    const selection = buttons.find((button) => button.dataset.choice === saved);
+    renderVoteButton(opener, prompt, saved, selection?.querySelector("strong").textContent);
+    clear.hidden = !saved;
     for (const button of buttons) {
       button.querySelector("[data-poll-tally]").textContent = voteTally(field, button.dataset.choice);
     }
