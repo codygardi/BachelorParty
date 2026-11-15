@@ -26,7 +26,7 @@ function connect(db) {
   return {
     read,
     async readVotes() {
-      return (await read()).map(({ planSubmitted, missingPlanChoices, ...votes }) => votes);
+      return (await read()).map(({ planSubmitted, missingPlanChoices, breakfastOrder, ...votes }) => votes);
     },
     save(card) {
       return worker.fetch(new Request(endpoint, {
@@ -211,4 +211,29 @@ test("an existing plan with no breakfast choice needs a poll response", async (t
   assert.deepEqual(await api.readVotes(), [{ ...oldVotes, breakfast: "own", car: "", passengerSeats: null }]);
   assert.equal((await api.save({ inviteeId, planSubmitted: true })).status, 200);
   assert.equal((await connect(db).read())[0].planSubmitted, true);
+});
+
+test("Bubba’s orders are per guest and editing an order preserves the plan vote", async (t) => {
+  const db = new DatabaseSync(":memory:");
+  t.after(() => db.close());
+  const api = connect(db);
+  const inviteeId = existing.inviteeId;
+  const breakfastOrder = "1 everything bagel, toasted\nScallion cream cheese";
+  assert.equal((await api.save({ inviteeId, breakfastOrder })).status, 409);
+  assert.deepEqual(await api.read(), []);
+
+  const votes = { ...existing, drive: "rider", breakfast: "bubbas", room: "paniq", seating: "general" };
+  assert.equal((await api.save(votes)).status, 200);
+  assert.equal((await api.save({ inviteeId, planSubmitted: true })).status, 200);
+  const [submitted] = await api.read();
+  assert.equal(submitted.breakfastOrder, "");
+  for (const invalid of [42, "x".repeat(401)]) {
+    assert.equal((await api.save({ inviteeId, breakfastOrder: invalid })).status, 400);
+  }
+
+  assert.equal((await api.save({ inviteeId, breakfastOrder: `  ${breakfastOrder}  ` })).status, 200);
+  assert.deepEqual(await connect(db).read(), [{ ...submitted, breakfastOrder }]);
+  assert.equal((await api.save({ inviteeId, breakfast: "own" })).status, 200);
+  assert.equal((await api.save({ inviteeId, breakfastOrder })).status, 409);
+  assert.deepEqual(await connect(db).read(), [{ ...submitted, breakfast: "own", breakfastOrder: "", planSubmitted: false }]);
 });

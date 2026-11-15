@@ -184,7 +184,20 @@ const polls = [
     clear: dialog.querySelector('[data-choice=""]'),
   };
 });
-const breakfastSummary = document.querySelector("[data-breakfast-summary]");
+const voteLeaders = Array.from(document.querySelectorAll("[data-vote-leader]"), (display) => {
+  const field = display.dataset.voteLeader;
+  const options = venues[field] ?? polls.find((poll) => poll.field === field).buttons.map((button) => ({
+    id: button.dataset.choice,
+    name: button.querySelector("strong").textContent,
+  }));
+  return { display, field, options };
+});
+const breakfastPanel = document.getElementById("breakfast");
+const orderForm = breakfastPanel.querySelector("[data-breakfast-order]");
+const orderInput = orderForm.querySelector("textarea");
+const orderSave = orderForm.querySelector('[type="submit"]');
+const pickupOrders = breakfastPanel.querySelector("[data-pickup-orders]");
+const pickupEmpty = breakfastPanel.querySelector("[data-pickup-empty]");
 const planSubmit = document.querySelector("[data-plan-submit]");
 const planPanel = planSubmit.closest("[data-ballot-panel]");
 const ballotStoreUrl = persistenceConfig.ballotEndpointUrl ?? remoteStoreUrl;
@@ -198,6 +211,7 @@ let connected = false;
 let refreshing = false;
 let pendingChoices = null;
 let saveVersion = 0;
+let orderGuest = "";
 
 function mapLink(origin, destination, mode, waypoints) {
   const params = new URLSearchParams({ api: "1", origin, destination, travelmode: mode });
@@ -285,6 +299,54 @@ function voteTally(field, choice) {
   return `${count} ${count === 1 ? "vote" : "votes"}`;
 }
 
+function renderVoteLeaders() {
+  for (const { display, field, options } of voteLeaders) {
+    if (!connected && !callingCards.length) {
+      display.textContent = refreshing ? "Loading votes…" : "Votes unavailable";
+      continue;
+    }
+    const totals = options.map(({ id, name }) => ({ name, count: voteCount(field, id) }));
+    const highest = Math.max(...totals.map(({ count }) => count));
+    if (!highest) {
+      display.textContent = "No votes yet";
+      continue;
+    }
+    const leaders = totals.filter(({ count }) => count === highest).map(({ name }) => name);
+    const tied = leaders.length > 1;
+    const tally = `${highest} ${highest === 1 ? "vote" : "votes"}${tied ? " each" : ""}`;
+    display.textContent = `${tied ? "Tie" : "Leading"} · ${leaders.join(" / ")} · ${tally}`;
+  }
+}
+
+function updateOrderSaveButton() {
+  orderSave.disabled = orderForm.hidden || orderInput.readOnly || orderInput.value.trim() === orderInput.defaultValue;
+}
+
+function renderBreakfastOrders(card) {
+  const ordering = card?.breakfast === "bubbas";
+  const savedOrder = card?.breakfastOrder ?? "";
+  const hasDraft = ordering && orderGuest === activeGuest && orderInput.value !== orderInput.defaultValue;
+  if (!hasDraft) orderInput.value = savedOrder;
+  orderInput.defaultValue = savedOrder;
+  orderGuest = ordering ? activeGuest : "";
+  orderForm.hidden = !ordering;
+  orderInput.readOnly = !connected || pendingChoices !== null;
+  updateOrderSaveButton();
+
+  const rows = party.flatMap(({ id, name }) => {
+    const voter = callingCards.find(({ inviteeId }) => inviteeId === id);
+    if (voter?.breakfast !== "bubbas") return [];
+    const guest = document.createElement("dt");
+    guest.textContent = name;
+    const order = document.createElement("dd");
+    order.textContent = voter.breakfastOrder || "Order pending";
+    return [guest, order];
+  });
+  pickupOrders.replaceChildren(...rows);
+  pickupEmpty.hidden = rows.length > 0;
+  pickupEmpty.textContent = connected ? "No Bubba’s votes yet." : refreshing ? "Loading pickup list…" : "Pickup list unavailable";
+}
+
 function renderPlanSubmission(card) {
   const missing = card?.missingPlanChoices ?? requiredPlanChoices;
   const submitted = card?.planSubmitted === true;
@@ -366,9 +428,8 @@ function renderVotingState() {
       button.querySelector("[data-poll-tally]").textContent = voteTally(field, button.dataset.choice);
     }
   }
-  breakfastSummary.textContent = connected || callingCards.length
-    ? `${voteCount("breakfast", "bubbas")} for Bubba’s · ${voteCount("breakfast", "own")} getting their own`
-    : "";
+  renderVoteLeaders();
+  renderBreakfastOrders(selected);
   renderPlanSubmission(selected);
   renderRoute(selected);
 }
@@ -540,16 +601,20 @@ async function saveChoices(panel, choices, successMessage) {
   saveVersion += 1;
   pendingChoices = choices;
   renderVotingState();
-  if (scope !== "submission") setStatus("submission");
+  if (scope !== "submission" && !Object.hasOwn(choices, "breakfastOrder")) setStatus("submission");
   setStatus(scope, "Saving…");
   let refreshAfterFailure = false;
   try {
     callingCards = await requestCallingCards({ inviteeId: activeGuest, ...choices });
     if (scope !== "venue" || deckAtSave === activeDeck) setStatus(scope, successMessage);
   } catch (error) {
-    if (scope === "submission") {
-      refreshAfterFailure = error.cause === 409;
-      setStatus(scope, refreshAfterFailure ? error.message : "Plan vote could not be submitted. Try again.");
+    refreshAfterFailure = error.cause === 409;
+    if (refreshAfterFailure) {
+      setStatus(scope, error.message);
+    } else if (scope === "submission") {
+      setStatus(scope, "Plan vote could not be submitted. Try again.");
+    } else if (Object.hasOwn(choices, "breakfastOrder")) {
+      setStatus(scope, "Order could not be saved. Try again.");
     } else if (scope !== "venue" || deckAtSave === activeDeck) {
       setStatus(scope, "Vote could not be saved. Try again.");
     }
@@ -577,6 +642,14 @@ function saveVote({ currentTarget }) {
 passengerCount.addEventListener("change", () => {
   if (passengerField.hidden || passengerCount.value === "") return;
   saveChoices(driverPanel, { car: "offer", passengerSeats: Number(passengerCount.value) }, "Passenger count saved.");
+});
+orderInput.addEventListener("input", updateOrderSaveButton);
+orderForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  if (orderSave.disabled) return;
+  const breakfastOrder = orderInput.value.trim();
+  orderInput.value = breakfastOrder;
+  saveChoices(breakfastPanel, { breakfastOrder }, breakfastOrder ? "Order saved." : "Order cleared.");
 });
 planSubmit.addEventListener("click", () => {
   if (!planSubmit.disabled) saveChoices(planPanel, { planSubmitted: true }, "");

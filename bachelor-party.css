@@ -318,7 +318,16 @@ button[aria-disabled="true"], button:disabled { opacity: 0.58; cursor: default; 
 .timeline-stop p, .timeline-stop a { font-size: 0.76rem; }
 .timeline-stop p { color: var(--muted); }
 .timeline-stop .quiet-button { padding-block: 0.1rem; }
-[data-breakfast-summary]:empty { display: none; }
+.vote-leader {
+  grid-column: 2;
+  color: var(--green);
+  font-size: 0.75rem;
+  text-align: right;
+}
+@media (min-width: 48.001rem) {
+  .timeline > li:has(> .vote-leader) { grid-template-columns: 6.2rem minmax(0, 1fr) minmax(11rem, 27%); }
+  .vote-leader { grid-column: 3; }
+}
 .inline-vote {
   width: fit-content;
   padding: 0.1rem 0;
@@ -373,6 +382,35 @@ dialog::backdrop { background: #0a0b08bd; }
 .poll-option strong { color: inherit; }
 .seating-price { font: 1.5rem/1.12 "Instrument Serif", Georgia, serif; }
 .poll-tally { margin-top: 0.18rem; font-size: 0.74rem; }
+.breakfast-order, .breakfast-pickup { display: grid; gap: 0.42rem; }
+.breakfast-order label { color: var(--text); font-weight: 650; }
+.breakfast-order textarea {
+  width: 100%;
+  min-height: 3.5rem;
+  padding: 0.5rem 0.65rem;
+  resize: vertical;
+  border: 1px solid var(--line);
+  border-radius: 0.43rem;
+  background: var(--panel-dark);
+  color: var(--text);
+  font: inherit;
+}
+.breakfast-order button { justify-self: start; }
+.breakfast-pickup {
+  margin-top: 0.7rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--line);
+}
+.breakfast-pickup h3 { font-size: 1.5rem; }
+.breakfast-pickup p, .breakfast-pickup dl { color: var(--muted); font-size: 0.82rem; }
+.breakfast-pickup dl {
+  display: grid;
+  grid-template-columns: minmax(6rem, 32%) minmax(0, 1fr);
+  gap: 0.3rem 0.75rem;
+  margin: 0;
+}
+.breakfast-pickup dt { color: var(--gold-light); font-weight: 650; }
+.breakfast-pickup dd { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
 .seating-map summary { width: fit-content; cursor: pointer; color: var(--gold); font-size: 0.82rem; }
 .seating-map img {
   display: block;

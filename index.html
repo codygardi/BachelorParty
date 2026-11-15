@@ -8,10 +8,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="bachelor-party.css?v=20261115g">
+    <link rel="stylesheet" href="bachelor-party.css?v=20261115h">
     <script src="bachelor-party-config.js" defer></script>
     <script src="bachelor-party.js?v=20261113c" defer></script>
-    <script src="calling-cards.js?v=20261115g" defer></script>
+    <script src="calling-cards.js?v=20261115h" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
@@ -113,8 +113,8 @@
               <div class="timeline-stop">
                 <h3>Breakfast</h3>
                 <button class="inline-vote" type="button" data-open-dialog="breakfast" aria-haspopup="dialog">Vote on Bubba’s Bagels <span aria-hidden="true">↗</span></button>
-                <p data-breakfast-summary></p>
               </div>
+              <p class="vote-leader" data-vote-leader="breakfast"></p>
             </li>
             <li>
               <time class="timeline-time" datetime="12:45">12:45 pm</time>
@@ -126,6 +126,7 @@
                 <h3>Toast to Robbie</h3>
                 <button class="inline-vote" type="button" data-open-ballot="bar" aria-haspopup="dialog">Vote for a bar <span aria-hidden="true">↗</span></button>
               </div>
+              <p class="vote-leader" data-vote-leader="bar"></p>
             </li>
             <li>
               <span class="timeline-time">5:30–5:45 pm</span>
@@ -133,6 +134,7 @@
                 <h3>Escape room</h3>
                 <button class="inline-vote" type="button" data-open-ballot="room" aria-haspopup="dialog">Vote for an escape room location <span aria-hidden="true">↗</span></button>
               </div>
+              <p class="vote-leader" data-vote-leader="room"></p>
             </li>
             <li>
               <span class="timeline-time">7:00–7:20 pm</span>
@@ -140,6 +142,7 @@
                 <h3>Dinner</h3>
                 <button class="inline-vote" type="button" data-open-ballot="dinner" aria-haspopup="dialog">Vote for dinner <span aria-hidden="true">↗</span></button>
               </div>
+              <p class="vote-leader" data-vote-leader="dinner"></p>
             </li>
             <li>
               <time class="timeline-time" datetime="21:15">9:15 pm</time>
@@ -149,6 +152,7 @@
                 <button class="inline-vote" type="button" data-open-dialog="seating-voting" aria-haspopup="dialog">Vote on seating <span aria-hidden="true">↗</span></button>
                 <a href="https://www.ticketmaster.com/leslie-liao-sacramento-california-01-16-2027/event/1C006543E18B42C7" target="_blank" rel="noopener">Show tickets <span aria-hidden="true">↗</span></a>
               </div>
+              <p class="vote-leader" data-vote-leader="seating"></p>
             </li>
             <li>
               <span class="timeline-time">After show</span>
@@ -292,12 +296,22 @@
           </button>
         </div>
         <p>860 Sutton Way, Grass Valley · Saturday from 7 am · <a href="https://bubbas-bagels.com/" target="_blank" rel="noopener">Menu &amp; hours <span aria-hidden="true">↗</span></a></p>
+        <form class="breakfast-order" data-breakfast-order hidden>
+          <label for="breakfast-order">Your Bubba’s order</label>
+          <textarea id="breakfast-order" rows="2" maxlength="400" placeholder="e.g. 1 everything bagel, toasted, with scallion cream cheese"></textarea>
+          <button class="button button-outline" type="submit" disabled>Save order</button>
+        </form>
       </div>
       <div class="deck-footer">
         <p class="vote-message" role="status" data-ballot-status="breakfast"></p>
         <button class="quiet-button" type="button" data-vote="breakfast" data-choice="" data-clear-breakfast hidden>Clear my vote</button>
         <button class="quiet-button" type="button" data-ballot-retry hidden>Retry connection</button>
       </div>
+      <section class="breakfast-pickup" aria-labelledby="pickup-title">
+        <h3 id="pickup-title">Bubba’s pickup list</h3>
+        <p data-pickup-empty>No Bubba’s votes yet.</p>
+        <dl data-pickup-orders></dl>
+      </section>
     </dialog>
 
     <dialog id="drivers" aria-labelledby="drivers-title">

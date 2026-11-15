@@ -14,6 +14,8 @@ Saturday has one set of venue ballots for the bar, escape room location, and din
 
 The final plan vote requires a ride request or car offer, plus votes for breakfast, the bar, escape room location, dinner, and comedy seating. Car offers require a passenger count excluding the driver. The Worker checks completion when a plan vote is submitted. Changing or clearing a choice reopens that vote for submission.
 
+Saturday shows the highest tally for each activity poll and lists every tied option. Guests who vote for Bubba’s can add an optional order to the pickup list. Adding or editing the order keeps the submitted plan vote, and withdrawing the Bubba’s choice removes the order.
+
 The Worker carries forward eligible votes from the former plans. If someone saved two eligible votes for the same stop, it uses the vote from their preferred plan, or the drive vote if they never picked a plan. Skull Witch and The Collection map to Enchambered. Pirates of Tortuga maps to PanIQ. A removed choice prompts the voter to choose again. Saving or clearing a venue replaces both prior choices for that stop.
 
 November 15, 2026 travel estimates use OpenStreetMap pedestrian and driving routes, rounded to allow for intersections and parking. The escape location cards link to directions from each bar.

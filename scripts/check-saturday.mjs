@@ -103,11 +103,18 @@ try {
   const castVenue = async () => { await click('[data-venue-vote]'); await saveIn("venue"); };
   const next = async () => click('[data-deck-step="1"]');
   const submitDisabled = () => run('return document.querySelector("[data-plan-submit]").disabled');
+  const leader = (field) => textAt('[data-vote-leader="' + field + '"]');
+  const orderText = "1 everything bagel, toasted\nScallion cream cheese";
+  const enterOrder = (value) => run('const input=document.querySelector("#breakfast-order");input.value=' + JSON.stringify(value) + ';input.dispatchEvent(new Event("input",{bubbles:true}))');
+  const pickup = () => run('return [...document.querySelectorAll("[data-pickup-orders] > *")].map(row => row.textContent)');
 
   await choose("cody-gardi");
   assert.deepEqual(await read(), [], "Choosing a name must not vote");
   assert.equal(await submitDisabled(), true);
   assert.match(await textAt("[data-plan-progress]"), /Ride or car.*Breakfast.*Bar.*Escape room.*Dinner.*Comedy seating/);
+  for (const field of ["breakfast", "bar", "room", "dinner", "seating"]) {
+    assert.equal(await leader(field), "No votes yet");
+  }
   const expectedVenues = {
     bar: ["Maple Room Lounge", "The Snug", "Shady Lady Saloon"],
     room: ["Enchambered", "PanIQ"],
@@ -156,25 +163,46 @@ try {
   assert.equal(await textAt("[data-plan-progress]"), "Still needed · Breakfast");
   await click('[data-open-dialog="breakfast"]');
   assert.deepEqual(await run('return [...document.querySelectorAll("#breakfast .poll-option strong")].map(option => option.textContent)'), ["Bubba’s Bagels", "I’ll get my own"]);
+  assert.equal(await run('return document.querySelector("[data-breakfast-order]").hidden'), true);
   await click('[data-vote=breakfast][data-choice=bubbas]');
   await saveIn("breakfast");
+  assert.equal(await run('return document.querySelector("[data-breakfast-order]").hidden'), false);
+  assert.deepEqual(await pickup(), ["Cody Gardi", "Order pending"]);
   await click("#breakfast .close-button");
-  assert.equal(await textAt("[data-breakfast-summary]"), "1 for Bubba’s · 0 getting their own");
+  assert.equal(await leader("breakfast"), "Leading · Bubba’s Bagels · 1 vote");
+  assert.equal(await leader("bar"), "Leading · Shady Lady Saloon · 1 vote");
+  assert.equal(await leader("room"), "Leading · PanIQ · 1 vote");
+  assert.equal(await leader("dinner"), "Leading · Wildwood Kitchen & Bar · 1 vote");
+  assert.equal(await leader("seating"), "Leading · General Admission · 1 vote");
   assert.equal(await submitDisabled(), false);
   await click("[data-plan-submit]");
   await until('return document.querySelector("[data-plan-submit]").hasAttribute("data-submitted")', "Plan vote did not submit.");
   assert.equal(await submitDisabled(), true);
   assert.match(await textAt("[data-plan-tally]"), /1 of 8/);
+  await click('[data-open-dialog="breakfast"]');
+  await enterOrder(orderText);
+  await run("await refreshCallingCards()");
+  assert.equal(await run('return document.querySelector("#breakfast-order").value'), orderText);
+  await click("[data-breakfast-order] button");
+  await saveIn("breakfast", "Order saved.");
+  assert.deepEqual(await pickup(), ["Cody Gardi", orderText]);
+  await click("#breakfast .close-button");
+  assert.equal(await textAt("[data-plan-submit]"), "Plan vote submitted");
   const beforeReload = await run("return performance.timeOrigin");
   await cdp("Page.reload");
   await until("return performance.timeOrigin !== " + beforeReload + " && " + enabled, "Reload failed");
   const [card] = await read();
   assert.deepEqual(card, {
-    inviteeId: "cody-gardi", drive: "volunteer", breakfast: "bubbas", bar: "shady-lady", room: "paniq", dinner: "wildwood",
+    inviteeId: "cody-gardi", drive: "volunteer", breakfast: "bubbas", breakfastOrder: orderText,
+    bar: "shady-lady", room: "paniq", dinner: "wildwood",
     seating: "general", car: "offer", passengerSeats: 3, planSubmitted: true, missingPlanChoices: [],
   });
   assert.equal(await run("return " + seats + ".value"), "3");
   assert.equal(await textAt("[data-plan-submit]"), "Plan vote submitted");
+  await click('[data-open-dialog="breakfast"]');
+  assert.equal(await run('return document.querySelector("#breakfast-order").value'), orderText);
+  assert.deepEqual(await pickup(), ["Cody Gardi", orderText]);
+  await click("#breakfast .close-button");
   assert.match(await textAt('[data-open-ballot=bar]'), /Shady Lady Saloon/);
   assert.match(await textAt('[data-open-ballot=room]'), /PanIQ/);
   assert.match(await textAt('[data-open-ballot=dinner]'), /Wildwood/);
@@ -187,17 +215,21 @@ try {
   const otherVote = await fetch(url + "api/calling-cards", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ action: "save-ballot", card: { inviteeId: "max-voorhees", bar: "shady-lady", breakfast: "own" } }),
+    body: JSON.stringify({ action: "save-ballot", card: { inviteeId: "max-voorhees", bar: "shady-lady", breakfast: "own", seating: "preferred" } }),
   });
   assert.equal(otherVote.status, 200);
   await run("await refreshCallingCards()");
   await choose("max-voorhees");
-  assert.equal(await textAt("[data-breakfast-summary]"), "1 for Bubba’s · 1 getting their own");
+  assert.equal(await leader("breakfast"), "Tie · Bubba’s Bagels / I’ll get my own · 1 vote each");
+  assert.equal(await leader("seating"), "Tie · General Admission / Preferred Premium Seating · 1 vote each");
   await click('[data-open-dialog="breakfast"]');
+  assert.equal(await run('return document.querySelector("[data-breakfast-order]").hidden'), true);
+  assert.deepEqual(await pickup(), ["Cody Gardi", orderText]);
   await click('[data-vote=breakfast][data-choice=bubbas]');
   await saveIn("breakfast");
+  assert.deepEqual(await pickup(), ["Max Voorhees", "Order pending", "Cody Gardi", orderText]);
   await click("#breakfast .close-button");
-  assert.equal(await textAt("[data-breakfast-summary]"), "2 for Bubba’s · 0 getting their own");
+  assert.equal(await leader("breakfast"), "Leading · Bubba’s Bagels · 2 votes");
   await openDeck("bar");
   assert.equal(await textAt("[data-venue-tally]"), "2 votes");
   await next();
@@ -229,11 +261,14 @@ try {
     await run("await document.fonts.ready");
     assert.equal(await run("return document.documentElement.scrollWidth <= innerWidth"), true, "Horizontal overflow at " + width);
     if(width===1304) assert.equal(await run("return document.documentElement.scrollHeight <= innerHeight"),true,"Desktop must fit without scrolling");
+    if (width === 1304) {
+      assert.equal(await run('const right=document.querySelector("[data-open-dialog=route]").getBoundingClientRect().right;return [...document.querySelectorAll("[data-vote-leader]")].every(row=>Math.abs(row.getBoundingClientRect().right-right)<1)'), true);
+    }
     const shot = await cdp("Page.captureScreenshot", {format:"png"});
     await writeFile(".venue-photo-review/saturday/" + width + ".png",Buffer.from(shot.data,"base64"));
   }
   assert.deepEqual(errors, []);
-  console.log("Verified breakfast voting and tallies, the required-vote gate, submission and reload, venue cards, and responsive layouts.");
+  console.log("Verified leaders and ties, breakfast pickup orders and reload, preserved plan submissions, venue cards, and responsive layouts.");
 
 } finally {
   socket?.close();
