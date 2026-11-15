@@ -84,7 +84,8 @@ try {
   await viewport(1304, 883);
   await cdp("Page.navigate", { url });
   await until("return " + enabled, "Ballot did not load.");
-  assert.equal(await run("return " + offered + '.type === "checkbox" && ' + field + ".hidden"), true);
+  assert.deepEqual(await run("return [" + offered + ".textContent, " + field + ".hidden]"), ["We can take my car", true]);
+  assert.equal(await run('return document.querySelector(".site-header [data-open-dialog=games]") === null'), true);
 
   await cdp("Runtime.enable");
   const errors = [];
@@ -101,10 +102,12 @@ try {
   const closeDeck = async () => click('#venue-voting .close-button');
   const castVenue = async () => { await click('[data-venue-vote]'); await saveIn("venue"); };
   const next = async () => click('[data-deck-step="1"]');
+  const submitDisabled = () => run('return document.querySelector("[data-plan-submit]").disabled');
 
   await choose("cody-gardi");
   assert.deepEqual(await read(), [], "Choosing a name must not vote");
-  assert.equal(await run('return document.querySelector("[data-ballot-panel=plan]") === null'), true);
+  assert.equal(await submitDisabled(), true);
+  assert.match(await textAt("[data-plan-progress]"), /Ride or car.*Bar.*Escape room.*Dinner.*Comedy seating/);
   const expectedVenues = {
     bar: ["Maple Room Lounge", "The Snug", "Shady Lady Saloon"],
     room: ["Enchambered", "PanIQ"],
@@ -139,15 +142,31 @@ try {
   await next();
   await castVenue(); await closeDeck();
   await run(offered + ".click()"); await didSave("Car offer saved.");
+  assert.equal(await run("return " + field + ".hidden"), false);
+  assert.equal(await submitDisabled(), true);
+  assert.match(await textAt("[data-plan-progress]"), /Passenger seats.*Comedy seating/);
+  await click('[data-open-dialog="seating-voting"]');
+  await click('[data-vote=seating][data-choice=general]');
+  await saveIn("seating");
+  await click("#seating-voting .close-button");
+  assert.equal(await submitDisabled(), true);
+  assert.match(await textAt("[data-plan-progress]"), /Passenger seats/);
   await run(seats + '.value="3";' + seats + '.dispatchEvent(new Event("change",{bubbles:true}))'); await didSave("Passenger count saved.");
+  assert.equal(await submitDisabled(), false);
+  await click("[data-plan-submit]");
+  await until('return document.querySelector("[data-plan-submit]").hasAttribute("data-submitted")', "Plan vote did not submit.");
+  assert.equal(await submitDisabled(), true);
+  assert.match(await textAt("[data-plan-tally]"), /1 of 8/);
   const beforeReload = await run("return performance.timeOrigin");
   await cdp("Page.reload");
   await until("return performance.timeOrigin !== " + beforeReload + " && " + enabled, "Reload failed");
   const [card] = await read();
   assert.deepEqual(card, {
-    inviteeId: "cody-gardi", drive: "", bar: "shady-lady", room: "paniq", dinner: "wildwood",
-    seating: "", car: "offer", passengerSeats: 3,
+    inviteeId: "cody-gardi", drive: "volunteer", bar: "shady-lady", room: "paniq", dinner: "wildwood",
+    seating: "general", car: "offer", passengerSeats: 3, planSubmitted: true, missingPlanChoices: [],
   });
+  assert.equal(await run("return " + seats + ".value"), "3");
+  assert.equal(await textAt("[data-plan-submit]"), "Plan vote submitted");
   assert.match(await textAt('[data-open-ballot=bar]'), /Shady Lady Saloon/);
   assert.match(await textAt('[data-open-ballot=room]'), /PanIQ/);
   assert.match(await textAt('[data-open-ballot=dinner]'), /Wildwood/);
@@ -180,11 +199,18 @@ try {
   await cdp("Network.emulateNetworkConditions", {offline:false,latency:0,downloadThroughput:-1,uploadThroughput:-1});
   await closeDeck();
   await choose("cody-gardi");
+  await click('[data-vote=drive][data-choice=rider]');
+  await didSave("Ride request saved.");
+  assert.equal(await run("return " + field + ".hidden"), true);
+  assert.equal(await submitDisabled(), false);
   await openDeck("bar");
   await click("[data-clear-venue]"); await saveIn("venue","Vote cleared."); await closeDeck();
   const afterClear = await read();
-  assert.deepEqual(afterClear.find((row) => row.inviteeId === "cody-gardi"), { ...card, bar: "" });
+  assert.deepEqual(afterClear.find((row) => row.inviteeId === "cody-gardi"), {
+    ...card, bar: "", drive: "rider", car: "", passengerSeats: null, planSubmitted: false, missingPlanChoices: ["bar"],
+  });
   assert.equal(afterClear.find((row) => row.inviteeId === "max-voorhees").bar, "shady-lady");
+  assert.equal(await submitDisabled(), true);
 
   await mkdir(".venue-photo-review/saturday", {recursive:true});
   for (const [width,height] of [[1304,883],[780,820],[390,844]]) {
@@ -197,7 +223,7 @@ try {
     await writeFile(".venue-photo-review/saturday/" + width + ".png",Buffer.from(shot.data,"base64"));
   }
   assert.deepEqual(errors, []);
-  console.log("Verified the Saturday ballots, venue photos, location directions, saved votes, tallies, failure feedback, clearing, and responsive layouts.");
+  console.log("Verified car capacity, the required-vote gate, submission and reload, ballot changes, venue cards, and responsive layouts.");
 
 } finally {
   socket?.close();

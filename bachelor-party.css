@@ -203,18 +203,15 @@ button { cursor: pointer; }
   flex-wrap: wrap;
   gap: 0.4rem 0.62rem;
 }
-.car-offer, .car-passengers {
+.car-passengers {
   display: inline-flex;
   align-items: center;
   gap: 0.42rem;
   min-height: 2.15rem;
   font-size: 0.8rem;
 }
-.car-offer { color: var(--gold-light); font-weight: 650; cursor: pointer; }
-.car-offer input { width: 1rem; height: 1rem; margin: 0; accent-color: var(--gold); cursor: inherit; }
-.car-offer:has([aria-disabled="true"]) { opacity: 0.58; cursor: default; }
 .car-passengers { color: var(--muted); }
-.car-passengers select[aria-disabled="true"] { opacity: 0.58; }
+.car-passengers select:disabled { opacity: 0.58; }
 select {
   min-height: 2.15rem;
   max-width: 100%;
@@ -243,8 +240,8 @@ select {
 .button:hover { border-color: var(--gold); color: var(--gold-light); }
 .button-choice { background: #302819; color: var(--gold-light); }
 .button-choice[aria-pressed="true"] { background: var(--gold); border-color: var(--gold); color: #21180e; }
-button[aria-disabled="true"] { opacity: 0.58; cursor: default; }
-.button[aria-disabled="true"]:hover { border-color: #68563c; }
+button[aria-disabled="true"], button:disabled { opacity: 0.58; cursor: default; }
+.button[aria-disabled="true"]:hover, .button:disabled:hover { border-color: #68563c; }
 .driver-footer {
   grid-column: 1 / -1;
   min-height: 1.35rem;
@@ -284,6 +281,20 @@ button[aria-disabled="true"] { opacity: 0.58; cursor: default; }
   background: var(--panel-dark);
 }
 .schedule-caption { min-height: 1.4rem; color: var(--muted); font-size: 0.74rem; }
+.plan-submission, .submission-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.65rem;
+}
+.plan-submission {
+  justify-content: space-between;
+  border-top: 1px solid var(--line);
+  padding-block: 0.55rem 0.35rem;
+}
+.submission-status { flex: 1 1 16rem; color: var(--muted); font-size: 0.79rem; }
+[data-plan-tally] { color: var(--green); }
+[data-plan-submit][data-submitted] { color: var(--green); }
 .route-note { font-size: 0.76rem; }
 #breakfast .breakfast-spots { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
 .venue-dialog .dialog-header h2 { font-size: clamp(1.5rem, 4vw, 1.9rem); }

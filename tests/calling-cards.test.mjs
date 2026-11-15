@@ -18,11 +18,15 @@ function connect(db) {
     },
   });
   const env = { CALLING_CARDS: { getByName: () => ({ fetch: (url, init) => box.fetch(new Request(url, init)) }) } };
+  async function read() {
+    const response = await worker.fetch(new Request(endpoint), env);
+    assert.equal(response.status, 200);
+    return (await response.json()).ballots;
+  }
   return {
-    async read() {
-      const response = await worker.fetch(new Request(endpoint), env);
-      assert.equal(response.status, 200);
-      return (await response.json()).ballots;
+    read,
+    async readVotes() {
+      return (await read()).map(({ planSubmitted, missingPlanChoices, ...votes }) => votes);
     },
     save(card) {
       return worker.fetch(new Request(endpoint, {
@@ -42,10 +46,10 @@ test("the existing ballots table keeps all votes when adding ballot columns", as
   db.prepare("INSERT INTO ballots VALUES (?, ?, ?, ?)").run(existing.inviteeId, existing.drive, existing.bar, existing.dinner);
 
   const api = connect(db);
-  assert.deepEqual(await api.read(), [{ ...existing, room: "", seating: "", car: "", passengerSeats: null }]);
+  assert.deepEqual(await api.readVotes(), [{ ...existing, room: "", seating: "", car: "", passengerSeats: null }]);
   const newVotes = { room: "enchambered", seating: "preferred", car: "offer", passengerSeats: 3 };
   assert.equal((await api.save({ inviteeId: existing.inviteeId, ...newVotes })).status, 200);
-  assert.deepEqual(await connect(db).read(), [{ ...existing, ...newVotes }]);
+  assert.deepEqual(await connect(db).readVotes(), [{ ...existing, ...newVotes }]);
 });
 
 test("a rider can save or withdraw a car and its passenger seats independently of other votes", async (t) => {
@@ -62,15 +66,15 @@ test("a rider can save or withdraw a car and its passenger seats independently o
   ]);
   for (const response of responses) assert.equal(response.status, 200);
   const withOffer = { ...rider, car: "offer", seating: "general", passengerSeats: 3 };
-  assert.deepEqual(await api.read(), [{ ...withOffer, room: "paniq", passengerSeats: null }]);
+  assert.deepEqual(await api.readVotes(), [{ ...withOffer, room: "paniq", passengerSeats: null }]);
   assert.equal((await api.save({ inviteeId, car: "offer", passengerSeats: 0 })).status, 200);
-  assert.deepEqual(await connect(db).read(), [{ ...withOffer, room: "paniq", passengerSeats: 0 }]);
+  assert.deepEqual(await connect(db).readVotes(), [{ ...withOffer, room: "paniq", passengerSeats: 0 }]);
   assert.equal((await api.save({ inviteeId, car: "offer", passengerSeats: 3 })).status, 200);
   assert.equal((await api.save({ inviteeId, car: "offer" })).status, 200);
 
   for (const room of ["paniq", "enchambered"]) {
     assert.equal((await api.save({ inviteeId, room })).status, 200);
-    assert.deepEqual(await api.read(), [{ ...withOffer, room }]);
+    assert.deepEqual(await api.readVotes(), [{ ...withOffer, room }]);
   }
   assert.equal((await api.save({ inviteeId, room: "invalid", seating: "preferred" })).status, 400);
   assert.equal((await api.save({ inviteeId, seating: "vip" })).status, 400);
@@ -80,15 +84,15 @@ test("a rider can save or withdraw a car and its passenger seats independently o
   }
   assert.equal((await api.save({ inviteeId, passengerSeats: 4 })).status, 400);
   assert.equal((await api.save({ inviteeId, car: "", passengerSeats: 4 })).status, 400);
-  assert.deepEqual(await api.read(), [{ ...withOffer, room: "enchambered" }]);
+  assert.deepEqual(await api.readVotes(), [{ ...withOffer, room: "enchambered" }]);
 
   assert.equal((await api.save({ inviteeId, car: "" })).status, 200);
-  assert.deepEqual(await connect(db).read(), [{ ...withOffer, room: "enchambered", car: "", passengerSeats: null }]);
+  assert.deepEqual(await connect(db).readVotes(), [{ ...withOffer, room: "enchambered", car: "", passengerSeats: null }]);
 
   assert.equal((await api.save({ inviteeId, seating: "" })).status, 200);
-  assert.deepEqual(await api.read(), [{ ...rider, room: "enchambered", seating: "", car: "", passengerSeats: null }]);
+  assert.deepEqual(await api.readVotes(), [{ ...rider, room: "enchambered", seating: "", car: "", passengerSeats: null }]);
   assert.equal((await api.save({ inviteeId, room: "" })).status, 200);
-  assert.deepEqual(await api.read(), [{ ...rider, room: "", seating: "", car: "", passengerSeats: null }]);
+  assert.deepEqual(await api.readVotes(), [{ ...rider, room: "", seating: "", car: "", passengerSeats: null }]);
 });
 
 test("the shared ballot carries forward eligible votes from both former plans", async (t) => {
@@ -105,17 +109,17 @@ test("the shared ballot carries forward eligible votes from both former plans", 
     WHERE inviteeId = ?
   `).run(inviteeId);
   const merged = { ...card, bar: "maple-room", room: "enchambered" };
-  assert.deepEqual(await connect(db).read(), [merged]);
+  assert.deepEqual(await connect(db).readVotes(), [merged]);
 
   db.prepare("UPDATE ballots SET plan = 'drive' WHERE inviteeId = ?").run(inviteeId);
-  assert.deepEqual(await api.read(), [{ ...card, room: "paniq" }]);
+  assert.deepEqual(await api.readVotes(), [{ ...card, room: "paniq" }]);
   db.prepare("UPDATE ballots SET plan = 'walk' WHERE inviteeId = ?").run(inviteeId);
   assert.equal((await api.save({ inviteeId, room: "", bar: "shady-lady" })).status, 200);
-  assert.deepEqual(await connect(db).read(), [{ ...merged, room: "", bar: "shady-lady" }]);
+  assert.deepEqual(await connect(db).readVotes(), [{ ...merged, room: "", bar: "shady-lady" }]);
 
   const guest = { inviteeId: "robbie-merchant", bar: "maple-room", room: "paniq", dinner: "tapa-the-world" };
   assert.equal((await api.save(guest)).status, 200);
-  const saved = (await connect(db).read()).find((row) => row.inviteeId === guest.inviteeId);
+  const saved = (await connect(db).readVotes()).find((row) => row.inviteeId === guest.inviteeId);
   assert.deepEqual(saved, { ...guest, drive: "", seating: "", car: "", passengerSeats: null });
 });
 
@@ -129,13 +133,64 @@ test("removed venues stay on existing ballots until the voter chooses again", as
   const retired = { bar: "fieldhouse", room: "seance", dinner: "petes-arden" };
   assert.equal((await api.save({ inviteeId, seating: "general" })).status, 200);
   const card = { ...existing, ...retired, seating: "general", car: "", passengerSeats: null };
-  assert.deepEqual(await connect(db).read(), [card]);
+  assert.deepEqual(await connect(db).readVotes(), [card]);
 
   for (const [field, choice] of Object.entries({ ...retired, plan: "walk", walkBar: "maple-room" })) {
     assert.equal((await api.save({ inviteeId, [field]: choice, seating: "preferred" })).status, 400);
   }
-  assert.deepEqual(await api.read(), [card]);
+  assert.deepEqual(await api.readVotes(), [card]);
   const replacements = { bar: "maple-room", room: "enchambered", dinner: "thai-terrace" };
   assert.equal((await api.save({ inviteeId, ...replacements })).status, 200);
-  assert.deepEqual(await connect(db).read(), [{ ...card, ...replacements }]);
+  assert.deepEqual(await connect(db).readVotes(), [{ ...card, ...replacements }]);
+});
+
+test("plan submission requires saved venue votes, transportation, and capacity for a car offer", async (t) => {
+  const db = new DatabaseSync(":memory:");
+  t.after(() => db.close());
+  const api = connect(db);
+  const inviteeId = existing.inviteeId;
+  const submit = { inviteeId, planSubmitted: true };
+  assert.equal((await api.save(submit)).status, 409);
+  assert.deepEqual(await api.read(), []);
+  assert.equal((await api.save({ ...submit, bar: "snug" })).status, 400);
+
+  const votes = { bar: "snug", room: "paniq", dinner: "wildwood", seating: "general" };
+  for (const [field, choice] of Object.entries(votes)) {
+    assert.equal((await api.save({ inviteeId, [field]: choice })).status, 200);
+    assert.equal((await api.save(submit)).status, 409);
+  }
+
+  assert.equal((await api.save({ inviteeId, drive: "volunteer" })).status, 200);
+  assert.deepEqual((await api.read())[0].missingPlanChoices, ["transport"]);
+  assert.equal((await api.save(submit)).status, 409);
+  assert.equal((await api.save({ inviteeId, drive: "volunteer", car: "offer" })).status, 200);
+  assert.deepEqual((await api.read())[0].missingPlanChoices, ["passengerSeats"]);
+  assert.equal((await api.save(submit)).status, 409);
+  assert.equal((await api.save({ inviteeId, car: "offer", passengerSeats: 4 })).status, 200);
+
+  for (const [field, choice] of Object.entries(votes)) {
+    assert.equal((await api.save({ inviteeId, [field]: "" })).status, 200);
+    assert.deepEqual((await api.read())[0].missingPlanChoices, [field]);
+    assert.equal((await api.save(submit)).status, 409);
+    assert.equal((await api.save({ inviteeId, [field]: choice })).status, 200);
+  }
+
+  assert.equal((await api.save(submit)).status, 200);
+  assert.equal((await connect(db).read())[0].planSubmitted, true);
+  assert.equal((await api.save({ inviteeId, bar: "snug" })).status, 200);
+  assert.equal((await api.read())[0].planSubmitted, true, "Retrying the same vote keeps the submission");
+
+  assert.equal((await api.save({ inviteeId, seating: "preferred" })).status, 200);
+  assert.equal((await api.read())[0].planSubmitted, false);
+  assert.equal((await api.save(submit)).status, 200);
+  assert.equal((await api.save({ inviteeId, drive: "rider", car: "" })).status, 200);
+  const [rider] = await api.read();
+  assert.equal(rider.passengerSeats, null);
+  assert.equal(rider.planSubmitted, false);
+  assert.deepEqual(rider.missingPlanChoices, []);
+  assert.equal((await api.save(submit)).status, 200);
+
+  assert.equal((await api.save({ inviteeId, dinner: "" })).status, 200);
+  assert.equal((await api.read())[0].planSubmitted, false);
+  assert.equal((await api.save(submit)).status, 409);
 });

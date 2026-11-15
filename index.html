@@ -8,16 +8,15 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="bachelor-party.css?v=20261115e">
+    <link rel="stylesheet" href="bachelor-party.css?v=20261115f">
     <script src="bachelor-party-config.js" defer></script>
     <script src="bachelor-party.js?v=20261113c" defer></script>
-    <script src="calling-cards.js?v=20261115e" defer></script>
+    <script src="calling-cards.js?v=20261115f" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
     <header class="site-header shell">
       <span class="brand"><span class="brand-die" aria-hidden="true">20</span> The Bachelor Quest</span>
-      <button class="quiet-button" type="button" data-open-dialog="games">Tavern games <span aria-hidden="true">↗</span></button>
     </header>
 
     <main class="shell dashboard" id="main" data-view="party">
@@ -47,16 +46,12 @@
               <option value="">Choose your name</option>
             </select>
             <div class="driver-choices" role="group" aria-label="Saturday transportation">
-              <button class="button button-choice" type="button" data-vote="drive" data-choice="volunteer" aria-pressed="false" aria-disabled="true">I can drive</button>
+              <button class="button button-choice" type="button" data-vote="drive" data-choice="volunteer" data-car-offer aria-controls="car-passengers" aria-pressed="false" aria-disabled="true">We can take my car</button>
               <button class="button button-choice" type="button" data-vote="drive" data-choice="rider" aria-pressed="false" aria-disabled="true">I need a ride</button>
             </div>
-            <label class="car-offer">
-              <input type="checkbox" data-car-offer aria-controls="car-passengers" aria-disabled="true">
-              I can offer a car
-            </label>
             <label class="car-passengers" id="car-passengers" hidden>
               Passenger seats
-              <select aria-label="Passenger seats, excluding the driver" aria-disabled="true">
+              <select aria-label="Passenger seats, excluding the driver" disabled>
                 <option value="" disabled selected>Choose</option>
                 <option value="0">0</option><option value="1">1</option>
                 <option value="2">2</option><option value="3">3</option>
@@ -176,6 +171,19 @@
               <div class="timeline-stop"><h3>Back to Grass Valley</h3></div>
             </li>
           </ol>
+          <div class="plan-submission" data-ballot-panel="submission">
+            <div class="submission-status">
+              <p id="plan-progress" data-plan-progress role="status">Choose your name to see what’s left.</p>
+              <p class="vote-message" data-plan-tally></p>
+              <p class="vote-message" data-ballot-status="submission" role="status"></p>
+              <button class="quiet-button" type="button" data-ballot-retry hidden>Retry connection</button>
+            </div>
+            <div class="submission-controls">
+              <label class="sr-only" for="submission-guest">Your calling card</label>
+              <select id="submission-guest" data-ballot-guest><option value="">Choose your name</option></select>
+              <button class="button button-choice" type="button" data-plan-submit aria-describedby="plan-progress" disabled>Submit plan vote</button>
+            </div>
+          </div>
         </div>
       </section>
     </main>
@@ -292,9 +300,9 @@
     <dialog id="drivers" aria-labelledby="drivers-title">
       <div class="dialog-header"><h2 id="drivers-title">Driver roll call</h2><form method="dialog"><button class="close-button" aria-label="Close roll call">×</button></form></div>
       <div class="dialog-copy">
-        <p>Two cars for eight. Each driver takes three passengers and stays alcohol-free for both legs.</p>
+        <p>Two cars need room for six passengers. Drivers stay alcohol-free for both legs.</p>
         <dl class="roll-call">
-          <dt>Can drive</dt><dd data-roll-call="drive" data-choice="volunteer"></dd>
+          <dt>Drivers</dt><dd data-roll-call="drive" data-choice="volunteer"></dd>
           <dt>Need a ride</dt><dd data-roll-call="drive" data-choice="rider"></dd>
           <dt>Car offers</dt><dd data-roll-call="car" data-choice="offer"></dd>
         </dl>

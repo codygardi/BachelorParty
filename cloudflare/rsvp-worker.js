@@ -14,7 +14,10 @@ const seatingChoices = new Set(["", "general", "preferred"]);
 const ballotChoices = {
   drive: driveChoices, car: carChoices, passengerSeats: passengerSeatChoices,
   bar: barChoices, dinner: dinnerChoices, room: roomChoices, seating: seatingChoices,
+  planSubmitted: new Set([true]),
 };
+const planVoteFields = ["bar", "room", "dinner", "seating"];
+const ballotColumns = "inviteeId, drive, bar, dinner, room, seating, car, passengerSeats, plan, walkBar, walkRoom, walkDinner, planSubmitted";
 const roomLocations = new Map([
   ["skull-witch", "enchambered"],
   ["the-collection", "enchambered"],
@@ -26,6 +29,29 @@ function combinedChoice(field, driveVote, walkVote, plan) {
   const choices = field === "room" ? votes.map((vote) => roomLocations.get(vote) ?? vote) : votes;
   // Keep a removed choice visible until its voter changes or clears it.
   return choices.find((choice) => ballotChoices[field].has(choice)) ?? choices[0] ?? "";
+}
+
+function currentBallot({ plan, walkBar, walkRoom, walkDinner, planSubmitted, ...card }) {
+  return {
+    ...card,
+    bar: combinedChoice("bar", card.bar, walkBar, plan),
+    room: combinedChoice("room", card.room, walkRoom, plan),
+    dinner: combinedChoice("dinner", card.dinner, walkDinner, plan),
+    planSubmitted: planSubmitted === 1,
+  };
+}
+
+function missingPlanChoices(card = {}) {
+  const missing = [];
+  if (card.drive === "volunteer" && card.car === "offer") {
+    if (!passengerSeatChoices.has(card.passengerSeats)) missing.push("passengerSeats");
+  } else if (card.drive !== "rider") {
+    missing.push("transport");
+  }
+  for (const field of planVoteFields) {
+    if (!card[field] || !ballotChoices[field].has(card[field])) missing.push(field);
+  }
+  return missing;
 }
 
 const defaultHeaders = {
@@ -126,7 +152,8 @@ export class CallingCards {
         room TEXT NOT NULL DEFAULT '',
         seating TEXT NOT NULL DEFAULT '',
         car TEXT NOT NULL DEFAULT '',
-        passengerSeats INTEGER
+        passengerSeats INTEGER,
+        planSubmitted INTEGER NOT NULL DEFAULT 0
       )
     `);
     const columns = this.sql.exec("PRAGMA table_info(ballots)").toArray().map(({ name }) => name);
@@ -134,13 +161,37 @@ export class CallingCards {
       if (!columns.includes(name)) this.sql.exec(`ALTER TABLE ballots ADD COLUMN ${name} TEXT NOT NULL DEFAULT ''`);
     }
     if (!columns.includes("passengerSeats")) this.sql.exec("ALTER TABLE ballots ADD COLUMN passengerSeats INTEGER");
+    if (!columns.includes("planSubmitted")) this.sql.exec("ALTER TABLE ballots ADD COLUMN planSubmitted INTEGER NOT NULL DEFAULT 0");
   }
 
   async fetch(request) {
     if (request.method === "POST") {
-      const { inviteeId, drive, bar, dinner, room, seating, car, passengerSeats } = await request.json();
-      // Changing a venue also retires its old walking vote so clearing cannot revive it.
-      this.sql.exec(`
+      const { inviteeId, ...choices } = await request.json();
+      const row = this.sql.exec(`SELECT ${ballotColumns} FROM ballots WHERE inviteeId = ?`, inviteeId).toArray()[0];
+      const previous = row && currentBallot(row);
+      if (choices.planSubmitted) {
+        if (missingPlanChoices(previous).length) {
+          return Response.json({ error: "Complete the required choices before submitting your plan vote." }, { status: 409 });
+        }
+        this.sql.exec("UPDATE ballots SET planSubmitted = 1 WHERE inviteeId = ?", inviteeId);
+      } else {
+        this.saveChoices(inviteeId, choices, previous);
+      }
+    }
+
+    const rows = this.sql.exec(`SELECT ${ballotColumns} FROM ballots`).toArray();
+    const ballots = rows.map((row) => {
+      const card = currentBallot(row);
+      return { ...card, missingPlanChoices: missingPlanChoices(card) };
+    });
+    return Response.json({ ballots });
+  }
+
+  saveChoices(inviteeId, choices, previous) {
+    const { drive, bar, dinner, room, seating, car, passengerSeats } = choices;
+    const changed = previous?.planSubmitted && Object.entries(choices).some(([field, value]) => previous[field] !== value);
+    // Clear the former walking vote when its venue is updated.
+    this.sql.exec(`
         INSERT INTO ballots (inviteeId, drive, bar, dinner, room, seating, car, passengerSeats)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT (inviteeId) DO UPDATE SET
@@ -153,20 +204,11 @@ export class CallingCards {
           walkBar = CASE WHEN ? IS NULL THEN ballots.walkBar ELSE '' END,
           walkRoom = CASE WHEN ? IS NULL THEN ballots.walkRoom ELSE '' END,
           walkDinner = CASE WHEN ? IS NULL THEN ballots.walkDinner ELSE '' END,
-          passengerSeats = CASE WHEN ? = '' THEN NULL ELSE COALESCE(excluded.passengerSeats, ballots.passengerSeats) END
-      `, inviteeId, drive ?? "", bar ?? "", dinner ?? "", room ?? "", seating ?? "", car ?? "", passengerSeats ?? null,
-      drive ?? null, bar ?? null, dinner ?? null, room ?? null, seating ?? null, car ?? null,
-      bar ?? null, room ?? null, dinner ?? null, car ?? null);
-    }
-
-    const rows = this.sql.exec("SELECT inviteeId, drive, bar, dinner, room, seating, car, passengerSeats, plan, walkBar, walkRoom, walkDinner FROM ballots").toArray();
-    const ballots = rows.map(({ plan, walkBar, walkRoom, walkDinner, ...card }) => ({
-      ...card,
-      bar: combinedChoice("bar", card.bar, walkBar, plan),
-      room: combinedChoice("room", card.room, walkRoom, plan),
-      dinner: combinedChoice("dinner", card.dinner, walkDinner, plan),
-    }));
-    return Response.json({ ballots });
+          passengerSeats = CASE WHEN ? = '' THEN NULL ELSE COALESCE(excluded.passengerSeats, ballots.passengerSeats) END,
+          planSubmitted = CASE WHEN ? = 1 THEN 0 ELSE ballots.planSubmitted END
+    `, inviteeId, drive ?? "", bar ?? "", dinner ?? "", room ?? "", seating ?? "", car ?? "", passengerSeats ?? null,
+    drive ?? null, bar ?? null, dinner ?? null, room ?? null, seating ?? null, car ?? null,
+    bar ?? null, room ?? null, dinner ?? null, car ?? null, changed ? 1 : 0);
   }
 }
 
@@ -179,7 +221,8 @@ async function handleBallots(request, env, card) {
     const fields = Object.keys(card).filter((field) => field !== "inviteeId");
     if (!fields.length || fields.some((field) =>
       !Object.hasOwn(ballotChoices, field) || !ballotChoices[field].has(card[field])
-    ) || (Object.hasOwn(card, "passengerSeats") && card.car !== "offer")) {
+    ) || (Object.hasOwn(card, "passengerSeats") && card.car !== "offer")
+      || (Object.hasOwn(card, "planSubmitted") && fields.length !== 1)) {
       return jsonResponse(request, { error: "Invalid calling card." }, 400);
     }
   }
