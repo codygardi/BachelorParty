@@ -227,13 +227,13 @@ const walkingBars = [
     photos: venues.dinner.find(({ id }) => id === "petes-arden").photos,
   },
   {
-    id: "bjs-arden", name: "BJ’s Arden Fair", type: "Brewhouse · Beer & cocktails",
-    address: "1689 Arden Way #1058", walkToRoom: "25–30 min", walkToShow: "20–25 min",
-    note: "A lively sit-down brewhouse at the mall’s main entrance. Saturday from 11 am.",
-    theme: "Brick, wood, booths, and a full bar with craft beer and cocktails. A conventional brewhouse setting rather than a fantasy tavern; allow the full 30 minutes to Enchambered.",
-    website: "https://www.bjsrestaurants.com/locations/ca/arden-fair",
-    photos: [["bjs-front", "The Arden Fair BJ’s brick storefront"], ["bjs-room", "Inside BJ’s Restaurant and Brewhouse at Arden Fair"], ["bjs-bar", "Brick-framed bottle display at BJ’s Arden Fair"]],
-    photoSource: "https://www.restaurantji.com/ca/sacramento/bjs-restaurant-and-brewhouse-/gallery/",
+    id: "fieldhouse", name: "Fieldhouse American Sports Pub", type: "Local pub · Whiskey & draft beer",
+    address: "1833 Fulton Ave", walkToRoom: "21–25 min", walkToShow: "25–30 min",
+    note: "A local pub with timber bar tops and a full bar. Saturday from 10 am.",
+    theme: "Wood bar tops, dark ceilings, bottle shelves, and draft taps give this local spot a pub feel. Expect sports on 18 TVs and a lively atmosphere; it is an American sports pub, not an Irish tavern. Use the current 1833 Fulton address.",
+    website: "https://www.fieldhousesac.com/",
+    photos: [["fieldhouse-taps", "Draft taps and bottle shelves behind Fieldhouse’s bar"], ["fieldhouse-bar", "Fieldhouse’s wooden bar top beneath sports TVs"], ["fieldhouse-room", "Wooden tables and bar seating inside Fieldhouse"]],
+    photoSource: "https://www.restaurantji.com/ca/sacramento/field-house-american-sports-pub-/gallery/",
   },
   {
     id: "maple-room", name: "Maple Room Lounge", type: "Neighborhood lounge · Casual pub feel",
@@ -243,15 +243,6 @@ const walkingBars = [
     website: "https://www.restaurantji.com/ca/sacramento/maple-room-lounge-/",
     photos: [["maple-bar", "Maple Room’s back bar with bottles and colorful lighting"], ["maple-room", "Seating along the bar at Maple Room Lounge"], ["maple-drinks", "Drinks on Maple Room’s dark bar counter"]],
     photoSource: "https://www.restaurantji.com/ca/sacramento/maple-room-lounge-/gallery/",
-  },
-  {
-    id: "applebees-arden", name: "Applebee’s Arden", type: "Grill & bar · Budget fallback",
-    address: "2024 Arden Way", walkToRoom: "8–12 min", walkToShow: "5–8 min",
-    note: "A nearby full bar with seated booths. Saturday from 11 am; happy hour 3–6 pm.",
-    theme: "A straightforward neighborhood grill with wood booths, a long bar, and TVs. Convenient and casual, with the weakest D&D theme of the four.",
-    website: "https://restaurants.applebees.com/en-us/ca/sacramento/2024-arden-way-76065",
-    photos: [["applebees-bar", "The wood bar and stools at Applebee’s on Arden Way"], ["applebees-room", "Seating inside Applebee’s on Arden Way"], ["applebees-drinks", "Cocktails on a table at Applebee’s Arden Way"]],
-    photoSource: "https://www.restaurantji.com/ca/sacramento/applebees-2/gallery/",
   },
 ];
 
@@ -264,7 +255,7 @@ const plans = {
       room: venues.room.filter(({ id }) => ["skull-witch", "the-collection"].includes(id)).map((venue) => ({
         ...venue, fromSnug: undefined, fromBars: undefined,
         toComedy: { mode: "walking", time: "5–8 min walk to Punch Line" },
-        note: venue.note.split("\n")[0] + "\n5–8 min to Pete’s · 2–5 min to Thai Terrace · Walk from all four bars",
+        note: venue.note.split("\n")[0] + "\n5–8 min to Pete’s · 2–5 min to Thai Terrace · Walk from all three bars",
         theme: venue.id === "skull-witch" ? "A candlelit swamp cabin full of wooden totems and witchcraft. A dark fantasy setting for all eight guests." : venue.theme,
       })),
       dinner: venues.dinner.filter(({ id }) => ["petes-arden", "thai-terrace"].includes(id)),
@@ -485,7 +476,7 @@ function renderVotingState() {
   for (const button of deckOpeners) {
     const field = button.dataset.openBallot;
     const choice = currentDeck(field).find(({ id }) => id === selected?.[ballotField(field)]);
-    button.firstChild.textContent = choice ? `Your vote · ${choice.name} ` : `${ballotTitles[field]} `;
+    button.firstChild.textContent = choice ? `Your vote · ${choice.name} ` : selected?.[ballotField(field)] ? "Previous choice removed · vote again " : `${ballotTitles[field]} `;
   }
   for (const button of seatingButtons) {
     button.querySelector("[data-seating-tally]").textContent = voteTally("seating", button.dataset.choice);

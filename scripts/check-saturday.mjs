@@ -106,8 +106,8 @@ try {
   assert.deepEqual(await read(), [], "Choosing a name must not vote");
   await click('[data-plan-vote]'); await saveIn("plan");
   await openDeck("bar");
-  assert.equal(await textAt('[data-deck-position]'), "1 of 4");
-  for (let index = 0; index < 4; index++) {
+  assert.equal(await textAt('[data-deck-position]'), "1 of 3");
+  for (let index = 0; index < 3; index++) {
     await click("[data-flip-card]");
     assert.equal(await run('const imgs=[...document.querySelectorAll("[data-venue-photos] img")];await Promise.all(imgs.map(i=>i.decode()));return imgs.length===3&&imgs.every(i=>i.naturalWidth>0)'), true, "Card photos failed");
     assert.equal(await run('return new URL(document.querySelector("[data-venue-escape-directions]").href).searchParams.get("travelmode")'), "walking");
@@ -160,12 +160,12 @@ try {
   assert.equal(await run('return document.querySelectorAll("#breakfast .breakfast-spots li").length'), 4);
   await click("#breakfast .close-button");
 
-  await fetch(url + "api/calling-cards", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"save-ballot",card:{inviteeId:"max-voorhees",plan:"walk",walkBar:"bjs-arden"}})});
+  await fetch(url + "api/calling-cards", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"save-ballot",card:{inviteeId:"max-voorhees",plan:"walk",walkBar:"fieldhouse"}})});
   await run("await refreshCallingCards()");
   assert.equal(await textAt('[data-plan-tally=walk]'), "1 vote");
   assert.equal(await textAt('[data-plan-tally=drive]'), "1 vote · Your vote");
   await choose("max-voorhees");
-  assert.match(await textAt('[data-open-ballot=bar]'), /BJ/);
+  assert.match(await textAt('[data-open-ballot=bar]'), /Fieldhouse/);
   await browsePlan("drive");
   await cdp("Network.enable");
   await cdp("Network.emulateNetworkConditions", {offline:true,latency:0,downloadThroughput:-1,uploadThroughput:-1});
@@ -190,7 +190,7 @@ try {
     await writeFile(".venue-photo-review/two-plans/" + width + ".png",Buffer.from(shot.data,"base64"));
   }
   assert.deepEqual(errors, []);
-  console.log("Verified both plan ballots, independent votes, all four photo cards, reload persistence, two voters, save failure feedback, scoped clearing, route maps, breakfast, passenger seats, and responsive layouts.");
+  console.log("Verified both plan ballots, independent votes, all three local bar photo cards, reload persistence, two voters, save failure feedback, scoped clearing, route maps, breakfast, passenger seats, and responsive layouts.");
 
 } finally {
   socket?.close();

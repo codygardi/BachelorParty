@@ -103,7 +103,7 @@ test("Saturday plans keep independent venue votes across updates, reloads, and c
   };
   assert.equal((await api.save(card)).status, 200);
   assert.deepEqual(await connect(db).read(), [card]);
-  for (const walkBar of ["bjs-arden", "maple-room", "applebees-arden", "petes-bar"]) {
+  for (const walkBar of ["fieldhouse", "maple-room", "petes-bar"]) {
     assert.equal((await api.save({ inviteeId, walkBar })).status, 200);
     assert.deepEqual(await api.read(), [{ ...card, walkBar }]);
   }
@@ -112,7 +112,7 @@ test("Saturday plans keep independent venue votes across updates, reloads, and c
     assert.equal((await api.save({ inviteeId, [field]: value })).status, 200);
   }
   assert.deepEqual(await connect(db).read(), [{ ...card, ...changed }]);
-  for (const invalid of [{ plan: "other" }, { walkBar: "snug" }, { walkRoom: "seance" }, { walkDinner: "wildwood" }]) {
+  for (const invalid of [{ plan: "other" }, { walkBar: "snug" }, { walkBar: "bjs-arden" }, { walkBar: "applebees-arden" }, { walkRoom: "seance" }, { walkDinner: "wildwood" }]) {
     assert.equal((await api.save({ inviteeId, ...invalid, seating: "general" })).status, 400);
   }
   assert.deepEqual(await api.read(), [{ ...card, ...changed }]);
@@ -123,4 +123,24 @@ test("Saturday plans keep independent venue votes across updates, reloads, and c
   assert.equal(ballots.length, 2);
   assert.equal(ballots.find((row) => row.inviteeId === inviteeId).walkBar, "");
   assert.equal(ballots.find((row) => row.inviteeId === "robbie-merchant").walkBar, "maple-room");
+});
+
+test("retired bar votes stay attached to their original choice until the voter changes them", async (t) => {
+  const db = new DatabaseSync(":memory:");
+  t.after(() => db.close());
+  const api = connect(db);
+  assert.equal((await api.save({ ...existing, walkBar: "maple-room" })).status, 200);
+  for (const retired of ["bjs-arden", "applebees-arden"]) {
+    db.prepare("UPDATE ballots SET walkBar = ? WHERE inviteeId = ?").run(retired, existing.inviteeId);
+    assert.equal((await connect(db).read())[0].walkBar, retired);
+    assert.equal((await api.save({ inviteeId: existing.inviteeId, seating: "general" })).status, 200);
+    assert.equal((await api.read())[0].walkBar, retired);
+    assert.equal((await api.save({ inviteeId: existing.inviteeId, walkBar: retired })).status, 400);
+    assert.equal((await api.save({ inviteeId: existing.inviteeId, walkBar: "fieldhouse" })).status, 200);
+    const [card] = await connect(db).read();
+    assert.equal(card.walkBar, "fieldhouse");
+    assert.equal(card.bar, existing.bar);
+    assert.equal(card.dinner, existing.dinner);
+    assert.equal(card.seating, "general");
+  }
 });
