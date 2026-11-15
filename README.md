@@ -10,7 +10,7 @@ Run `node --test` for database and ballot checks. On Windows with Chrome install
 
 The GitHub Pages site uses the shared ballot endpoint on the [Cloudflare Worker](cloudflare/README.md).
 
-Saturday has a preferred-plan vote and independent venue ballots. The existing `bar`, `room`, and `dinner` fields belong to Taverns + drive; `walkBar`, `walkRoom`, and `walkDinner` belong to Walk in Arden. Browsing plans does not cast a vote. Transportation and comedy seating remain shared. Additive database migrations preserve existing votes.
+Saturday has a preferred-plan vote and independent venue ballots. The existing `bar`, `room`, and `dinner` fields belong to **2 drive 2**. The `walkBar`, `walkRoom`, and `walkDinner` fields belong to **everything walkable**. Browsing plans does not cast a vote. Transportation and comedy seating remain shared. Additive database migrations preserve existing votes.
 
 The walking plan has three local bar options, two Enchambered rooms that accept eight, and the two existing dinners within walking distance of Punch Line. The four original dinner choices remain in the driving plan; Wildwood and Tapa explicitly require a further drive to the show.
 

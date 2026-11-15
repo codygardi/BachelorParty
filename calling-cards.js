@@ -247,9 +247,9 @@ const walkingBars = [
 ];
 
 const plans = {
-  drive: { name: "Taverns + drive", summary: "Bar → escape room → drive to dinner → Punch Line", decks: venues },
+  drive: { name: "2 drive 2", summary: "Bar → escape room → drive to dinner → Punch Line", decks: venues },
   walk: {
-    name: "Walk in Arden", summary: "Bar → Enchambered → dinner → Punch Line · Walk each leg",
+    name: "everything walkable", summary: "Bar → Enchambered → dinner → Punch Line · Walk each leg",
     decks: {
       bar: walkingBars,
       room: venues.room.filter(({ id }) => ["skull-witch", "the-collection"].includes(id)).map((venue) => ({
