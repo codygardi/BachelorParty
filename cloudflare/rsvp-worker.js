@@ -6,11 +6,15 @@ const voterIds = new Set([
 ]);
 const driveChoices = new Set(["volunteer", "rider"]);
 const carChoices = new Set(["", "offer"]);
+const passengerSeatChoices = new Set([0, 1, 2, 3, 4, 5, 6, 7]);
 const barChoices = new Set(["", "snug", "omallys", "cabin", "shady-lady", "finnegans", "bookstore", "trapcat"]);
 const dinnerChoices = new Set(["", "petes-arden", "thai-terrace", "wildwood", "tapa-the-world"]);
 const roomChoices = new Set(["", "seance", "pirates-of-tortuga", "fortunes-favor", "skull-witch", "the-collection"]);
 const seatingChoices = new Set(["", "general", "preferred"]);
-const ballotChoices = { drive: driveChoices, car: carChoices, bar: barChoices, dinner: dinnerChoices, room: roomChoices, seating: seatingChoices };
+const ballotChoices = {
+  drive: driveChoices, car: carChoices, passengerSeats: passengerSeatChoices,
+  bar: barChoices, dinner: dinnerChoices, room: roomChoices, seating: seatingChoices,
+};
 
 const defaultHeaders = {
   "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
@@ -109,32 +113,36 @@ export class CallingCards {
         dinner TEXT NOT NULL,
         room TEXT NOT NULL DEFAULT '',
         seating TEXT NOT NULL DEFAULT '',
-        car TEXT NOT NULL DEFAULT ''
+        car TEXT NOT NULL DEFAULT '',
+        passengerSeats INTEGER
       )
     `);
     const columns = this.sql.exec("PRAGMA table_info(ballots)").toArray().map(({ name }) => name);
     for (const name of ["room", "seating", "car"]) {
       if (!columns.includes(name)) this.sql.exec(`ALTER TABLE ballots ADD COLUMN ${name} TEXT NOT NULL DEFAULT ''`);
     }
+    if (!columns.includes("passengerSeats")) this.sql.exec("ALTER TABLE ballots ADD COLUMN passengerSeats INTEGER");
   }
 
   async fetch(request) {
     if (request.method === "POST") {
-      const { inviteeId, drive, bar, dinner, room, seating, car } = await request.json();
+      const { inviteeId, drive, bar, dinner, room, seating, car, passengerSeats } = await request.json();
       this.sql.exec(`
-        INSERT INTO ballots (inviteeId, drive, bar, dinner, room, seating, car) VALUES (?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO ballots (inviteeId, drive, bar, dinner, room, seating, car, passengerSeats)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT (inviteeId) DO UPDATE SET
           drive = COALESCE(?, ballots.drive),
           bar = COALESCE(?, ballots.bar),
           dinner = COALESCE(?, ballots.dinner),
           room = COALESCE(?, ballots.room),
           seating = COALESCE(?, ballots.seating),
-          car = COALESCE(?, ballots.car)
-      `, inviteeId, drive ?? "", bar ?? "", dinner ?? "", room ?? "", seating ?? "", car ?? "",
-      drive ?? null, bar ?? null, dinner ?? null, room ?? null, seating ?? null, car ?? null);
+          car = COALESCE(?, ballots.car),
+          passengerSeats = CASE WHEN ? = '' THEN NULL ELSE COALESCE(excluded.passengerSeats, ballots.passengerSeats) END
+      `, inviteeId, drive ?? "", bar ?? "", dinner ?? "", room ?? "", seating ?? "", car ?? "", passengerSeats ?? null,
+      drive ?? null, bar ?? null, dinner ?? null, room ?? null, seating ?? null, car ?? null, car ?? null);
     }
 
-    const ballots = this.sql.exec("SELECT inviteeId, drive, bar, dinner, room, seating, car FROM ballots").toArray();
+    const ballots = this.sql.exec("SELECT inviteeId, drive, bar, dinner, room, seating, car, passengerSeats FROM ballots").toArray();
     return Response.json({ ballots });
   }
 }
@@ -148,7 +156,7 @@ async function handleBallots(request, env, card) {
     const fields = Object.keys(card).filter((field) => field !== "inviteeId");
     if (!fields.length || fields.some((field) =>
       !Object.hasOwn(ballotChoices, field) || !ballotChoices[field].has(card[field])
-    )) {
+    ) || (Object.hasOwn(card, "passengerSeats") && card.car !== "offer")) {
       return jsonResponse(request, { error: "Invalid calling card." }, 400);
     }
   }

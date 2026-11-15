@@ -186,7 +186,7 @@ button { cursor: pointer; }
 
 .driver-ballot {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(12rem, 1fr) minmax(0, max-content);
   align-items: center;
   gap: 0.25rem 1rem;
   margin-top: 0.45rem;
@@ -203,6 +203,18 @@ button { cursor: pointer; }
   flex-wrap: wrap;
   gap: 0.4rem 0.62rem;
 }
+.car-offer, .car-passengers {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.42rem;
+  min-height: 2.15rem;
+  font-size: 0.8rem;
+}
+.car-offer { color: var(--gold-light); font-weight: 650; cursor: pointer; }
+.car-offer input { width: 1rem; height: 1rem; margin: 0; accent-color: var(--gold); cursor: inherit; }
+.car-offer:has([aria-disabled="true"]) { opacity: 0.58; cursor: default; }
+.car-passengers { color: var(--muted); }
+.car-passengers select[aria-disabled="true"] { opacity: 0.58; }
 select {
   min-height: 2.15rem;
   max-width: 100%;

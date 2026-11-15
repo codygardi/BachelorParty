@@ -224,6 +224,10 @@ const compactViews = window.matchMedia("(max-width: 48rem), (max-height: 40rem)"
 const showParty = document.querySelector("[data-show-party]");
 const roster = document.querySelector("[data-response-list]");
 const guestSelectors = Array.from(document.querySelectorAll("[data-ballot-guest]"));
+const carOffer = document.querySelector("[data-car-offer]");
+const passengerField = document.getElementById("car-passengers");
+const passengerCount = passengerField.querySelector("select");
+const driverPanel = carOffer.closest("[data-ballot-panel]");
 const venueDialog = document.querySelector("#venue-voting");
 const venueVote = venueDialog.querySelector("[data-venue-vote]");
 const clearVenue = venueDialog.querySelector("[data-clear-venue]");
@@ -244,7 +248,7 @@ let venueIndex = 0;
 let callingCards = [];
 let connected = false;
 let refreshing = false;
-let saving = false;
+let pendingChoices = null;
 let saveVersion = 0;
 
 function selectSchedule(tab) {
@@ -314,9 +318,16 @@ function voteTally(field, choice) {
 
 function renderVotingState() {
   const selected = selectedCard();
+  const controlsDisabled = String(!connected || pendingChoices !== null);
+  const offered = (pendingChoices?.car ?? selected?.car) === "offer";
+  carOffer.checked = offered;
+  carOffer.setAttribute("aria-disabled", controlsDisabled);
+  passengerField.hidden = !offered;
+  passengerCount.value = offered ? pendingChoices?.passengerSeats ?? selected?.passengerSeats ?? "" : "";
+  passengerCount.setAttribute("aria-disabled", controlsDisabled);
   for (const button of voteButtons) {
     const { vote, choice } = button.dataset;
-    button.setAttribute("aria-disabled", String(!connected || saving));
+    button.setAttribute("aria-disabled", controlsDisabled);
     if (button.hasAttribute("aria-pressed")) {
       button.setAttribute("aria-pressed", String(selected?.[vote] === choice));
     }
@@ -337,10 +348,15 @@ function renderVotingState() {
     : refreshing ? "Loading driver tally…" : "Driver tally unavailable";
   for (const entry of document.querySelectorAll("[data-roll-call]")) {
     const { rollCall, choice } = entry.dataset;
-    const names = party.filter((member) => callingCards.some(
-      (card) => card.inviteeId === member.id && card[rollCall] === choice,
-    ));
-    entry.textContent = names.map(({ name }) => name).join(", ") || (connected ? "None yet" : "Tally unavailable");
+    const names = party.flatMap(({ id, name }) => {
+      const card = callingCards.find(({ inviteeId }) => inviteeId === id);
+      if (card?.[rollCall] !== choice) return [];
+      if (rollCall !== "car") return [name];
+      const seats = card.passengerSeats;
+      const capacity = seats == null ? "passenger count pending" : `${seats} ${seats === 1 ? "passenger" : "passengers"}`;
+      return [`${name} (${capacity})`];
+    });
+    entry.textContent = names.join(", ") || (connected ? "None yet" : "Tally unavailable");
   }
 
   const venue = venues[activeDeck][venueIndex];
@@ -483,7 +499,7 @@ async function requestCallingCards(card) {
 }
 
 async function refreshCallingCards() {
-  if (refreshing || saving) return;
+  if (refreshing || pendingChoices) return;
   refreshing = true;
   renderVotingState();
   const version = saveVersion;
@@ -503,40 +519,55 @@ async function refreshCallingCards() {
   }
 }
 
-async function saveVote({ currentTarget }) {
-  if (!connected || saving) return;
-  const { vote, choice } = currentTarget.dataset;
-  const panel = currentTarget.closest("[data-ballot-panel]");
+async function saveChoices(panel, choices, successMessage) {
+  if (!connected || pendingChoices) {
+    renderVotingState();
+    return;
+  }
   const scope = panel.dataset.ballotPanel;
   if (!activeGuest) {
+    renderVotingState();
     setStatus(scope, "Choose your name to vote.");
     panel.querySelector("[data-ballot-guest]").focus();
     return;
   }
-  const currentChoice = selectedCard()?.[vote];
-  const nextChoice = vote === "car" && currentChoice === choice ? "" : choice;
-  if (currentChoice === nextChoice) return;
 
+  const deckAtSave = activeDeck;
   saveVersion += 1;
-  saving = true;
+  pendingChoices = choices;
   renderVotingState();
   setStatus(scope, "Saving…");
   try {
-    callingCards = await requestCallingCards({ inviteeId: activeGuest, [vote]: nextChoice });
-    if (vote === "car") setStatus(scope, nextChoice ? "Car offer saved." : "Car offer withdrawn.");
-    else if (scope !== "venue" || vote === activeDeck) setStatus(scope, nextChoice ? "Vote saved." : "Vote cleared.");
+    callingCards = await requestCallingCards({ inviteeId: activeGuest, ...choices });
+    if (scope !== "venue" || deckAtSave === activeDeck) setStatus(scope, successMessage);
   } catch {
-    if (scope !== "venue" || vote === activeDeck) setStatus(scope, "Vote could not be saved. Try again.");
+    if (scope !== "venue" || deckAtSave === activeDeck) setStatus(scope, "Vote could not be saved. Try again.");
   } finally {
-    saving = false;
+    pendingChoices = null;
     renderVotingState();
   }
 }
 
+function saveVote({ currentTarget }) {
+  const { vote, choice } = currentTarget.dataset;
+  if (selectedCard()?.[vote] === choice) return;
+  const panel = currentTarget.closest("[data-ballot-panel]");
+  return saveChoices(panel, { [vote]: choice }, choice ? "Vote saved." : "Vote cleared.");
+}
+
+carOffer.addEventListener("change", () => {
+  const offered = carOffer.checked;
+  saveChoices(driverPanel, { car: offered ? "offer" : "" }, offered ? "Car offer saved." : "Car offer withdrawn.");
+});
+passengerCount.addEventListener("change", () => {
+  if (!carOffer.checked || passengerCount.value === "") return;
+  saveChoices(driverPanel, { car: "offer", passengerSeats: Number(passengerCount.value) }, "Passenger count saved.");
+});
+
 for (const selector of guestSelectors) {
   for (const member of party) selector.add(new Option(member.name, member.id));
   selector.addEventListener("change", () => {
-    if (saving) {
+    if (pendingChoices) {
       selector.value = activeGuest;
       return;
     }
@@ -552,7 +583,7 @@ try {
 
 roster.addEventListener("click", (event) => {
   const card = event.target.closest("[data-calling-card]");
-  if (card && !saving) selectGuest(card.dataset.callingCard);
+  if (card && !pendingChoices) selectGuest(card.dataset.callingCard);
 });
 
 document.addEventListener("DOMContentLoaded", renderVotingState);
