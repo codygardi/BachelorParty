@@ -184,7 +184,7 @@ const venues = {
 };
 
 const punchLineAddress = "Punch Line Sacramento, 2100 Arden Way #225, Sacramento, CA";
-const ballotTitles = { bar: "Vote for a bar", dinner: "Vote for dinner", room: "Vote for an escape room location" };
+const venueVotePrompts = { bar: "for a bar", dinner: "for dinner", room: "for an escape room location" };
 const planChoiceLabels = {
   transport: "Ride or car", dndHost: "Friday D&D host",
   breakfast: "Breakfast", bar: "Bar", room: "Escape room", dinner: "Dinner", seating: "Comedy seating",
@@ -212,9 +212,9 @@ const voteButtons = Array.from(document.querySelectorAll("[data-vote]"));
 const retryButtons = Array.from(document.querySelectorAll("[data-ballot-retry]"));
 const deckOpeners = Array.from(document.querySelectorAll("[data-open-ballot]"));
 const polls = [
-  { field: "dndHost", dialogId: "dnd-host", prompt: "Vote on hosting Friday’s D&D game" },
-  { field: "breakfast", dialogId: "breakfast", prompt: "Vote on Bubba’s Bagels" },
-  { field: "seating", dialogId: "seating-voting", prompt: "Vote on seating" },
+  { field: "dndHost", dialogId: "dnd-host", prompt: "on hosting Friday’s D&D game" },
+  { field: "breakfast", dialogId: "breakfast", prompt: "on Bubba’s Bagels" },
+  { field: "seating", dialogId: "seating-voting", prompt: "on seating" },
 ].map(({ field, dialogId, prompt }) => {
   const dialog = document.getElementById(dialogId);
   return {
@@ -358,8 +358,10 @@ function renderVoteSummaries() {
 }
 
 function renderVoteButton(button, prompt, saved, name) {
+  const action = name ? "Change your vote" : "Vote";
   const detail = name ? `Your vote is ${name}.` : saved ? "Your previous choice was removed. Vote again." : "";
-  button.setAttribute("aria-label", detail ? `${prompt}. ${detail}` : prompt);
+  button.textContent = name ? "Change" : "Vote";
+  button.setAttribute("aria-label", detail ? `${action} ${prompt}. ${detail}` : `${action} ${prompt}`);
   button.title = detail;
   button.toggleAttribute("data-voted", Boolean(name));
 }
@@ -447,8 +449,14 @@ function renderVotingState() {
     entry.textContent = names.join(", ") || (connected ? "None yet" : "Tally unavailable");
   }
 
-  const venue = venues[activeDeck][venueIndex];
-  venueVote.textContent = selected?.[activeDeck] === venue.id ? "Voted" : "Vote";
+  const deck = venues[activeDeck];
+  const venue = deck[venueIndex];
+  const savedVenue = deck.find(({ id }) => id === selected?.[activeDeck]);
+  const isSavedVenue = venue === savedVenue;
+  const venueAction = savedVenue ? "Change your vote to" : "Vote for";
+  venueVote.textContent = savedVenue ? "Change" : "Vote";
+  venueVote.setAttribute("aria-current", String(isSavedVenue));
+  venueVote.setAttribute("aria-label", isSavedVenue ? `Change your vote from ${venue.name}. Browse the next option.` : `${venueAction} ${venue.name}`);
   venueDialog.querySelector("[data-venue-tally]").textContent = voteTally(activeDeck, venue.id);
   clearVenue.hidden = !selected?.[activeDeck];
 
@@ -456,7 +464,7 @@ function renderVotingState() {
     const field = button.dataset.openBallot;
     const saved = selected?.[field];
     const choice = venues[field].find(({ id }) => id === saved);
-    renderVoteButton(button, ballotTitles[field], saved, choice?.name);
+    renderVoteButton(button, venueVotePrompts[field], saved, choice?.name);
   }
   for (const { field, prompt, opener, buttons, clear } of polls) {
     const saved = selected?.[field];
@@ -495,7 +503,7 @@ function renderVenue() {
   const deck = venues[activeDeck];
   const venue = deck[venueIndex];
   const trip = venue.toComedy;
-  venueDialog.querySelector("[data-venue-ballot-title]").textContent = ballotTitles[activeDeck];
+  venueDialog.querySelector("[data-venue-ballot-title]").textContent = `Vote ${venueVotePrompts[activeDeck]}`;
   venueDialog.querySelector("[data-venue-type]").textContent = venue.type;
   venueDialog.querySelector("[data-venue-name]").textContent = venue.name;
   venueDialog.querySelector("[data-venue-address]").textContent = trip ? `${venue.address} · ${trip.time}` : venue.address;
@@ -557,7 +565,6 @@ function renderVenue() {
   venueDialog.querySelector("[data-deck-position]").textContent = `${venueIndex + 1} of ${deck.length}`;
   venueVote.dataset.vote = activeDeck;
   venueVote.dataset.choice = venue.id;
-  venueVote.setAttribute("aria-label", `Vote for ${venue.name}`);
   clearVenue.dataset.vote = activeDeck;
   flipCard(false);
   renderVotingState();
@@ -575,12 +582,14 @@ for (const button of deckOpeners) {
   });
 }
 
+function stepVenue(step) {
+  const length = venues[activeDeck].length;
+  venueIndex = (venueIndex + step + length) % length;
+  renderVenue();
+}
+
 for (const button of venueDialog.querySelectorAll("[data-deck-step]")) {
-  button.addEventListener("click", () => {
-    const length = venues[activeDeck].length;
-    venueIndex = (venueIndex + Number(button.dataset.deckStep) + length) % length;
-    renderVenue();
-  });
+  button.addEventListener("click", () => stepVenue(Number(button.dataset.deckStep)));
 }
 flipButton.addEventListener("click", () => flipCard(venueSnapshot.hidden));
 
@@ -671,6 +680,12 @@ async function saveChoices(panel, choices, successMessage) {
 function saveVote({ currentTarget }) {
   const { vote, choice } = currentTarget.dataset;
   const selected = selectedCard();
+  if (currentTarget === venueVote && choice === selected?.[vote]) {
+    if (!connected || pendingChoices) return;
+    setStatus("venue");
+    stepVenue(1);
+    return;
+  }
   const choices = { [vote]: choice };
   let message = choice ? "Vote saved." : "Vote cleared.";
   if (vote === "drive") {

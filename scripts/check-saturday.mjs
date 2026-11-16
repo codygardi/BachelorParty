@@ -96,6 +96,7 @@ try {
   const click = async (selector) => run('document.querySelector(' + JSON.stringify(selector) + ').click()');
   const choose = (id) => click(`[data-calling-card="${id}"]`);
   const textAt = async (selector) => run('return document.querySelector(' + JSON.stringify(selector) + ').textContent');
+  const timelineVoteLabels = () => run('return [...document.querySelectorAll(".timeline-vote")].map(button => button.textContent)');
   const saveIn = async (scope, msg="Vote saved.") => until('return document.querySelector("[data-ballot-status=' + scope + ']").textContent === ' + JSON.stringify(msg), scope + " save failed");
   const openDeck = async (deck) => click('[data-open-ballot=' + deck + ']');
   const closeDeck = async () => click('#venue-voting .close-button');
@@ -117,7 +118,7 @@ try {
   assert.equal(await summary("dndHost"), "Can host · 0 votes / Can’t host · 0 votes");
   await click("#saturday-tab");
   assert.equal(await run('return document.querySelector("#calling-cards [data-vote], #transportation select") === null'), true);
-  assert.equal(await textAt(transportButton), "Vote");
+  assert.deepEqual(await timelineVoteLabels(), Array(7).fill("Vote"));
   await openTransport();
   assert.equal(await run('return document.querySelector("#transportation").open && document.querySelector(".driver-choices").hidden'), true);
   await click("[data-choose-transport-guest]");
@@ -185,7 +186,12 @@ try {
 
   await openDeck("bar");
   await next(); await next();
-  await castVenue(); await closeDeck();
+  assert.equal(await textAt("[data-venue-vote]"), "Vote");
+  await castVenue();
+  assert.equal(await textAt("[data-venue-vote]"), "Change");
+  assert.equal(await run('return document.querySelector("[data-venue-vote]").ariaCurrent'), "true");
+  await closeDeck();
+  assert.deepEqual(await timelineVoteLabels(), ["Vote", "Vote", "Vote", "Change", "Vote", "Vote", "Vote"]);
   await openDeck("room");
   await next();
   await castVenue(); await closeDeck();
@@ -230,6 +236,7 @@ try {
   await click("#dnd-host .close-button");
   assert.equal(await summary("dndHost"), "Can host · 1 vote / Can’t host · 0 votes");
   await click("#saturday-tab");
+  assert.deepEqual(await timelineVoteLabels(), Array(7).fill("Change"));
   assert.equal(await submitDisabled(), false);
   await click("[data-plan-submit]");
   await until('return document.querySelector("[data-plan-submit]").hasAttribute("data-submitted")', "Plan vote did not submit.");
@@ -260,7 +267,7 @@ try {
     seating: "general", car: "offer", passengerSeats: null, planSubmitted: true, missingPlanChoices: [],
   });
   assert.equal(await run("return " + designated + ".checked"), true);
-  assert.equal(await textAt(transportButton), "Change");
+  assert.deepEqual(await timelineVoteLabels(), Array(7).fill("Change"));
   await openTransport();
   assert.equal(await run("return " + offered + '.getAttribute("aria-pressed")'), "true");
   await closeTransport();
@@ -292,7 +299,7 @@ try {
   await run("await refreshCallingCards()");
   await choose("max-voorhees");
   assert.equal(await run("return " + designated + ".checked"), false);
-  assert.equal(await textAt(transportButton), "Vote");
+  assert.deepEqual(await timelineVoteLabels(), ["Change", "Change", "Vote", "Change", "Vote", "Vote", "Change"]);
   assert.equal(await summary("dndHost"), "Can host · 1 vote / Can’t host · 1 vote");
   assert.equal(await summary("breakfast"), "Bubba’s Bagels · 1 vote / I’ll get my own · 1 vote");
   assert.equal(await summary("seating"), "General Seating · 1 vote / Premium Seating · 1 vote");
@@ -306,13 +313,18 @@ try {
   assert.equal(await summary("breakfast"), "Bubba’s Bagels · 2 votes / I’ll get my own · 0 votes");
   await openDeck("bar");
   assert.equal(await textAt("[data-venue-tally]"), "2 votes");
-  await next();
+  assert.equal(await textAt("[data-venue-vote]"), "Change");
+  await click("[data-venue-vote]");
+  assert.equal(await textAt("[data-venue-name]"), "Maple Room Lounge");
+  assert.equal(await textAt("[data-venue-vote]"), "Change");
+  assert.equal(await run('return document.querySelector("[data-venue-vote]").ariaCurrent'), "false");
   await cdp("Network.enable");
   await cdp("Network.emulateNetworkConditions", {offline:true,latency:0,downloadThroughput:-1,uploadThroughput:-1});
   await click("[data-venue-vote]");
   await saveIn("venue", "Vote could not be saved. Try again.");
   assert.equal((await read()).find((row) => row.inviteeId === "max-voorhees").bar, "shady-lady");
   await cdp("Network.emulateNetworkConditions", {offline:false,latency:0,downloadThroughput:-1,uploadThroughput:-1});
+  await castVenue();
   await closeDeck();
   await choose("cody-gardi");
   await openTransport();
@@ -326,12 +338,16 @@ try {
   assert.equal(await textAt("[data-driver-count]"), "0/2 designated drivers · 1 rider · 0/2 cars");
   assert.equal(await submitDisabled(), false);
   await openDeck("bar");
-  await click("[data-clear-venue]"); await saveIn("venue","Vote cleared."); await closeDeck();
+  await click("[data-clear-venue]");
+  await saveIn("venue", "Vote cleared.");
+  assert.equal(await textAt("[data-venue-vote]"), "Vote");
+  await closeDeck();
   const afterClear = await read();
   assert.deepEqual(afterClear.find((row) => row.inviteeId === "cody-gardi"), {
     ...card, bar: "", drive: "rider", designatedDriver: false, car: "", passengerSeats: null, planSubmitted: false, missingPlanChoices: ["bar"],
   });
-  assert.equal(afterClear.find((row) => row.inviteeId === "max-voorhees").bar, "shady-lady");
+  assert.equal(afterClear.find((row) => row.inviteeId === "max-voorhees").bar, "maple-room");
+  assert.deepEqual(await timelineVoteLabels(), ["Change", "Change", "Change", "Vote", "Change", "Change", "Change"]);
   assert.equal(await submitDisabled(), true);
 
   await mkdir(".venue-photo-review/saturday", {recursive:true});
@@ -348,8 +364,7 @@ try {
           const row = button.closest("li");
           const summary = row.querySelector(".timeline-stop .vote-summary");
           const vote = button.getBoundingClientRect();
-          const expectedLabel = button.dataset.openDialog === "transportation" ? "Change" : "Vote";
-          return button.textContent === expectedLabel && summary.getBoundingClientRect().right < vote.left && Math.abs(vote.right - right) < 1;
+          return summary.getBoundingClientRect().right < vote.left && Math.abs(vote.right - right) < 1;
         });
       `);
       assert.deepEqual(positions, [true, true, true, true, true, true], "Vote buttons must line up at the right of their event and vote summary.");
