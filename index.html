@@ -8,10 +8,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="bachelor-party.css?v=20261115p">
+    <link rel="stylesheet" href="bachelor-party.css?v=20261115s">
     <script src="bachelor-party-config.js" defer></script>
-    <script src="bachelor-party.js?v=20261113c" defer></script>
-    <script src="calling-cards.js?v=20261115r" defer></script>
+    <script src="bachelor-party.js?v=20261115s" defer></script>
+    <script src="calling-cards.js?v=20261115s" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
@@ -64,7 +64,6 @@
               <div class="timeline-stop">
                 <h3>D&amp;D at base camp</h3>
                 <p class="vote-summary" data-vote-summary="dndHost"></p>
-                <button class="quiet-button" type="button" data-open-dialog="games">Tavern games <span aria-hidden="true">↗</span></button>
               </div>
               <button class="button button-outline timeline-vote" type="button" data-open-dialog="dnd-host" aria-label="Vote on hosting Friday’s D&amp;D game" aria-haspopup="dialog">Vote</button>
             </li>
@@ -89,23 +88,13 @@
               <time class="timeline-time" datetime="12:30">12:30 pm</time>
               <div class="timeline-stop"><h3>Meet at ___ (pending)</h3><p>Leave no later than 1 pm.</p></div>
             </li>
-            <li>
+            <li id="calling-cards">
               <time class="timeline-time" datetime="13:00">1:00 pm</time>
-              <section class="driver-ballot" id="calling-cards" aria-labelledby="departure-title" data-ballot-panel="drive">
-                <div class="timeline-stop">
-                  <h3 id="departure-title">Leave for Sacramento</h3>
-                  <p class="vote-summary" data-driver-count></p>
-                </div>
-                <div class="driver-choices" role="group" aria-label="Saturday transportation">
-                  <label class="designated-driver"><input type="checkbox" data-designated-driver disabled> Designated Driver</label>
-                  <button class="button button-choice" type="button" data-vote="drive" data-choice="volunteer" data-car-offer aria-pressed="false" aria-disabled="true">We can take my car</button>
-                  <button class="button button-choice" type="button" data-vote="drive" data-choice="rider" aria-pressed="false" aria-disabled="true">I need a ride</button>
-                </div>
-                <div class="driver-footer">
-                  <p class="vote-message" role="status" data-ballot-status="drive"></p>
-                  <button class="quiet-button" type="button" data-ballot-retry hidden>Retry connection</button>
-                </div>
-              </section>
+              <div class="timeline-stop">
+                <h3>Leave for Sacramento</h3>
+                <p class="vote-summary" data-driver-count></p>
+              </div>
+              <button class="button button-outline timeline-vote" type="button" data-open-dialog="transportation" aria-label="Vote on transportation" aria-haspopup="dialog">Vote</button>
             </li>
             <li>
               <span class="timeline-time">Pending</span>
@@ -254,7 +243,7 @@
         <p><strong>12:30 pm meetup.</strong> Location pending. Leave no later than 1 pm. Allow 75–90 minutes for the drive and parking.</p>
         <p><strong>Toast pending.</strong> Maple Room is a 20–25 minute walk to Enchambered. Take both cars from The Snug or Shady Lady to Enchambered, or from any bar to PanIQ.</p>
         <p><strong>Escape room pending.</strong> Confirm a slot for eight. Allow for travel, parking, and check-in 15 minutes before the room.</p>
-        <p><strong>Dinner pending.</strong> Thai Terrace and La Porta are a short walk from Punch Line. Thai Terrace is next to Enchambered. From PanIQ, drive to dinner.</p>
+        <p><strong>Dinner pending.</strong> Thai Terrace, La Porta, and The Cheesecake Factory are a short walk from Punch Line. Thai Terrace is next to Enchambered. From PanIQ, drive to dinner.</p>
         <p><strong>8:45 pm at Punch Line.</strong> 2100 Arden Way. Bring photo ID. Two beverages per guest, including alcohol-free options.</p>
         <p><strong>Weekend cap.</strong> $250 per person before restaurant tips. The seating ballot lists $32.05 general or $45.80 preferred per guest, plus two drinks.</p>
         <p class="route-note">The map uses your votes or the first option for each stop. The escape room cards have walking or driving directions from each bar.</p>
@@ -327,21 +316,26 @@
       </div>
     </dialog>
 
+    <dialog id="transportation" aria-labelledby="transportation-title" data-ballot-panel="drive">
+      <div class="dialog-header"><h2 id="transportation-title">Saturday transportation</h2><form method="dialog"><button class="close-button" aria-label="Close transportation vote">×</button></form></div>
+      <div class="dialog-copy">
+        <div><button class="button button-outline" type="button" data-choose-transport-guest>Choose your name</button></div>
+        <div class="driver-choices" role="group" aria-label="Transportation choices" hidden>
+          <label class="designated-driver"><input type="checkbox" data-designated-driver disabled> Designated Driver</label>
+          <button class="button button-choice" type="button" data-vote="drive" data-choice="volunteer" data-car-offer aria-pressed="false" aria-disabled="true">We can take my car</button>
+          <button class="button button-choice" type="button" data-vote="drive" data-choice="rider" aria-pressed="false" aria-disabled="true">I need a ride</button>
+        </div>
+      </div>
+      <div class="deck-footer">
+        <p class="vote-message" role="status" data-ballot-status="drive"></p>
+        <button class="quiet-button" type="button" data-ballot-retry hidden>Retry connection</button>
+      </div>
+    </dialog>
+
     <dialog id="rsvps" aria-labelledby="rsvp-title">
       <div class="dialog-header"><h2 id="rsvp-title">Guest RSVPs</h2><form method="dialog"><button class="close-button" aria-label="Close guest RSVPs">×</button></form></div>
       <div class="dialog-copy" data-rsvp-details></div>
     </dialog>
 
-    <dialog id="games" aria-labelledby="games-title">
-      <div class="dialog-header"><h2 id="games-title">Tavern games</h2><form method="dialog"><button class="close-button" aria-label="Close tavern games">×</button></form></div>
-      <div class="dialog-copy">
-        <p>Play with whatever’s in your glass. Sips are optional.</p>
-        <h3>Roll for a Toast</h3>
-        <p>Roll 1–9 to share a Robbie story, 10–19 to give a toast, or a natural 20 to pick who goes next.</p>
-        <div class="dice-tray"><button class="button button-outline" type="button" data-roll-die>Roll a d20</button><output class="dice-result" data-dice-result aria-live="polite"></output></div>
-        <h3>Two Truths &amp; a Side Quest</h3>
-        <p>Tell two true Robbie stories and one invented one. Everyone guesses the side quest, then Robbie settles the score.</p>
-      </div>
-    </dialog>
   </body>
 </html>

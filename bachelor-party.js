@@ -375,12 +375,6 @@ async function refreshRsvps() {
   }
 }
 
-function rollForToast() {
-  const roll = 1 + Math.floor(Math.random() * 20);
-  const prompt = roll === 20 ? "Choose who goes next." : roll >= 10 ? "Give Robbie a toast." : "Share a Robbie story.";
-  document.querySelector("[data-dice-result]").textContent = roll + " · " + prompt;
-}
-
 document.addEventListener("DOMContentLoaded", () => {
   renderRoster();
   responses = readLocalResponses();
@@ -389,5 +383,4 @@ document.addEventListener("DOMContentLoaded", () => {
   window.setInterval(() => {
     if (!document.hidden) refreshRsvps();
   }, 60000);
-  document.querySelector("[data-roll-die]").addEventListener("click", rollForToast);
 });

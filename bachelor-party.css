@@ -184,13 +184,7 @@ button { cursor: pointer; }
 .member-info strong { font-size: 0.79rem; overflow-wrap: anywhere; }
 .member-info > span { color: var(--green); font-size: 0.67rem; }
 
-.driver-ballot {
-  display: grid;
-  grid-template-columns: minmax(12rem, 1fr) minmax(0, max-content);
-  align-items: center;
-  gap: 0.25rem 1rem;
-}
-.driver-choices, .driver-footer, .venue-actions, .deck-footer, .venue-links, .dice-tray, .dialog-links {
+.driver-choices, .venue-actions, .deck-footer, .venue-links, .dialog-links {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
@@ -237,8 +231,6 @@ select {
 .button-choice[aria-pressed="true"] { background: var(--gold); border-color: var(--gold); color: #21180e; }
 button[aria-disabled="true"], button:disabled { opacity: 0.58; cursor: default; }
 .button[aria-disabled="true"]:hover, .button:disabled:hover { border-color: #68563c; }
-.driver-footer { grid-column: 1 / -1; }
-.driver-footer:not(:has(.vote-message:not(:empty), button:not([hidden]))) { display: none; }
 .vote-message { color: var(--muted); font-size: 0.76rem; }
 .vote-message:empty { display: none; }
 
@@ -405,7 +397,6 @@ dialog::backdrop { background: #0a0b08bd; }
   margin-top: 0.4rem;
   border-radius: 0.27rem;
 }
-.dice-result { color: var(--gold-light); font-weight: 700; }
 .roll-call { display: grid; grid-template-columns: auto 1fr; gap: 0.5rem 0.8rem; margin: 0; }
 .roll-call dt { font-weight: 700; color: var(--green); }
 .roll-call dd { margin: 0; }
@@ -478,8 +469,6 @@ dialog::backdrop { background: #0a0b08bd; }
 @media (max-width: 48rem) {
   .schedule-caption { align-items: start; padding-bottom: 0.3rem; }
   .schedule-caption .quiet-button { white-space: nowrap; }
-  .driver-ballot { grid-template-columns: minmax(0, 1fr); gap: 0.4rem; }
-  .driver-footer { grid-column: auto; }
 }
 
 @media (max-width: 40rem) {

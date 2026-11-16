@@ -112,6 +112,23 @@ const venues = {
       ],
       photoSource: "https://laportarestaurants.com/story",
     },
+    {
+      id: "cheesecake-factory",
+      name: "The Cheesecake Factory",
+      type: "Arden Fair · American dining room",
+      address: "1771 Arden Way",
+      toComedy: { mode: "walking", time: "About 10 min walk to Punch Line" },
+      note: "Share avocado eggrolls or fried zucchini. The vegan veggie burger is about $22 on the local delivery menu.",
+      theme: "Warm lighting, ornate ceilings, and upholstered booths. Saturday dinner for eight is walk-in.",
+      website: "https://www.thecheesecakefactory.com/locations/sacramento-ca/menu/",
+      websiteLabel: "Menu",
+      photos: [
+        ["cheesecake-factory-room", "Booth seating beneath the ornate ceiling at Arden Fair", "https://restaurantguru.com/The-Cheesecake-Factory-Sacramento"],
+        ["cheesecake-factory-eggrolls", "Avocado eggrolls with dipping sauce"],
+        ["cheesecake-factory-dessert", "A slice of cheesecake with fresh strawberries"],
+      ],
+      photoSource: "https://locations.thecheesecakefactory.com/ca/sacramento-78.html",
+    },
   ],
   room: [
     {
@@ -182,6 +199,9 @@ const carOffer = document.querySelector("[data-car-offer]");
 const designatedDriverInput = document.querySelector("[data-designated-driver]");
 const driverSummary = document.querySelector("[data-driver-count]");
 const driverPanel = carOffer.closest("[data-ballot-panel]");
+const driverOpener = document.querySelector('[data-open-dialog="transportation"]');
+const driverChoices = driverPanel.querySelector(".driver-choices");
+const driverGuestButton = driverPanel.querySelector("[data-choose-transport-guest]");
 const venueDialog = document.querySelector("#venue-voting");
 const venueVote = venueDialog.querySelector("[data-venue-vote]");
 const clearVenue = venueDialog.querySelector("[data-clear-venue]");
@@ -395,6 +415,12 @@ function renderVotingState() {
   const controlsDisabled = !connected || pendingChoices !== null;
   const drive = pendingChoices?.drive ?? selected?.drive;
   const offered = drive === "volunteer" && (pendingChoices?.car ?? selected?.car) === "offer";
+  const transportSaved = selected?.missingPlanChoices?.includes("transport") === false;
+  driverOpener.textContent = transportSaved ? "Change" : "Vote";
+  driverOpener.setAttribute("aria-label", transportSaved ? "Change your transportation vote" : "Vote on transportation");
+  driverOpener.toggleAttribute("data-voted", transportSaved);
+  driverChoices.hidden = !activeGuest;
+  driverGuestButton.parentElement.hidden = Boolean(activeGuest);
   designatedDriverInput.checked = (pendingChoices?.designatedDriver ?? selected?.designatedDriver) === true;
   designatedDriverInput.disabled = controlsDisabled;
   for (const button of voteButtons) {
@@ -605,9 +631,9 @@ async function saveChoices(panel, choices, successMessage) {
   if (!activeGuest) {
     renderVotingState();
     const selector = panel.querySelector("[data-ballot-guest]");
-    setStatus(scope, selector ? "Choose your name to vote." : "Choose your name from the party roster.");
-    const nameControl = selector ?? (compactViews.matches ? showParty : roster.querySelector("[data-calling-card]"));
-    nameControl?.focus();
+    setStatus(scope, "Choose your name to vote.");
+    const nameControl = selector ?? driverGuestButton;
+    nameControl.focus();
     return;
   }
 
@@ -655,6 +681,11 @@ function saveVote({ currentTarget }) {
   return saveChoices(panel, choices, message);
 }
 
+driverGuestButton.addEventListener("click", () => {
+  driverPanel.close();
+  if (compactViews.matches) showParty.click();
+  roster.querySelector("[data-calling-card]")?.focus();
+});
 designatedDriverInput.addEventListener("change", () => {
   const designatedDriver = designatedDriverInput.checked;
   saveChoices(driverPanel, { designatedDriver }, designatedDriver ? "Designated driver saved." : "Designated driver cleared.");
