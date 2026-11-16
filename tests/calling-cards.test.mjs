@@ -127,8 +127,8 @@ test("removed venues stay on existing ballots until the voter chooses again", as
   const api = connect(db);
   const inviteeId = existing.inviteeId;
   assert.equal((await api.submit(complete)).status, 200);
-  db.prepare("UPDATE ballots SET bar = '', walkBar = 'fieldhouse', room = 'seance', dinner = 'petes-arden' WHERE inviteeId = ?").run(inviteeId);
-  const retired = { bar: "fieldhouse", room: "seance", dinner: "petes-arden" };
+  db.prepare("UPDATE ballots SET bar = '', walkBar = 'fieldhouse', room = 'seance', dinner = 'la-porta' WHERE inviteeId = ?").run(inviteeId);
+  const retired = { bar: "fieldhouse", room: "seance", dinner: "la-porta" };
   assert.equal((await api.submit({ inviteeId, seating: "preferred" })).status, 409);
   const card = { ...complete, ...retired, passengerSeats: null };
   assert.deepEqual(await connect(db).readVotes(), [card]);

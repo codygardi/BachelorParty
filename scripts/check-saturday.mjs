@@ -146,7 +146,7 @@ try {
   const expectedVenues = {
     bar: ["Maple Room Lounge", "The Snug", "Shady Lady Saloon"],
     room: ["Enchambered", "PanIQ"],
-    dinner: ["Thai Terrace", "Wildwood Kitchen & Bar", "Tapa the World", "La Porta", "Pier 50 Sushi"],
+    dinner: ["Thai Terrace", "Wildwood Kitchen & Bar", "Tapa the World", "Pier 50 Sushi"],
   };
   const expectedOptions = {
     breakfast: ["Bubba’s Bagels", "I’ll get my own"],
@@ -163,11 +163,6 @@ try {
       assert.equal(await textAt("[data-deck-position]"), `${index + 1} of ${names.length}`);
       await click("[data-flip-card]");
       assert.equal(await run('const imgs=[...document.querySelectorAll("[data-venue-photos] img")];await Promise.all(imgs.map(i=>i.decode()));return imgs.length===3&&imgs.every(i=>i.naturalWidth>0)'), true, "Card photos failed");
-      if (name === "La Porta") {
-        const directions = new URL(await run('return document.querySelector("[data-venue-directions]").href'));
-        assert.equal(directions.searchParams.get("travelmode"), "walking");
-        assert.match(directions.searchParams.get("origin"), /La Porta.*1860 Howe Ave/);
-      }
       if (name === "Pier 50 Sushi") {
         const directions = new URL(await run('return document.querySelector("[data-venue-directions]").href'));
         assert.equal(directions.searchParams.get("travelmode"), "walking");
@@ -259,7 +254,7 @@ try {
   assert.equal(await summary("breakfast"), "Bubba’s Bagels · 1 vote / I’ll get my own · 0 votes");
   assert.equal(await summary("bar"), "Maple Room Lounge · 0 votes / The Snug · 0 votes / Shady Lady Saloon · 1 vote");
   assert.equal(await summary("room"), "Enchambered · 0 votes / PanIQ · 1 vote");
-  assert.equal(await summary("dinner"), "Thai Terrace · 0 votes / Wildwood Kitchen & Bar · 0 votes / Tapa the World · 0 votes / La Porta · 0 votes / Pier 50 Sushi · 1 vote");
+  assert.equal(await summary("dinner"), "Thai Terrace · 0 votes / Wildwood Kitchen & Bar · 0 votes / Tapa the World · 0 votes / Pier 50 Sushi · 1 vote");
   assert.equal(await summary("seating"), "General Seating · 1 vote / Premium Seating · 0 votes");
   assert.equal(await textAt("[data-driver-count]"), "1/2 designated drivers · 0 riders · 1/2 cars");
   assert.match(await textAt("[data-plan-tally]"), /1 of 8/);
