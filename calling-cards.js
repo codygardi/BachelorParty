@@ -189,7 +189,6 @@ const planChoiceLabels = {
   transport: "Ride or car", dndHost: "Friday D&D host",
   breakfast: "Breakfast", bar: "Bar", room: "Escape room", dinner: "Dinner", seating: "Comedy seating",
 };
-const requiredPlanChoices = Object.keys(planChoiceLabels);
 const dashboard = document.querySelector("[data-view]");
 const scheduleTabs = Array.from(document.querySelectorAll('[role="tab"]'));
 const compactViews = window.matchMedia("(max-width: 48rem), (max-height: 40rem)");
@@ -233,15 +232,15 @@ const voteSummaries = Array.from(document.querySelectorAll("[data-vote-summary]"
   return { display, field, options };
 });
 const breakfastPanel = document.getElementById("breakfast");
-const orderForm = breakfastPanel.querySelector("[data-breakfast-order]");
-const orderInput = orderForm.querySelector("textarea");
-const orderSave = orderForm.querySelector('[type="submit"]');
+const orderDetails = breakfastPanel.querySelector("[data-breakfast-order]");
+const orderInput = orderDetails.querySelector("textarea");
 const pickupOrders = breakfastPanel.querySelector("[data-pickup-orders]");
 const pickupEmpty = breakfastPanel.querySelector("[data-pickup-empty]");
 const planSubmit = document.querySelector("[data-plan-submit]");
 const planPanel = planSubmit.closest("[data-ballot-panel]");
 const ballotStoreUrl = persistenceConfig.ballotEndpointUrl ?? remoteStoreUrl;
 const ballotGuestKey = "bachelor-party-calling-card-guest";
+const draftChoices = new Map();
 
 let activeGuest = "";
 let activeDeck = "bar";
@@ -249,9 +248,8 @@ let venueIndex = 0;
 let callingCards = [];
 let connected = false;
 let refreshing = false;
-let pendingChoices = null;
+let submitting = false;
 let saveVersion = 0;
-let orderGuest = "";
 
 function mapLink(origin, destination, mode, waypoints) {
   const params = new URLSearchParams({ api: "1", origin, destination, travelmode: mode });
@@ -324,13 +322,19 @@ function selectedCard() {
   return callingCards.find(({ inviteeId }) => inviteeId === activeGuest);
 }
 
+function currentChoices(saved = selectedCard()) {
+  return { ...saved, ...draftChoices.get(activeGuest) };
+}
+
 function setStatus(scope, message = "") {
   const selector = scope ? `[data-ballot-status="${scope}"]` : "[data-ballot-status]";
-  for (const status of document.querySelectorAll(selector)) status.textContent = message;
+  for (const status of document.querySelectorAll(selector)) {
+    if (status.textContent !== message) status.textContent = message;
+  }
 }
 
 function voteCount(field, choice) {
-  return callingCards.filter((card) => card[field] === choice).length;
+  return callingCards.filter((card) => card.planSubmitted && card[field] === choice).length;
 }
 
 function voteTally(field, choice) {
@@ -357,33 +361,24 @@ function renderVoteSummaries() {
   driverSummary.textContent = `${driverTally} · ${riders} ${riders === 1 ? "rider" : "riders"} · ${carTally}`;
 }
 
-function renderVoteButton(button, prompt, saved, name) {
+function renderVoteButton(button, prompt, name) {
   const action = name ? "Change your vote" : "Vote";
-  const detail = name ? `Your vote is ${name}.` : saved ? "Your previous choice was removed. Vote again." : "";
+  const detail = name ? `Your vote is ${name}.` : "";
   button.textContent = name ? "Change" : "Vote";
   button.setAttribute("aria-label", detail ? `${action} ${prompt}. ${detail}` : `${action} ${prompt}`);
   button.title = detail;
   button.toggleAttribute("data-voted", Boolean(name));
 }
 
-function updateOrderSaveButton() {
-  orderSave.disabled = orderForm.hidden || orderInput.readOnly || orderInput.value.trim() === orderInput.defaultValue;
-}
-
 function renderBreakfastOrders(card) {
-  const ordering = card?.breakfast === "bubbas";
-  const savedOrder = card?.breakfastOrder ?? "";
-  const hasDraft = ordering && orderGuest === activeGuest && orderInput.value !== orderInput.defaultValue;
-  if (!hasDraft) orderInput.value = savedOrder;
-  orderInput.defaultValue = savedOrder;
-  orderGuest = ordering ? activeGuest : "";
-  orderForm.hidden = !ordering;
-  orderInput.readOnly = !connected || pendingChoices !== null;
-  updateOrderSaveButton();
+  const order = card.breakfastOrder ?? "";
+  if (orderInput.value !== order) orderInput.value = order;
+  orderDetails.hidden = card.breakfast !== "bubbas";
+  orderInput.readOnly = !connected || submitting;
 
   const rows = party.flatMap(({ id, name }) => {
     const voter = callingCards.find(({ inviteeId }) => inviteeId === id);
-    if (voter?.breakfast !== "bubbas") return [];
+    if (!voter?.planSubmitted || voter.breakfast !== "bubbas") return [];
     const guest = document.createElement("dt");
     guest.textContent = name;
     const order = document.createElement("dd");
@@ -395,17 +390,28 @@ function renderBreakfastOrders(card) {
   pickupEmpty.textContent = connected ? "No Bubba’s votes yet." : refreshing ? "Loading pickup list…" : "Pickup list unavailable";
 }
 
-function renderPlanSubmission(card) {
-  const missing = card?.missingPlanChoices ?? requiredPlanChoices;
-  const submitted = card?.planSubmitted === true;
-  planSubmit.disabled = !connected || !activeGuest || pendingChoices !== null || missing.length > 0 || submitted;
+function renderPlanSubmission(card, saved) {
+  const missing = [];
+  const offered = card.drive === "volunteer" && card.car === "offer";
+  if (card.drive !== "rider" && !offered) missing.push("transport");
+  for (const { field, options } of voteSummaries) {
+    if (!options.some(({ id }) => id === card[field])) missing.push(field);
+  }
+  const changed = Object.entries(draftChoices.get(activeGuest) ?? {}).some(([field, value]) => {
+    if (field === "breakfastOrder") {
+      return card.breakfast === "bubbas" && value.trim() !== (saved?.breakfastOrder ?? "");
+    }
+    return value !== saved?.[field];
+  });
+  const submitted = saved?.planSubmitted === true && !changed;
+  planSubmit.disabled = !connected || !activeGuest || submitting || missing.length > 0 || submitted;
   planSubmit.textContent = submitted ? "Votes submitted" : "Submit Votes";
   planSubmit.toggleAttribute("data-submitted", submitted);
 
   let progress = activeGuest ? "" : "Choose your name to see what’s left.";
   if (activeGuest && connected) {
     if (missing.length) progress = `Still needed · ${missing.map((field) => planChoiceLabels[field]).join(" · ")}`;
-    else if (!submitted) progress = "All required choices are saved.";
+    else if (!submitted && !submitting) progress = "Choices ready to submit.";
   }
   planPanel.querySelector("[data-plan-progress]").textContent = progress;
   planPanel.querySelector("[data-plan-tally]").textContent = connected
@@ -414,23 +420,24 @@ function renderPlanSubmission(card) {
 }
 
 function renderVotingState() {
-  const selected = selectedCard();
-  const controlsDisabled = !connected || pendingChoices !== null;
-  const drive = pendingChoices?.drive ?? selected?.drive;
-  const offered = drive === "volunteer" && (pendingChoices?.car ?? selected?.car) === "offer";
-  const transportSaved = selected?.missingPlanChoices?.includes("transport") === false;
+  const saved = selectedCard();
+  const selected = currentChoices(saved);
+  const submitted = saved?.planSubmitted ? saved : undefined;
+  const controlsDisabled = !connected || submitting;
+  const offered = selected.drive === "volunteer" && selected.car === "offer";
+  const transportSaved = Boolean(submitted);
   driverOpener.textContent = transportSaved ? "Change" : "Vote";
   driverOpener.setAttribute("aria-label", transportSaved ? "Change your transportation vote" : "Vote on transportation");
   driverOpener.toggleAttribute("data-voted", transportSaved);
   driverChoices.hidden = !activeGuest;
   driverGuestButton.parentElement.hidden = Boolean(activeGuest);
-  designatedDriverInput.checked = (pendingChoices?.designatedDriver ?? selected?.designatedDriver) === true;
+  designatedDriverInput.checked = selected.designatedDriver === true;
   designatedDriverInput.disabled = controlsDisabled;
   for (const button of voteButtons) {
     const { vote, choice } = button.dataset;
     button.setAttribute("aria-disabled", String(controlsDisabled));
     if (button.hasAttribute("aria-pressed")) {
-      const pressed = button === carOffer ? offered : (vote === "drive" ? drive : selected?.[vote]) === choice;
+      const pressed = button === carOffer ? offered : selected[vote] === choice;
       button.setAttribute("aria-pressed", String(pressed));
     }
   }
@@ -444,40 +451,38 @@ function renderVotingState() {
     const { rollCall, choice } = entry.dataset;
     const names = party.flatMap(({ id, name }) => {
       const card = callingCards.find(({ inviteeId }) => inviteeId === id);
-      return card?.[rollCall] === choice ? [name] : [];
+      return card?.planSubmitted && card[rollCall] === choice ? [name] : [];
     });
     entry.textContent = names.join(", ") || (connected ? "None yet" : "Tally unavailable");
   }
 
   const deck = venues[activeDeck];
   const venue = deck[venueIndex];
-  const savedVenue = deck.find(({ id }) => id === selected?.[activeDeck]);
-  const isSavedVenue = venue === savedVenue;
-  const venueAction = savedVenue ? "Change your vote to" : "Vote for";
-  venueVote.textContent = savedVenue ? "Change" : "Vote";
-  venueVote.setAttribute("aria-current", String(isSavedVenue));
-  venueVote.setAttribute("aria-label", isSavedVenue ? `Change your vote from ${venue.name}. Browse the next option.` : `${venueAction} ${venue.name}`);
+  const canChange = Boolean(submitted?.[activeDeck]);
+  const isSelectedVenue = venue.id === selected[activeDeck];
+  const venueAction = canChange ? "Change your vote to" : "Vote for";
+  venueVote.textContent = canChange ? "Change" : "Vote";
+  venueVote.setAttribute("aria-current", String(isSelectedVenue));
+  venueVote.setAttribute("aria-label", canChange && isSelectedVenue ? `Change your choice from ${venue.name}. Browse the next option.` : `${venueAction} ${venue.name}`);
   venueDialog.querySelector("[data-venue-tally]").textContent = voteTally(activeDeck, venue.id);
-  clearVenue.hidden = !selected?.[activeDeck];
+  clearVenue.hidden = !selected[activeDeck];
 
   for (const button of deckOpeners) {
     const field = button.dataset.openBallot;
-    const saved = selected?.[field];
-    const choice = venues[field].find(({ id }) => id === saved);
-    renderVoteButton(button, venueVotePrompts[field], saved, choice?.name);
+    const choice = venues[field].find(({ id }) => id === submitted?.[field]);
+    renderVoteButton(button, venueVotePrompts[field], choice?.name);
   }
   for (const { field, prompt, opener, buttons, clear } of polls) {
-    const saved = selected?.[field];
-    const selection = buttons.find((button) => button.dataset.choice === saved);
-    renderVoteButton(opener, prompt, saved, selection?.querySelector("strong").textContent);
-    clear.hidden = !saved;
+    const selection = buttons.find((button) => button.dataset.choice === submitted?.[field]);
+    renderVoteButton(opener, prompt, selection?.querySelector("strong").textContent);
+    clear.hidden = !selected[field];
     for (const button of buttons) {
       button.querySelector("[data-poll-tally]").textContent = voteTally(field, button.dataset.choice);
     }
   }
   renderVoteSummaries();
   renderBreakfastOrders(selected);
-  renderPlanSubmission(selected);
+  renderPlanSubmission(selected, saved);
   renderRoute(selected);
 }
 
@@ -573,7 +578,7 @@ function renderVenue() {
 for (const button of deckOpeners) {
   button.addEventListener("click", () => {
     activeDeck = button.dataset.openBallot;
-    const currentChoice = selectedCard()?.[activeDeck];
+    const currentChoice = currentChoices()[activeDeck];
     const currentIndex = venues[activeDeck].findIndex(({ id }) => id === currentChoice);
     venueIndex = Math.max(currentIndex, 0);
     if (connected) setStatus("venue", currentChoice && currentIndex < 0 ? "Choose again from the updated venues." : "");
@@ -612,7 +617,7 @@ async function requestCallingCards(card) {
 }
 
 async function refreshCallingCards() {
-  if (refreshing || pendingChoices) return;
+  if (refreshing || submitting) return;
   refreshing = true;
   renderVotingState();
   const version = saveVersion;
@@ -632,8 +637,8 @@ async function refreshCallingCards() {
   }
 }
 
-async function saveChoices(panel, choices, successMessage) {
-  if (!connected || pendingChoices) {
+function stageChoices(panel, choices, message) {
+  if (!connected || submitting) {
     renderVotingState();
     return;
   }
@@ -647,54 +652,54 @@ async function saveChoices(panel, choices, successMessage) {
     return;
   }
 
-  const deckAtSave = activeDeck;
-  saveVersion += 1;
-  pendingChoices = choices;
+  draftChoices.set(activeGuest, { ...draftChoices.get(activeGuest), ...choices });
+  setStatus("submission");
+  setStatus(scope, message);
   renderVotingState();
-  const updatesPlanChoices = scope !== "submission"
-    && !Object.hasOwn(choices, "breakfastOrder") && !Object.hasOwn(choices, "designatedDriver");
-  if (updatesPlanChoices) setStatus("submission");
-  setStatus(scope, "Saving…");
+}
+
+async function submitVotes() {
+  if (planSubmit.disabled) return;
+  const inviteeId = activeGuest;
+  const choices = { ...draftChoices.get(inviteeId) };
+  if (currentChoices().breakfast !== "bubbas") delete choices.breakfastOrder;
+  saveVersion += 1;
+  submitting = true;
+  setStatus("submission", "Submitting votes…");
+  renderVotingState();
   let refreshAfterFailure = false;
   try {
-    callingCards = await requestCallingCards({ inviteeId: activeGuest, ...choices });
-    if (scope !== "venue" || deckAtSave === activeDeck) setStatus(scope, successMessage);
+    callingCards = await requestCallingCards({ inviteeId, ...choices, planSubmitted: true });
+    draftChoices.delete(inviteeId);
+    setStatus();
   } catch (error) {
     refreshAfterFailure = error.cause === 409;
-    if (refreshAfterFailure) {
-      setStatus(scope, error.message);
-    } else if (scope === "submission") {
-      setStatus(scope, "Plan vote could not be submitted. Try again.");
-    } else if (Object.hasOwn(choices, "breakfastOrder")) {
-      setStatus(scope, "Order could not be saved. Try again.");
-    } else if (scope !== "venue" || deckAtSave === activeDeck) {
-      setStatus(scope, "Vote could not be saved. Try again.");
-    }
+    setStatus("submission", refreshAfterFailure ? error.message : "Votes could not be submitted. Try again.");
   } finally {
-    pendingChoices = null;
+    submitting = false;
     renderVotingState();
     if (refreshAfterFailure) refreshCallingCards();
   }
 }
 
-function saveVote({ currentTarget }) {
+function stageVote({ currentTarget }) {
   const { vote, choice } = currentTarget.dataset;
-  const selected = selectedCard();
-  if (currentTarget === venueVote && choice === selected?.[vote]) {
-    if (!connected || pendingChoices) return;
+  const saved = selectedCard();
+  const selected = currentChoices(saved);
+  if (currentTarget === venueVote && saved?.planSubmitted && choice === selected[vote]) {
+    if (!connected || submitting) return;
     setStatus("venue");
     stepVenue(1);
     return;
   }
   const choices = { [vote]: choice };
-  let message = choice ? "Vote saved." : "Vote cleared.";
   if (vote === "drive") {
     choices.car = choice === "volunteer" ? "offer" : "";
-    message = choice === "volunteer" ? "Car offer saved." : "Ride request saved.";
   }
-  if (Object.entries(choices).every(([field, value]) => selected?.[field] === value)) return;
+  if (Object.entries(choices).every(([field, value]) => selected[field] === value)) return;
   const panel = currentTarget.closest("[data-ballot-panel]");
-  return saveChoices(panel, choices, message);
+  const message = choice ? "Selected. Press Submit Votes on Saturday to save." : "Choice cleared. Pick an option before submitting.";
+  stageChoices(panel, choices, message);
 }
 
 driverGuestButton.addEventListener("click", () => {
@@ -704,24 +709,17 @@ driverGuestButton.addEventListener("click", () => {
 });
 designatedDriverInput.addEventListener("change", () => {
   const designatedDriver = designatedDriverInput.checked;
-  saveChoices(driverPanel, { designatedDriver }, designatedDriver ? "Designated driver saved." : "Designated driver cleared.");
+  stageChoices(driverPanel, { designatedDriver }, "Press Submit Votes on Saturday to save your choice.");
 });
-orderInput.addEventListener("input", updateOrderSaveButton);
-orderForm.addEventListener("submit", (event) => {
-  event.preventDefault();
-  if (orderSave.disabled) return;
-  const breakfastOrder = orderInput.value.trim();
-  orderInput.value = breakfastOrder;
-  saveChoices(breakfastPanel, { breakfastOrder }, breakfastOrder ? "Order saved." : "Order cleared.");
+orderInput.addEventListener("input", () => {
+  stageChoices(breakfastPanel, { breakfastOrder: orderInput.value }, "Press Submit Votes on Saturday to save your order.");
 });
-planSubmit.addEventListener("click", () => {
-  if (!planSubmit.disabled) saveChoices(planPanel, { planSubmitted: true }, "");
-});
+planSubmit.addEventListener("click", submitVotes);
 
 for (const selector of guestSelectors) {
   for (const member of party) selector.add(new Option(member.name, member.id));
   selector.addEventListener("change", () => {
-    if (pendingChoices) {
+    if (submitting) {
       selector.value = activeGuest;
       return;
     }
@@ -737,11 +735,11 @@ try {
 
 roster.addEventListener("click", (event) => {
   const card = event.target.closest("[data-calling-card]");
-  if (card && !pendingChoices) selectGuest(card.dataset.callingCard);
+  if (card && !submitting) selectGuest(card.dataset.callingCard);
 });
 
 document.addEventListener("DOMContentLoaded", renderVotingState);
-for (const button of voteButtons) button.addEventListener("click", saveVote);
+for (const button of voteButtons) button.addEventListener("click", stageVote);
 for (const button of retryButtons) button.addEventListener("click", refreshCallingCards);
 document.addEventListener("visibilitychange", () => {
   if (!document.hidden) refreshCallingCards();

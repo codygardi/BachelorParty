@@ -8,10 +8,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="bachelor-party.css?v=20261116b">
+    <link rel="stylesheet" href="bachelor-party.css?v=20261116c">
     <script src="bachelor-party-config.js" defer></script>
     <script src="bachelor-party.js?v=20261115s" defer></script>
-    <script src="calling-cards.js?v=20261116b" defer></script>
+    <script src="calling-cards.js?v=20261116c" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
@@ -196,7 +196,7 @@
       </div>
       <div class="deck-footer">
         <p class="vote-message" role="status" data-ballot-status="venue"></p>
-        <button class="quiet-button" type="button" data-vote="bar" data-choice="" data-clear-venue hidden>Clear my vote</button>
+        <button class="quiet-button" type="button" data-vote="bar" data-choice="" data-clear-venue hidden>Clear choice</button>
         <button class="quiet-button" type="button" data-ballot-retry hidden>Retry connection</button>
       </div>
     </dialog>
@@ -232,7 +232,7 @@
       </div>
       <div class="deck-footer">
         <p class="vote-message" role="status" data-ballot-status="seating"></p>
-        <button class="quiet-button" type="button" data-vote="seating" data-choice="" data-clear-seating hidden>Clear my vote</button>
+        <button class="quiet-button" type="button" data-vote="seating" data-choice="" data-clear-seating hidden>Clear choice</button>
         <button class="quiet-button" type="button" data-ballot-retry hidden>Retry connection</button>
       </div>
     </dialog>
@@ -271,15 +271,14 @@
           </button>
         </div>
         <p>860 Sutton Way, Grass Valley · Saturday from 7 am · <a href="https://bubbas-bagels.com/" target="_blank" rel="noopener">Menu &amp; hours <span aria-hidden="true">↗</span></a></p>
-        <form class="breakfast-order" data-breakfast-order hidden>
+        <div class="breakfast-order" data-breakfast-order hidden>
           <label for="breakfast-order">Your Bubba’s order</label>
           <textarea id="breakfast-order" rows="2" maxlength="400" placeholder="e.g. 1 everything bagel, toasted, with scallion cream cheese"></textarea>
-          <button class="button button-outline" type="submit" disabled>Save order</button>
-        </form>
+        </div>
       </div>
       <div class="deck-footer">
         <p class="vote-message" role="status" data-ballot-status="breakfast"></p>
-        <button class="quiet-button" type="button" data-vote="breakfast" data-choice="" data-clear-breakfast hidden>Clear my vote</button>
+        <button class="quiet-button" type="button" data-vote="breakfast" data-choice="" data-clear-breakfast hidden>Clear choice</button>
         <button class="quiet-button" type="button" data-ballot-retry hidden>Retry connection</button>
       </div>
       <section class="breakfast-pickup" aria-labelledby="pickup-title">
@@ -311,7 +310,7 @@
       </div>
       <div class="deck-footer">
         <p class="vote-message" role="status" data-ballot-status="dndHost"></p>
-        <button class="quiet-button" type="button" data-vote="dndHost" data-choice="" hidden>Clear my vote</button>
+        <button class="quiet-button" type="button" data-vote="dndHost" data-choice="" hidden>Clear choice</button>
         <button class="quiet-button" type="button" data-ballot-retry hidden>Retry connection</button>
       </div>
     </dialog>

@@ -72,9 +72,7 @@ try {
   }
   const offered = 'document.querySelector("[data-car-offer]")';
   const designated = 'document.querySelector("[data-designated-driver]")';
-  const status = 'document.querySelector("[data-ballot-status=drive]")?.textContent';
   const enabled = offered + '?.getAttribute("aria-disabled") === "false"';
-  const didSave = (message) => until("return " + status + " === " + JSON.stringify(message), message + " did not appear.");
   const viewport = (width, height) => cdp("Emulation.setDeviceMetricsOverride", {
     width, height, deviceScaleFactor: 1, mobile: false
   });
@@ -97,12 +95,15 @@ try {
   const choose = (id) => click(`[data-calling-card="${id}"]`);
   const textAt = async (selector) => run('return document.querySelector(' + JSON.stringify(selector) + ').textContent');
   const timelineVoteLabels = () => run('return [...document.querySelectorAll(".timeline-vote")].map(button => button.textContent)');
-  const saveIn = async (scope, msg="Vote saved.") => until('return document.querySelector("[data-ballot-status=' + scope + ']").textContent === ' + JSON.stringify(msg), scope + " save failed");
   const openDeck = async (deck) => click('[data-open-ballot=' + deck + ']');
   const closeDeck = async () => click('#venue-voting .close-button');
-  const castVenue = async () => { await click('[data-venue-vote]'); await saveIn("venue"); };
+  const chooseVenue = () => click("[data-venue-vote]");
   const next = async () => click('[data-deck-step="1"]');
   const submitDisabled = () => run('return document.querySelector("[data-plan-submit]").disabled');
+  async function submit() {
+    await click("[data-plan-submit]");
+    await until('return document.querySelector("[data-plan-submit]").hasAttribute("data-submitted")', "Votes did not submit.");
+  }
   const summary = (field) => textAt('[data-vote-summary="' + field + '"]');
   const transportButton = '[data-open-dialog="transportation"]';
   const openTransport = () => click(transportButton);
@@ -187,29 +188,29 @@ try {
   await openDeck("bar");
   await next(); await next();
   assert.equal(await textAt("[data-venue-vote]"), "Vote");
-  await castVenue();
-  assert.equal(await textAt("[data-venue-vote]"), "Change");
+  await chooseVenue();
+  assert.equal(await textAt("[data-venue-vote]"), "Vote");
   assert.equal(await run('return document.querySelector("[data-venue-vote]").ariaCurrent'), "true");
   await closeDeck();
-  assert.deepEqual(await timelineVoteLabels(), ["Vote", "Vote", "Vote", "Change", "Vote", "Vote", "Vote"]);
+  assert.deepEqual(await timelineVoteLabels(), Array(7).fill("Vote"));
   await openDeck("room");
   await next();
-  await castVenue(); await closeDeck();
+  await chooseVenue(); await closeDeck();
   await openDeck("dinner");
   for (let index = 1; index < expectedVenues.dinner.length; index++) await next();
-  await castVenue(); await closeDeck();
+  await chooseVenue(); await closeDeck();
   await openTransport();
   assert.equal(await run('return document.querySelector("#transportation").open && !document.querySelector(".driver-choices").hidden'), true);
-  await run(offered + ".click()"); await didSave("Car offer saved.");
+  await run(offered + ".click()");
+  await click("[data-designated-driver]");
   await closeTransport();
-  assert.equal(await textAt(transportButton), "Change");
-  assert.equal(await run("return " + designated + ".checked"), false);
-  assert.equal(await textAt("[data-driver-count]"), "0/2 designated drivers · 0 riders · 1/2 cars");
+  assert.equal(await textAt(transportButton), "Vote");
+  assert.equal(await run("return " + designated + ".checked"), true);
+  assert.equal(await textAt("[data-driver-count]"), "0/2 designated drivers · 0 riders · 0/2 cars");
   assert.equal(await submitDisabled(), true);
   assert.equal(await textAt("[data-plan-progress]"), "Still needed · Friday D&D host · Breakfast · Comedy seating");
   await click('[data-open-dialog="seating-voting"]');
   await click('[data-vote=seating][data-choice=general]');
-  await saveIn("seating");
   await click("#seating-voting .close-button");
   assert.equal(await submitDisabled(), true);
   assert.equal(await textAt("[data-plan-progress]"), "Still needed · Friday D&D host · Breakfast");
@@ -217,46 +218,56 @@ try {
   assert.deepEqual(await run('return [...document.querySelectorAll("#breakfast .poll-option strong")].map(option => option.textContent)'), ["Bubba’s Bagels", "I’ll get my own"]);
   assert.equal(await run('return document.querySelector("[data-breakfast-order]").hidden'), true);
   await click('[data-vote=breakfast][data-choice=bubbas]');
-  await saveIn("breakfast");
   assert.equal(await run('return document.querySelector("[data-breakfast-order]").hidden'), false);
-  assert.deepEqual(await pickup(), ["Cody Gardi", "Order pending"]);
+  await enterOrder(orderText);
+  await run("await refreshCallingCards()");
+  assert.equal(await run('return document.querySelector("#breakfast-order").value'), orderText);
+  assert.deepEqual(await pickup(), []);
   await click("#breakfast .close-button");
-  assert.equal(await summary("breakfast"), "Bubba’s Bagels · 1 vote / I’ll get my own · 0 votes");
-  assert.equal(await summary("bar"), "Maple Room Lounge · 0 votes / The Snug · 0 votes / Shady Lady Saloon · 1 vote");
-  assert.equal(await summary("room"), "Enchambered · 0 votes / PanIQ · 1 vote");
-  assert.equal(await summary("dinner"), "Thai Terrace · 0 votes / Wildwood Kitchen & Bar · 0 votes / Tapa the World · 0 votes / La Porta · 0 votes / Pier 50 Sushi · 1 vote");
-  assert.equal(await summary("seating"), "General Seating · 1 vote / Premium Seating · 0 votes");
   assert.equal(await submitDisabled(), true);
   assert.equal(await textAt("[data-plan-progress]"), "Still needed · Friday D&D host");
   await click("#friday-tab");
   await click('[data-open-dialog="dnd-host"]');
   await click('[data-vote=dndHost][data-choice=host]');
-  await saveIn("dndHost");
-  assert.equal(await textAt('[data-roll-call=dndHost][data-choice=host]'), "Cody Gardi");
+  assert.equal(await textAt('[data-roll-call=dndHost][data-choice=host]'), "None yet");
   await click("#dnd-host .close-button");
-  assert.equal(await summary("dndHost"), "Can host · 1 vote / Can’t host · 0 votes");
   await click("#saturday-tab");
-  assert.deepEqual(await timelineVoteLabels(), Array(7).fill("Change"));
+  assert.deepEqual(await timelineVoteLabels(), Array(7).fill("Vote"));
   assert.equal(await submitDisabled(), false);
-  await click("[data-plan-submit]");
-  await until('return document.querySelector("[data-plan-submit]").hasAttribute("data-submitted")', "Plan vote did not submit.");
+  assert.deepEqual(await read(), [], "All choices must stay in the tab before submission");
+  for (const [field, names] of Object.entries(expectedOptions)) {
+    assert.equal(await summary(field), names.map((name) => `${name} · 0 votes`).join(" / "));
+  }
+  await choose("max-voorhees");
   assert.equal(await submitDisabled(), true);
+  await choose("cody-gardi");
+  assert.equal(await submitDisabled(), false);
+
+  await cdp("Network.enable");
+  await cdp("Network.emulateNetworkConditions", {offline:true,latency:0,downloadThroughput:-1,uploadThroughput:-1});
+  await click("[data-plan-submit]");
+  await until('return document.querySelector("[data-ballot-status=submission]").textContent.startsWith("Votes could not be submitted")', "No submission failure was shown.");
+  assert.deepEqual(await timelineVoteLabels(), Array(7).fill("Vote"));
+  assert.deepEqual(await read(), [], "A failed submission must keep the shared ballot empty");
+  assert.equal(await submitDisabled(), false, "A failed submission must keep the draft available for retry");
+  await cdp("Network.emulateNetworkConditions", {offline:false,latency:0,downloadThroughput:-1,uploadThroughput:-1});
+
+  await submit();
+  assert.deepEqual(await timelineVoteLabels(), Array(7).fill("Change"));
+  assert.equal(await summary("dndHost"), "Can host · 1 vote / Can’t host · 0 votes");
+  assert.equal(await textAt('[data-roll-call=dndHost][data-choice=host]'), "Cody Gardi");
+  assert.equal(await summary("breakfast"), "Bubba’s Bagels · 1 vote / I’ll get my own · 0 votes");
+  assert.equal(await summary("bar"), "Maple Room Lounge · 0 votes / The Snug · 0 votes / Shady Lady Saloon · 1 vote");
+  assert.equal(await summary("room"), "Enchambered · 0 votes / PanIQ · 1 vote");
+  assert.equal(await summary("dinner"), "Thai Terrace · 0 votes / Wildwood Kitchen & Bar · 0 votes / Tapa the World · 0 votes / La Porta · 0 votes / Pier 50 Sushi · 1 vote");
+  assert.equal(await summary("seating"), "General Seating · 1 vote / Premium Seating · 0 votes");
+  assert.equal(await textAt("[data-driver-count]"), "1/2 designated drivers · 0 riders · 1/2 cars");
   assert.match(await textAt("[data-plan-tally]"), /1 of 8/);
   await click('[data-open-dialog="breakfast"]');
-  await enterOrder(orderText);
-  await run("await refreshCallingCards()");
-  assert.equal(await run('return document.querySelector("#breakfast-order").value'), orderText);
-  await click("[data-breakfast-order] button");
-  await saveIn("breakfast", "Order saved.");
+  await enterOrder("Unsubmitted order edit");
   assert.deepEqual(await pickup(), ["Cody Gardi", orderText]);
   await click("#breakfast .close-button");
-  assert.equal(await textAt("[data-plan-submit]"), "Votes submitted");
-  await openTransport();
-  await click("[data-designated-driver]");
-  await didSave("Designated driver saved.");
-  await closeTransport();
-  assert.equal(await textAt("[data-driver-count]"), "1/2 designated drivers · 0 riders · 1/2 cars");
-  assert.equal(await textAt("[data-plan-submit]"), "Votes submitted");
+  assert.equal(await submitDisabled(), false);
   const beforeReload = await run("return performance.timeOrigin");
   await cdp("Page.reload");
   await until("return performance.timeOrigin !== " + beforeReload + " && " + enabled, "Reload failed");
@@ -293,13 +304,16 @@ try {
   const otherVote = await fetch(url + "api/calling-cards", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ action: "save-ballot", card: { inviteeId: "max-voorhees", dndHost: "cant-host", bar: "shady-lady", breakfast: "own", seating: "preferred" } }),
+    body: JSON.stringify({ action: "save-ballot", card: {
+      inviteeId: "max-voorhees", dndHost: "cant-host", drive: "rider", breakfast: "own", bar: "shady-lady",
+      room: "enchambered", dinner: "thai-terrace", seating: "preferred", planSubmitted: true,
+    } }),
   });
   assert.equal(otherVote.status, 200);
   await run("await refreshCallingCards()");
   await choose("max-voorhees");
   assert.equal(await run("return " + designated + ".checked"), false);
-  assert.deepEqual(await timelineVoteLabels(), ["Change", "Change", "Vote", "Change", "Vote", "Vote", "Change"]);
+  assert.deepEqual(await timelineVoteLabels(), Array(7).fill("Change"));
   assert.equal(await summary("dndHost"), "Can host · 1 vote / Can’t host · 1 vote");
   assert.equal(await summary("breakfast"), "Bubba’s Bagels · 1 vote / I’ll get my own · 1 vote");
   assert.equal(await summary("seating"), "General Seating · 1 vote / Premium Seating · 1 vote");
@@ -307,10 +321,9 @@ try {
   assert.equal(await run('return document.querySelector("[data-breakfast-order]").hidden'), true);
   assert.deepEqual(await pickup(), ["Cody Gardi", orderText]);
   await click('[data-vote=breakfast][data-choice=bubbas]');
-  await saveIn("breakfast");
-  assert.deepEqual(await pickup(), ["Max Voorhees", "Order pending", "Cody Gardi", orderText]);
+  assert.deepEqual(await pickup(), ["Cody Gardi", orderText]);
   await click("#breakfast .close-button");
-  assert.equal(await summary("breakfast"), "Bubba’s Bagels · 2 votes / I’ll get my own · 0 votes");
+  assert.equal(await summary("breakfast"), "Bubba’s Bagels · 1 vote / I’ll get my own · 1 vote");
   await openDeck("bar");
   assert.equal(await textAt("[data-venue-tally]"), "2 votes");
   assert.equal(await textAt("[data-venue-vote]"), "Change");
@@ -318,37 +331,36 @@ try {
   assert.equal(await textAt("[data-venue-name]"), "Maple Room Lounge");
   assert.equal(await textAt("[data-venue-vote]"), "Change");
   assert.equal(await run('return document.querySelector("[data-venue-vote]").ariaCurrent'), "false");
-  await cdp("Network.enable");
-  await cdp("Network.emulateNetworkConditions", {offline:true,latency:0,downloadThroughput:-1,uploadThroughput:-1});
-  await click("[data-venue-vote]");
-  await saveIn("venue", "Vote could not be saved. Try again.");
-  assert.equal((await read()).find((row) => row.inviteeId === "max-voorhees").bar, "shady-lady");
-  await cdp("Network.emulateNetworkConditions", {offline:false,latency:0,downloadThroughput:-1,uploadThroughput:-1});
-  await castVenue();
+  await chooseVenue();
   await closeDeck();
+  const beforeUpdate = (await read()).find((row) => row.inviteeId === "max-voorhees");
+  assert.equal(beforeUpdate.bar, "shady-lady");
+  assert.equal(beforeUpdate.breakfast, "own");
+  assert.equal(await submitDisabled(), false);
+  await submit();
+  const afterUpdate = (await read()).find((row) => row.inviteeId === "max-voorhees");
+  assert.deepEqual(afterUpdate, { ...beforeUpdate, bar: "maple-room", breakfast: "bubbas" });
+  assert.equal(await summary("breakfast"), "Bubba’s Bagels · 2 votes / I’ll get my own · 0 votes");
+  assert.deepEqual(await pickup(), ["Max Voorhees", "Order pending", "Cody Gardi", orderText]);
+
   await choose("cody-gardi");
   await openTransport();
   await click('[data-vote=drive][data-choice=rider]');
-  await didSave("Ride request saved.");
-  assert.equal(await textAt("[data-driver-count]"), "1/2 designated drivers · 1 rider · 0/2 cars");
   await click("[data-designated-driver]");
-  await didSave("Designated driver cleared.");
   await closeTransport();
   assert.equal(await textAt(transportButton), "Change");
-  assert.equal(await textAt("[data-driver-count]"), "0/2 designated drivers · 1 rider · 0/2 cars");
+  assert.equal(await textAt("[data-driver-count]"), "1/2 designated drivers · 1 rider · 1/2 cars");
   assert.equal(await submitDisabled(), false);
   await openDeck("bar");
   await click("[data-clear-venue]");
-  await saveIn("venue", "Vote cleared.");
-  assert.equal(await textAt("[data-venue-vote]"), "Vote");
+  assert.equal(await textAt("[data-venue-vote]"), "Change");
   await closeDeck();
   const afterClear = await read();
-  assert.deepEqual(afterClear.find((row) => row.inviteeId === "cody-gardi"), {
-    ...card, bar: "", drive: "rider", designatedDriver: false, car: "", passengerSeats: null, planSubmitted: false, missingPlanChoices: ["bar"],
-  });
-  assert.equal(afterClear.find((row) => row.inviteeId === "max-voorhees").bar, "maple-room");
-  assert.deepEqual(await timelineVoteLabels(), ["Change", "Change", "Change", "Vote", "Change", "Change", "Change"]);
+  assert.deepEqual(afterClear.find((row) => row.inviteeId === "cody-gardi"), card);
+  assert.deepEqual(afterClear.find((row) => row.inviteeId === "max-voorhees"), afterUpdate);
+  assert.deepEqual(await timelineVoteLabels(), Array(7).fill("Change"));
   assert.equal(await submitDisabled(), true);
+  assert.equal(await textAt("[data-plan-progress]"), "Still needed · Bar");
 
   await mkdir(".venue-photo-review/saturday", {recursive:true});
   for (const [width,height] of [[1304,883],[780,820],[390,844]]) {
@@ -373,7 +385,7 @@ try {
     await writeFile(".venue-photo-review/saturday/" + width + ".png",Buffer.from(shot.data,"base64"));
   }
   assert.deepEqual(errors, []);
-  console.log("Verified Friday host voting and reload, Saturday departure and ride controls, per-option tallies, breakfast pickup orders, plan submissions, venue cards, and responsive layouts.");
+  console.log("Verified drafts stay in the tab, failed submissions preserve drafts, and successful submissions update votes, labels, and pickup orders together. Checked reloads, guest switching, and responsive layouts.");
 
 } finally {
   socket?.close();

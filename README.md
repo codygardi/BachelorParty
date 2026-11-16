@@ -14,9 +14,9 @@ Saturday has one set of venue ballots for the bar, escape room location, and din
 
 Friday’s D&D host poll shows who can run the game.
 
-The final plan vote requires a Friday D&D host response, a ride request or car offer, and votes for breakfast, the bar, escape room location, dinner, and comedy seating. The Designated Driver checkbox is optional and saves separately from car offers and ride requests. The Worker checks completion when a plan vote is submitted. Changing or clearing a required choice reopens that vote for submission.
+Submit Votes saves all choices together. A ballot requires a Friday D&D host response, a ride request or car offer, and votes for breakfast, the bar, escape room location, dinner, and comedy seating. The Designated Driver checkbox is optional. Selections and edits stay in the tab until submission, and earlier autosaved choices remain available for their guests to submit. The Worker validates the complete ballot before saving.
 
-Saturday shows the vote count for every option in each activity poll. Guests who vote for Bubba’s can add an optional order to the pickup list. Adding or editing the order keeps the submitted plan vote, and withdrawing the Bubba’s choice removes the order.
+Tallies, the host roll call, and the Bubba’s pickup list use submitted ballots. Guests who choose Bubba’s can enter an optional order. Submitting a switch away from Bubba’s clears the saved order.
 
 The Worker carries forward eligible votes from the former plans. If someone saved two eligible votes for the same stop, it uses the vote from their preferred plan, or the drive vote if they never picked a plan. Skull Witch and The Collection map to Enchambered. Pirates of Tortuga maps to PanIQ. A removed choice prompts the voter to choose again. Saving or clearing a venue replaces both prior choices for that stop.
 

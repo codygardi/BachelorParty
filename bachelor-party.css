@@ -371,7 +371,6 @@ dialog::backdrop { background: #0a0b08bd; }
   color: var(--text);
   font: inherit;
 }
-.breakfast-order button { justify-self: start; }
 .breakfast-pickup {
   margin-top: 0.7rem;
   padding-top: 0.7rem;
