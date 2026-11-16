@@ -144,7 +144,7 @@ try {
   const expectedVenues = {
     bar: ["Maple Room Lounge", "The Snug", "Shady Lady Saloon"],
     room: ["Enchambered", "PanIQ"],
-    dinner: ["Thai Terrace", "Wildwood Kitchen & Bar", "Tapa the World", "La Porta", "The Cheesecake Factory"],
+    dinner: ["Thai Terrace", "Wildwood Kitchen & Bar", "Tapa the World", "La Porta", "Pier 50 Sushi"],
   };
   const expectedOptions = {
     breakfast: ["Bubba’s Bagels", "I’ll get my own"],
@@ -166,10 +166,10 @@ try {
         assert.equal(directions.searchParams.get("travelmode"), "walking");
         assert.match(directions.searchParams.get("origin"), /La Porta.*1860 Howe Ave/);
       }
-      if (name === "The Cheesecake Factory") {
+      if (name === "Pier 50 Sushi") {
         const directions = new URL(await run('return document.querySelector("[data-venue-directions]").href'));
         assert.equal(directions.searchParams.get("travelmode"), "walking");
-        assert.match(directions.searchParams.get("origin"), /The Cheesecake Factory.*1771 Arden Way/);
+        assert.match(directions.searchParams.get("origin"), /Pier 50 Sushi.*1735 Arden Way #200/);
       }
       if (deck === "room") {
         const modes = await run('return [...document.querySelectorAll("[data-bar-routes] a")].map(a => new URL(a.href).searchParams.get("travelmode"))');
@@ -218,7 +218,7 @@ try {
   assert.equal(await summary("breakfast"), "Bubba’s Bagels · 1 vote / I’ll get my own · 0 votes");
   assert.equal(await summary("bar"), "Maple Room Lounge · 0 votes / The Snug · 0 votes / Shady Lady Saloon · 1 vote");
   assert.equal(await summary("room"), "Enchambered · 0 votes / PanIQ · 1 vote");
-  assert.equal(await summary("dinner"), "Thai Terrace · 0 votes / Wildwood Kitchen & Bar · 0 votes / Tapa the World · 0 votes / La Porta · 0 votes / The Cheesecake Factory · 1 vote");
+  assert.equal(await summary("dinner"), "Thai Terrace · 0 votes / Wildwood Kitchen & Bar · 0 votes / Tapa the World · 0 votes / La Porta · 0 votes / Pier 50 Sushi · 1 vote");
   assert.equal(await summary("seating"), "General Seating · 1 vote / Premium Seating · 0 votes");
   assert.equal(await submitDisabled(), true);
   assert.equal(await textAt("[data-plan-progress]"), "Still needed · Friday D&D host");
@@ -256,7 +256,7 @@ try {
   const [card] = await read();
   assert.deepEqual(card, {
     inviteeId: "cody-gardi", dndHost: "host", drive: "volunteer", designatedDriver: true, breakfast: "bubbas", breakfastOrder: orderText,
-    bar: "shady-lady", room: "paniq", dinner: "cheesecake-factory",
+    bar: "shady-lady", room: "paniq", dinner: "pier-50-sushi",
     seating: "general", car: "offer", passengerSeats: null, planSubmitted: true, missingPlanChoices: [],
   });
   assert.equal(await run("return " + designated + ".checked"), true);
@@ -276,12 +276,12 @@ try {
   await click("#breakfast .close-button");
   assert.match(await run('return document.querySelector("[data-open-ballot=bar]").ariaLabel'), /Shady Lady Saloon/);
   assert.match(await run('return document.querySelector("[data-open-ballot=room]").ariaLabel'), /PanIQ/);
-  assert.match(await run('return document.querySelector("[data-open-ballot=dinner]").ariaLabel'), /The Cheesecake Factory/);
+  assert.match(await run('return document.querySelector("[data-open-ballot=dinner]").ariaLabel'), /Pier 50 Sushi/);
   await click('[data-open-dialog=route]');
   const map = new URL(await run('return document.querySelector("[data-saturday-directions]").href'));
   assert.equal(map.searchParams.get("travelmode"), "driving");
   assert.match(map.searchParams.get("origin"), /Shady Lady/);
-  assert.match(map.searchParams.get("waypoints"), /PanIQ.*The Cheesecake Factory/);
+  assert.match(map.searchParams.get("waypoints"), /PanIQ.*Pier 50 Sushi/);
   await click("#route .close-button");
   const otherVote = await fetch(url + "api/calling-cards", {
     method: "POST",
