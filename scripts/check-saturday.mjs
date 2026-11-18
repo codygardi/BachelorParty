@@ -161,6 +161,12 @@ try {
     for (const [index, name] of names.entries()) {
       assert.equal(await textAt("[data-venue-name]"), name);
       assert.equal(await textAt("[data-deck-position]"), `${index + 1} of ${names.length}`);
+      if (name === "Enchambered") {
+        assert.match(await textAt("[data-venue-short]"), /Skull Witch · \$360\.00 for 8.*\$51\.43 per payer/);
+      }
+      if (name === "PanIQ") {
+        assert.match(await textAt("[data-venue-short]"), /\$327\.60 total for 8 · \$46\.80 per payer/);
+      }
       await click("[data-flip-card]");
       assert.equal(await run('const imgs=[...document.querySelectorAll("[data-venue-photos] img")];await Promise.all(imgs.map(i=>i.decode()));return imgs.length===3&&imgs.every(i=>i.naturalWidth>0)'), true, "Card photos failed");
       if (name === "Pier 50 Sushi") {
@@ -205,6 +211,9 @@ try {
   assert.equal(await submitDisabled(), true);
   assert.equal(await textAt("[data-plan-progress]"), "Still needed · Friday D&D host · Breakfast · Comedy seating");
   await click('[data-open-dialog="seating-voting"]');
+  assert.match(await textAt('[data-vote=seating][data-choice=general]'), /\$256\.40 total for 8\s+About \$36\.63 per payer/);
+  assert.match(await textAt('[data-vote=seating][data-choice=preferred]'), /\$366\.40 total for 8\s+About \$52\.34 per payer/);
+  assert.match(await textAt("#seating-voting .dialog-copy"), /\$15\.71 more per payer \(\$110 total\)/);
   await click('[data-vote=seating][data-choice=general]');
   await click("#seating-voting .close-button");
   assert.equal(await submitDisabled(), true);
